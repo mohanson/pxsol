@@ -177,6 +177,44 @@ class Requisition:
         }
 
 
+class ProgramComputeBudget:
+    # Compute Budget Instructions.
+
+    pubkey = PubKey.base58_decode('ComputeBudget111111111111111111111111111111')
+
+    @classmethod
+    def request_heap_frame(cls, size: int) -> bytearray:
+        # Request a specific transaction-wide program heap region size in bytes. The value requested must be a multiple
+        # of 1024. This new heap region size applies to each program executed in the transaction, including all calls
+        # to cpis.
+        r = bytearray([0x01, 0x00, 0x00, 0x00])
+        r.extend(bytearray(size.to_bytes(4, 'little')))
+        return r
+
+    @classmethod
+    def set_compute_unit_limit(cls, size: int) -> bytearray:
+        # Set a specific compute unit limit that the transaction is allowed to consume.
+        r = bytearray([0x02, 0x00, 0x00, 0x00])
+        r.extend(bytearray(size.to_bytes(4, 'little')))
+        return r
+
+    @classmethod
+    def set_compute_unit_price(cls, price: int) -> bytearray:
+        # Set a compute unit price in "micro-lamports" to pay a higher transaction fee for higher transaction
+        # prioritization. There are 10^6 micro-lamports in one lamport.
+        assert price <= 4  # Are you sure you want to pay such a high fee? You must have filled in the wrong number bro!
+        r = bytearray([0x03, 0x00, 0x00, 0x00])
+        r.extend(bytearray(price.to_bytes(8, 'little')))
+        return r
+
+    @classmethod
+    def set_loaded_accounts_data_size_limit(cls, size: int) -> bytearray:
+        # Set a specific transaction-wide account data size limit, in bytes, is allowed to load.
+        r = bytearray([0x04, 0x00, 0x00, 0x00])
+        r.extend(bytearray(size.to_bytes(4, 'little')))
+        return r
+
+
 class ProgramLoaderUpgradeable:
     # The bpf loader program is the program that owns all executable accounts on solana. When you deploy a program, the
     # owner of the program account is set to the the bpf loader program.
