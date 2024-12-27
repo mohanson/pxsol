@@ -154,6 +154,29 @@ class Wallet:
         txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
         pxsol.rpc.wait([txid])
 
+    def token_create(self) -> pxsol.core.PubKey:
+        # Create a new token.
+        mint_prikey = pxsol.core.PriKey(bytearray(random.randbytes(32)))
+        mint_pubkey = mint_prikey.pubkey()
+        r0 = pxsol.core.Requisition(pxsol.core.ProgramSystem.pubkey, [], bytearray())
+        r0.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
+        r0.account.append(pxsol.core.AccountMeta(mint_pubkey, 3))
+        r0.data = pxsol.core.ProgramSystem.create_account(
+            pxsol.rpc.get_minimum_balance_for_rent_exemption(pxsol.core.ProgramToken.size_mint, {}),
+            pxsol.core.ProgramToken.size_mint,
+            pxsol.core.ProgramToken.pubkey,
+        )
+        r1 = pxsol.core.Requisition(pxsol.core.ProgramToken.pubkey, [], bytearray())
+        r1.account.append(pxsol.core.AccountMeta(mint_pubkey, 1))
+        r1.account.append(pxsol.core.AccountMeta(pxsol.core.ProgramSysvarRent.pubkey, 0))
+        r1.data = pxsol.core.ProgramToken.initialize_mint(9, self.pubkey, self.pubkey)
+        tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [r0, r1])
+        tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
+        tx.sign([self.prikey, mint_prikey])
+        txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
+        pxsol.rpc.wait([txid])
+        return mint_pubkey
+
     def transfer(self, pubkey: pxsol.core.PubKey, value: int) -> bytearray:
         # Transfers the specified lamports to the target. The function returns the first signature of the transaction,
         # which is used to identify the transaction (transaction id).
