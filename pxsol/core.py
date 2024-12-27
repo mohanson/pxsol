@@ -356,7 +356,7 @@ class ProgramSysvarClock:
     # The Clock sysvar contains data on cluster time, including the current slot, epoch, and estimated wall-clock unix
     # timestamp. It is updated every slot.
 
-    pubKey = PubKey.base58_decode('SysvarC1ock11111111111111111111111111111111')
+    pubkey = PubKey.base58_decode('SysvarC1ock11111111111111111111111111111111')
 
 
 class ProgramSysvarRent:
