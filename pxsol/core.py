@@ -366,6 +366,13 @@ class ProgramSysvarRent:
     pubkey = PubKey.base58_decode('SysvarRent111111111111111111111111111111111')
 
 
+class ProgramToken:
+    # Solana spl token.
+    # See: https://github.com/solana-labs/solana-program-library/blob/master/token/program-2022/src/instruction.rs
+
+    pubkey = PubKey.base58_decode('TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb')
+
+
 def compact_u16_encode(n: int) -> bytearray:
     # Same as u16, but serialized with 1 to 3 bytes. If the value is above 0x7f, the top bit is set and the remaining
     # value is stored in the next bytes. Each byte follows the same pattern until the 3rd byte. The 3rd byte, if
