@@ -182,7 +182,7 @@ class Wallet:
         return pxsol.core.ProgramAssociatedTokenAccount.pubkey.derive(seed)
 
     def spl_balance(self, mint: pxsol.core.PubKey) -> typing.Dict[str, typing.Any]:
-        r = pxsol.rpc.get_token_account_balance(self.spl_addr(mint).base58(), {})
+        r = pxsol.rpc.get_token_account_balance(self.spl_addr(mint).base58(), {})['value']
         r['amount'] = int(r['amount'])
         return r
 
@@ -218,7 +218,7 @@ class Wallet:
         rq.account.append(pxsol.core.AccountMeta(mint, 0))
         rq.account.append(pxsol.core.AccountMeta(pxsol.core.ProgramSystem.pubkey, 0))
         rq.account.append(pxsol.core.AccountMeta(pxsol.core.ProgramToken.pubkey, 0))
-        rq.data = pxsol.core.ProgramAssociatedTokenAccount.create_idempotent()
+        rq.data = pxsol.core.ProgramAssociatedTokenAccount.create()
         tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [rq])
         tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
         tx.sign([self.prikey])
@@ -234,6 +234,33 @@ class Wallet:
         rq.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
         rq.data = pxsol.core.ProgramToken.mint_to(amount)
         tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [rq])
+        tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
+        tx.sign([self.prikey])
+        txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
+        pxsol.rpc.wait([txid])
+        return txid
+
+    def spl_transfer(self, mint: pxsol.core.PubKey, pubkey: pxsol.core.PubKey, amount: int) -> bytearray:
+        seed = bytearray()
+        seed.extend(pubkey.p)
+        seed.extend(pxsol.core.ProgramToken.pubkey.p)
+        seed.extend(mint.p)
+        hole_account_pubkey = pxsol.core.ProgramAssociatedTokenAccount.pubkey.derive(seed)
+        r0 = pxsol.core.Requisition(pxsol.core.ProgramAssociatedTokenAccount.pubkey, [], bytearray())
+        r0.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
+        r0.account.append(pxsol.core.AccountMeta(hole_account_pubkey, 1))
+        r0.account.append(pxsol.core.AccountMeta(pubkey, 0))
+        r0.account.append(pxsol.core.AccountMeta(mint, 0))
+        r0.account.append(pxsol.core.AccountMeta(pxsol.core.ProgramSystem.pubkey, 0))
+        r0.account.append(pxsol.core.AccountMeta(pxsol.core.ProgramToken.pubkey, 0))
+        r0.data = pxsol.core.ProgramAssociatedTokenAccount.create_idempotent()
+        r1 = pxsol.core.Requisition(pxsol.core.ProgramToken.pubkey, [], bytearray())
+        r1.account.append(pxsol.core.AccountMeta(self.spl_addr(mint), 1))
+        r1.account.append(pxsol.core.AccountMeta(mint, 0))
+        r1.account.append(pxsol.core.AccountMeta(hole_account_pubkey, 1))
+        r1.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
+        r1.data = pxsol.core.ProgramToken.transfer_checked(amount, 9)
+        tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [r0, r1])
         tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
         tx.sign([self.prikey])
         txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
