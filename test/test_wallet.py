@@ -4,10 +4,12 @@ import pxsol
 
 def test_program():
     user = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(1))
-    pubkey = user.program_deploy(bytearray(pathlib.Path('res/hello_solana_program.so').read_bytes()))
-    user.program_update(bytearray(pathlib.Path('res/hello_solana_program.so.2').read_bytes()), pubkey)
+    program_data = bytearray(pathlib.Path('res/hello_solana_program.so').read_bytes())
+    program_pubkey = user.program_deploy(program_data)
+    program_data_update = bytearray(pathlib.Path('res/hello_solana_program.so.2').read_bytes())
+    user.program_update(program_pubkey, program_data_update)
     pxsol.rpc.step()
-    user.program_closed(pubkey)
+    user.program_closed(program_pubkey)
 
 
 def test_program_buffer():

@@ -131,7 +131,7 @@ class Wallet:
         pxsol.rpc.wait([txid])
         return program_pubkey
 
-    def program_update(self, program: bytearray, program_pubkey: pxsol.core.PubKey) -> None:
+    def program_update(self, program_pubkey: pxsol.core.PubKey, program: bytearray) -> None:
         # Updating an existing solana program by new program data and the same program id.
         program_buffer_pubkey = self.program_buffer_create(program)
         program_data_pubkey = pxsol.core.ProgramLoaderUpgradeable.pubkey.derive(program_pubkey.p)
@@ -154,13 +154,13 @@ class Wallet:
         # Returns the lamport balance of the account.
         return pxsol.rpc.get_balance(self.pubkey.base58(), {})
 
-    def sol_transfer(self, pubkey: pxsol.core.PubKey, value: int) -> bytearray:
+    def sol_transfer(self, pubkey: pxsol.core.PubKey, amount: int) -> bytearray:
         # Transfers the specified lamports to the target. The function returns the first signature of the transaction,
         # which is used to identify the transaction (transaction id).
         rq = pxsol.core.Requisition(pxsol.core.ProgramSystem.pubkey, [], bytearray())
         rq.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
         rq.account.append(pxsol.core.AccountMeta(pubkey, 1))
-        rq.data = pxsol.core.ProgramSystem.transfer(value)
+        rq.data = pxsol.core.ProgramSystem.transfer(amount)
         tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [rq])
         tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
         tx.sign([self.prikey])
