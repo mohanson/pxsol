@@ -25,10 +25,6 @@ class Wallet:
             'pubkey': self.pubkey.base58(),
         }
 
-    def balance(self) -> int:
-        # Returns the lamport balance of the account.
-        return pxsol.rpc.get_balance(self.pubkey.base58(), {})
-
     def program_buffer_closed(self, program_buffer_pubkey: pxsol.core.PubKey) -> None:
         # Close a buffer account. This method is used to withdraw all lamports when the buffer account is no longer in
         # use due to unexpected errors.
@@ -154,7 +150,31 @@ class Wallet:
         txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
         pxsol.rpc.wait([txid])
 
-    def token_create(self) -> pxsol.core.PubKey:
+    def sol_balance(self) -> int:
+        # Returns the lamport balance of the account.
+        return pxsol.rpc.get_balance(self.pubkey.base58(), {})
+
+    def sol_transfer(self, pubkey: pxsol.core.PubKey, value: int) -> bytearray:
+        # Transfers the specified lamports to the target. The function returns the first signature of the transaction,
+        # which is used to identify the transaction (transaction id).
+        rq = pxsol.core.Requisition(pxsol.core.ProgramSystem.pubkey, [], bytearray())
+        rq.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
+        rq.account.append(pxsol.core.AccountMeta(pubkey, 1))
+        rq.data = pxsol.core.ProgramSystem.transfer(value)
+        tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [rq])
+        tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
+        tx.sign([self.prikey])
+        txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
+        assert pxsol.base58.decode(txid) == tx.signatures[0]
+        pxsol.rpc.wait([txid])
+        return tx.signatures[0]
+
+    def sol_transfer_all(self, pubkey: pxsol.core.PubKey) -> bytearray:
+        # Transfers all lamports to the target.
+        # Solana's base fee is a fixed 5000 lamports (0.000005 SOL) per signature.
+        return self.sol_transfer(pubkey, self.sol_balance() - 5000)
+
+    def spl_create(self) -> pxsol.core.PubKey:
         # Create a new token.
         mint_prikey = pxsol.core.PriKey(bytearray(random.randbytes(32)))
         mint_pubkey = mint_prikey.pubkey()
@@ -176,23 +196,3 @@ class Wallet:
         txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
         pxsol.rpc.wait([txid])
         return mint_pubkey
-
-    def transfer(self, pubkey: pxsol.core.PubKey, value: int) -> bytearray:
-        # Transfers the specified lamports to the target. The function returns the first signature of the transaction,
-        # which is used to identify the transaction (transaction id).
-        rq = pxsol.core.Requisition(pxsol.core.ProgramSystem.pubkey, [], bytearray())
-        rq.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
-        rq.account.append(pxsol.core.AccountMeta(pubkey, 1))
-        rq.data = pxsol.core.ProgramSystem.transfer(value)
-        tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [rq])
-        tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
-        tx.sign([self.prikey])
-        txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
-        assert pxsol.base58.decode(txid) == tx.signatures[0]
-        pxsol.rpc.wait([txid])
-        return tx.signatures[0]
-
-    def transfer_all(self, pubkey: pxsol.core.PubKey) -> bytearray:
-        # Transfers all lamports to the target.
-        # Solana's base fee is a fixed 5000 lamports (0.000005 SOL) per signature.
-        return self.transfer(pubkey, self.balance() - 5000)

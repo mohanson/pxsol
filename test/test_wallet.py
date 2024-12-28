@@ -17,23 +17,23 @@ def test_program_buffer():
     user.program_buffer_closed(pubkey)
 
 
-def test_token():
-    user = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(1))
-    token_pubkey = user.token_create()
-
-
-def test_transfer():
+def test_sol_transfer():
     user = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(1))
     hole = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(2))
-    a = hole.balance()
-    user.transfer(hole.pubkey, 1 * pxsol.denomination.sol)
-    b = hole.balance()
+    a = hole.sol_balance()
+    user.sol_transfer(hole.pubkey, 1 * pxsol.denomination.sol)
+    b = hole.sol_balance()
     assert b == a + 1 * pxsol.denomination.sol
 
 
-def test_transfer_all():
+def test_sol_transfer_all():
     user = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(1))
     hole = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(2))
-    user.transfer(hole.pubkey, 1 * pxsol.denomination.sol)
-    hole.transfer_all(user.pubkey)
-    assert hole.balance() == 0
+    user.sol_transfer(hole.pubkey, 1 * pxsol.denomination.sol)
+    hole.sol_transfer_all(user.pubkey)
+    assert hole.sol_balance() == 0
+
+
+def test_spl():
+    user = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(1))
+    spl_pubkey = user.spl_create()
