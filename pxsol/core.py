@@ -177,8 +177,54 @@ class Requisition:
         }
 
 
+class ProgramAssociatedTokenAccount:
+    # See: https://github.com/solana-labs/solana-program-library/blob/master/associated-token-account/program/src/instruction.rs
+
+    pubkey = PubKey.base58_decode('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL')
+
+    @classmethod
+    def create(cls) -> bytearray:
+        # Creates an associated token account for the given wallet address and token mint. Returns an error if the
+        # account exists. Account references:
+        # 0. sw funding account (must be a system account).
+        # 1. -w associated token account address to be created.
+        # 2. -r wallet address for the new associated token account.
+        # 3. -r the token mint for the new associated token account.
+        # 4. -r system program.
+        # 5. -r spl token program.
+        r = bytearray([0x00, 0x00, 0x00, 0x00])
+        return r
+
+    @classmethod
+    def create_idempotent(cls) -> bytearray:
+        # Creates an associated token account for the given wallet address and token mint, if it doesn't already exist.
+        # Returns an error if the account exists, but with a different owner. Account references:
+        # 0. sw funding account (must be a system account).
+        # 1. -w associated token account address to be created.
+        # 2. -r wallet address for the new associated token account.
+        # 3. -r the token mint for the new associated token account.
+        # 4. -r system program.
+        # 5. -r spl token program.
+        r = bytearray([0x01, 0x00, 0x00, 0x00])
+        return r
+
+    @classmethod
+    def recover_nested(cls) -> bytearray:
+        r = bytearray([0x02, 0x00, 0x00, 0x00])
+        # Transfers from and closes a nested associated token account: an associated token account owned by an
+        # associated token account. Account references:
+        # 0. -w nested associated token account, must be owned by 3.
+        # 1. -r token mint for the nested associated token account.
+        # 2. -w wallet's associated token account.
+        # 3. -r owner associated token account address, must be owned by 5.
+        # 4. -r token mint for the owner associated token account.
+        # 5. sw wallet address for the owner associated token account.
+        # 6. -r spl token program.
+        return r
+
+
 class ProgramComputeBudget:
-    # Compute Budget Instructions.
+    # Compute budget instructions.
 
     pubkey = PubKey.base58_decode('ComputeBudget111111111111111111111111111111')
 
