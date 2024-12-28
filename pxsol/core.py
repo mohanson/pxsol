@@ -192,7 +192,7 @@ class ProgramAssociatedTokenAccount:
         # 3. -r the token mint for the new associated token account.
         # 4. -r system program.
         # 5. -r spl token program.
-        r = bytearray([0x00, 0x00, 0x00, 0x00])
+        r = bytearray([0x00])
         return r
 
     @classmethod
@@ -205,7 +205,7 @@ class ProgramAssociatedTokenAccount:
         # 3. -r the token mint for the new associated token account.
         # 4. -r system program.
         # 5. -r spl token program.
-        r = bytearray([0x01, 0x00, 0x00, 0x00])
+        r = bytearray([0x01])
         return r
 
     @classmethod
@@ -219,7 +219,7 @@ class ProgramAssociatedTokenAccount:
         # 4. -r token mint for the owner associated token account.
         # 5. sw wallet address for the owner associated token account.
         # 6. -r spl token program.
-        r = bytearray([0x02, 0x00, 0x00, 0x00])
+        r = bytearray([0x02])
         return r
 
 

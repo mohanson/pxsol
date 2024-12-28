@@ -203,3 +203,20 @@ class Wallet:
         txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
         pxsol.rpc.wait([txid])
         return mint_pubkey
+
+    def spl_create_account(self, mint: pxsol.core.PubKey) -> pxsol.core.PubKey:
+        account_pubkey = self.spl_addr(mint)
+        rq = pxsol.core.Requisition(pxsol.core.ProgramAssociatedTokenAccount.pubkey, [], bytearray())
+        rq.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
+        rq.account.append(pxsol.core.AccountMeta(account_pubkey, 1))
+        rq.account.append(pxsol.core.AccountMeta(self.pubkey, 0))
+        rq.account.append(pxsol.core.AccountMeta(mint, 0))
+        rq.account.append(pxsol.core.AccountMeta(pxsol.core.ProgramSystem.pubkey, 0))
+        rq.account.append(pxsol.core.AccountMeta(pxsol.core.ProgramToken.pubkey, 0))
+        rq.data = pxsol.core.ProgramAssociatedTokenAccount.create_idempotent()
+        tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [rq])
+        tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
+        tx.sign([self.prikey])
+        txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
+        pxsol.rpc.wait([txid])
+        return account_pubkey
