@@ -174,6 +174,13 @@ class Wallet:
         # Solana's base fee is a fixed 5000 lamports (0.000005 SOL) per signature.
         return self.sol_transfer(pubkey, self.sol_balance() - 5000)
 
+    def spl_addr(self, mint: pxsol.core.PubKey) -> pxsol.core.PubKey:
+        seed = bytearray()
+        seed.extend(self.pubkey.p)
+        seed.extend(pxsol.core.ProgramToken.pubkey.p)
+        seed.extend(mint.p)
+        return pxsol.core.ProgramAssociatedTokenAccount.pubkey.derive(seed)
+
     def spl_create(self) -> pxsol.core.PubKey:
         # Create a new token.
         mint_prikey = pxsol.core.PriKey(bytearray(random.randbytes(32)))

@@ -34,6 +34,12 @@ def test_sol_transfer_all():
     assert hole.sol_balance() == 0
 
 
+def test_spl_addr():
+    user = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(1))
+    addr = user.spl_addr(pxsol.core.PubKey.base58_decode('Dy97dJDN6N1hVJiUibC9LfQXkkDgk5h1TihP81Cs4vLK'))
+    assert addr.base58() == '5JPFk5snZSg12D1PHpn5uUi1D6EWdBjMW2cjj5ZywMtm'
+
+
 def test_spl():
     user = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(1))
     spl_pubkey = user.spl_create()
