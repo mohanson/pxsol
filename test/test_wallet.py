@@ -42,4 +42,6 @@ def test_spl_addr():
 
 def test_spl():
     user = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(1))
-    spl_pubkey = user.spl_create()
+    spl_mint = user.spl_create()
+    user.spl_create_account(spl_mint)
+    user.spl_mint(spl_mint, 1 * 10**9)

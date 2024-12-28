@@ -181,6 +181,11 @@ class Wallet:
         seed.extend(mint.p)
         return pxsol.core.ProgramAssociatedTokenAccount.pubkey.derive(seed)
 
+    def spl_balance(self, mint: pxsol.core.PubKey) -> typing.Dict[str, typing.Any]:
+        r = pxsol.rpc.get_token_account_balance(self.spl_addr(mint).base58(), {})
+        r['amount'] = int(r['amount'])
+        return r
+
     def spl_create(self) -> pxsol.core.PubKey:
         # Create a new token.
         mint_prikey = pxsol.core.PriKey(bytearray(random.randbytes(32)))
@@ -220,3 +225,17 @@ class Wallet:
         txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
         pxsol.rpc.wait([txid])
         return account_pubkey
+
+    def spl_mint(self, mint: pxsol.core.PubKey, amount: int) -> bytearray:
+        account_pubkey = self.spl_addr(mint)
+        rq = pxsol.core.Requisition(pxsol.core.ProgramToken.pubkey, [], bytearray())
+        rq.account.append(pxsol.core.AccountMeta(mint, 1))
+        rq.account.append(pxsol.core.AccountMeta(account_pubkey, 1))
+        rq.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
+        rq.data = pxsol.core.ProgramToken.mint_to(amount)
+        tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [rq])
+        tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
+        tx.sign([self.prikey])
+        txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
+        pxsol.rpc.wait([txid])
+        return txid
