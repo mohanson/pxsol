@@ -210,7 +210,6 @@ class ProgramAssociatedTokenAccount:
 
     @classmethod
     def recover_nested(cls) -> bytearray:
-        r = bytearray([0x02, 0x00, 0x00, 0x00])
         # Transfers from and closes a nested associated token account: an associated token account owned by an
         # associated token account. Account references:
         # 0. -w nested associated token account, must be owned by 3.
@@ -220,6 +219,7 @@ class ProgramAssociatedTokenAccount:
         # 4. -r token mint for the owner associated token account.
         # 5. sw wallet address for the owner associated token account.
         # 6. -r spl token program.
+        r = bytearray([0x02, 0x00, 0x00, 0x00])
         return r
 
 
