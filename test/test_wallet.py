@@ -17,6 +17,11 @@ def test_program_buffer():
     user.program_buffer_closed(pubkey)
 
 
+def test_token():
+    user = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(1))
+    token_pubkey = user.token_create()
+
+
 def test_transfer():
     user = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(1))
     hole = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(2))
