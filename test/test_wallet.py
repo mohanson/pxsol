@@ -36,14 +36,11 @@ def test_sol_transfer_all():
     assert hole.sol_balance() == 0
 
 
-def test_spl_addr():
-    user = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(1))
-    addr = user.spl_addr(pxsol.core.PubKey.base58_decode('Dy97dJDN6N1hVJiUibC9LfQXkkDgk5h1TihP81Cs4vLK'))
-    assert addr.base58() == '5JPFk5snZSg12D1PHpn5uUi1D6EWdBjMW2cjj5ZywMtm'
-
-
 def test_spl():
     user = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(1))
-    spl_mint = user.spl_create()
-    user.spl_create_account(spl_mint)
-    user.spl_mint(spl_mint, 1 * 10**9)
+    hole = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(2))
+    mint = user.spl_create(9)
+    user.spl_create_account(mint)
+    user.spl_mint(mint, 100 * 10**9)
+    user.spl_transfer(mint, hole.pubkey, 1 * 10**9)
+    assert hole.spl_balance(mint)[0] == 1 * 10**9

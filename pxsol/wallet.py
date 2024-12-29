@@ -174,19 +174,24 @@ class Wallet:
         # Solana's base fee is a fixed 5000 lamports (0.000005 SOL) per signature.
         return self.sol_transfer(pubkey, self.sol_balance() - 5000)
 
-    def spl_addr(self, mint: pxsol.core.PubKey) -> pxsol.core.PubKey:
+    def spl_account(self, mint_pubkey: pxsol.core.PubKey) -> pxsol.core.PubKey:
+        # Returns associated token account.
+        # See: https://solana.com/docs/core/tokens#associated-token-account.
         seed = bytearray()
         seed.extend(self.pubkey.p)
-        seed.extend(pxsol.core.ProgramToken.pubkey.p)
-        seed.extend(mint.p)
+        mint_info = pxsol.rpc.get_account_info(mint_pubkey.base58(), {})
+        mint_from = pxsol.core.PubKey.base58_decode(mint_info['owner'])
+        assert mint_from in [pxsol.core.ProgramToken.pubkey_2020, pxsol.core.ProgramToken.pubkey_2022]
+        seed.extend(mint_from.p)
+        seed.extend(mint_pubkey.p)
         return pxsol.core.ProgramAssociatedTokenAccount.pubkey.derive(seed)
 
-    def spl_balance(self, mint: pxsol.core.PubKey) -> typing.Dict[str, typing.Any]:
-        r = pxsol.rpc.get_token_account_balance(self.spl_addr(mint).base58(), {})['value']
-        r['amount'] = int(r['amount'])
-        return r
+    def spl_balance(self, mint_pubkey: pxsol.core.PubKey) -> typing.List[int]:
+        # Returns the current token balance and the decimals of the token.
+        r = pxsol.rpc.get_token_account_balance(self.spl_account(mint_pubkey).base58(), {})['value']
+        return [int(r['amount']), r['decimals']]
 
-    def spl_create(self) -> pxsol.core.PubKey:
+    def spl_create(self, decimals: int) -> pxsol.core.PubKey:
         # Create a new token.
         mint_prikey = pxsol.core.PriKey(bytearray(random.randbytes(32)))
         mint_pubkey = mint_prikey.pubkey()
@@ -201,7 +206,7 @@ class Wallet:
         r1 = pxsol.core.Requisition(pxsol.core.ProgramToken.pubkey, [], bytearray())
         r1.account.append(pxsol.core.AccountMeta(mint_pubkey, 1))
         r1.account.append(pxsol.core.AccountMeta(pxsol.core.ProgramSysvarRent.pubkey, 0))
-        r1.data = pxsol.core.ProgramToken.initialize_mint(9, self.pubkey, self.pubkey)
+        r1.data = pxsol.core.ProgramToken.initialize_mint(decimals, self.pubkey, self.pubkey)
         tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [r0, r1])
         tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
         tx.sign([self.prikey, mint_prikey])
@@ -209,13 +214,15 @@ class Wallet:
         pxsol.rpc.wait([txid])
         return mint_pubkey
 
-    def spl_create_account(self, mint: pxsol.core.PubKey) -> pxsol.core.PubKey:
-        account_pubkey = self.spl_addr(mint)
+    def spl_create_account(self, mint_pubkey: pxsol.core.PubKey) -> pxsol.core.PubKey:
+        # Create a token account. To track the individual ownership of each unit of a specific token, another type of
+        # data account owned by the token program must be created.
+        account_pubkey = self.spl_account(mint_pubkey)
         rq = pxsol.core.Requisition(pxsol.core.ProgramAssociatedTokenAccount.pubkey, [], bytearray())
         rq.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
         rq.account.append(pxsol.core.AccountMeta(account_pubkey, 1))
         rq.account.append(pxsol.core.AccountMeta(self.pubkey, 0))
-        rq.account.append(pxsol.core.AccountMeta(mint, 0))
+        rq.account.append(pxsol.core.AccountMeta(mint_pubkey, 0))
         rq.account.append(pxsol.core.AccountMeta(pxsol.core.ProgramSystem.pubkey, 0))
         rq.account.append(pxsol.core.AccountMeta(pxsol.core.ProgramToken.pubkey, 0))
         rq.data = pxsol.core.ProgramAssociatedTokenAccount.create()
@@ -226,10 +233,11 @@ class Wallet:
         pxsol.rpc.wait([txid])
         return account_pubkey
 
-    def spl_mint(self, mint: pxsol.core.PubKey, amount: int) -> bytearray:
-        account_pubkey = self.spl_addr(mint)
+    def spl_mint(self, mint_pubkey: pxsol.core.PubKey, amount: int) -> bytearray:
+        # Mint a specified number of tokens and distribute them to myself.
+        account_pubkey = self.spl_account(mint_pubkey)
         rq = pxsol.core.Requisition(pxsol.core.ProgramToken.pubkey, [], bytearray())
-        rq.account.append(pxsol.core.AccountMeta(mint, 1))
+        rq.account.append(pxsol.core.AccountMeta(mint_pubkey, 1))
         rq.account.append(pxsol.core.AccountMeta(account_pubkey, 1))
         rq.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
         rq.data = pxsol.core.ProgramToken.mint_to(amount)
@@ -255,7 +263,7 @@ class Wallet:
         r0.account.append(pxsol.core.AccountMeta(pxsol.core.ProgramToken.pubkey, 0))
         r0.data = pxsol.core.ProgramAssociatedTokenAccount.create_idempotent()
         r1 = pxsol.core.Requisition(pxsol.core.ProgramToken.pubkey, [], bytearray())
-        r1.account.append(pxsol.core.AccountMeta(self.spl_addr(mint), 1))
+        r1.account.append(pxsol.core.AccountMeta(self.spl_account(mint), 1))
         r1.account.append(pxsol.core.AccountMeta(mint, 0))
         r1.account.append(pxsol.core.AccountMeta(hole_account_pubkey, 1))
         r1.account.append(pxsol.core.AccountMeta(self.pubkey, 2))

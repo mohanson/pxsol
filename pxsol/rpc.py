@@ -54,6 +54,7 @@ def step() -> None:
 
 def get_account_info(pubkey: str, conf: typing.Dict) -> typing.Dict:
     conf.setdefault('commitment', pxsol.config.current.commitment)
+    conf.setdefault('encoding', 'base64')
     return call('getAccountInfo', [pubkey, conf])['value']
 
 
@@ -234,11 +235,13 @@ def get_token_account_balance(pubkey: str, conf: typing.Dict) -> typing.Dict:
 
 def get_token_accounts_by_delegate(pubkey: str, by: typing.Dict, conf: typing.Dict) -> typing.Dict:
     conf.setdefault('commitment', pxsol.config.current.commitment)
+    conf.setdefault('encoding', 'base64')
     return call('getTokenAccountsByDelegate', [pubkey, by, conf])
 
 
 def get_token_accounts_by_owner(pubkey: str, by: typing.Dict, conf: typing.Dict) -> typing.Dict:
     conf.setdefault('commitment', pxsol.config.current.commitment)
+    conf.setdefault('encoding', 'base64')
     return call('getTokenAccountsByOwner', [pubkey, by, conf])
 
 
