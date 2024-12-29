@@ -234,40 +234,51 @@ class Wallet:
         return account_pubkey
 
     def spl_mint(self, mint_pubkey: pxsol.core.PubKey, amount: int) -> bytearray:
-        # Mint a specified number of tokens and distribute them to myself.
+        # Mint a specified number of tokens and distribute them to self. Note that amount refers to the smallest unit
+        # of count, For example, when the decimals of token is 2, you should use 100 to represent 1 token. If the
+        # token account does not exist, it will be created automatically.
         account_pubkey = self.spl_account(mint_pubkey)
-        rq = pxsol.core.Requisition(pxsol.core.ProgramToken.pubkey, [], bytearray())
-        rq.account.append(pxsol.core.AccountMeta(mint_pubkey, 1))
-        rq.account.append(pxsol.core.AccountMeta(account_pubkey, 1))
-        rq.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
-        rq.data = pxsol.core.ProgramToken.mint_to(amount)
-        tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [rq])
+        r0 = pxsol.core.Requisition(pxsol.core.ProgramAssociatedTokenAccount.pubkey, [], bytearray())
+        r0.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
+        r0.account.append(pxsol.core.AccountMeta(account_pubkey, 1))
+        r0.account.append(pxsol.core.AccountMeta(self.pubkey, 0))
+        r0.account.append(pxsol.core.AccountMeta(mint_pubkey, 0))
+        r0.account.append(pxsol.core.AccountMeta(pxsol.core.ProgramSystem.pubkey, 0))
+        r0.account.append(pxsol.core.AccountMeta(pxsol.core.ProgramToken.pubkey, 0))
+        r0.data = pxsol.core.ProgramAssociatedTokenAccount.create_idempotent()
+        r1 = pxsol.core.Requisition(pxsol.core.ProgramToken.pubkey, [], bytearray())
+        r1.account.append(pxsol.core.AccountMeta(mint_pubkey, 1))
+        r1.account.append(pxsol.core.AccountMeta(account_pubkey, 1))
+        r1.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
+        r1.data = pxsol.core.ProgramToken.mint_to(amount)
+        tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [r0, r1])
         tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
         tx.sign([self.prikey])
         txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
         pxsol.rpc.wait([txid])
         return txid
 
-    def spl_transfer(self, mint: pxsol.core.PubKey, pubkey: pxsol.core.PubKey, amount: int) -> bytearray:
-        seed = bytearray()
-        seed.extend(pubkey.p)
-        seed.extend(pxsol.core.ProgramToken.pubkey.p)
-        seed.extend(mint.p)
-        hole_account_pubkey = pxsol.core.ProgramAssociatedTokenAccount.pubkey.derive(seed)
+    def spl_transfer(self, mint_pubkey: pxsol.core.PubKey, pubkey: pxsol.core.PubKey, amount: int) -> bytearray:
+        # Transfers tokens to the target. Note that amount refers to the smallest unit of count, For example, when the
+        # decimals of token is 2, you should use 100 to represent 1 token. If the token account does not exist, it will
+        # be created automatically.
+        self_account_pubkey = self.spl_account(mint_pubkey)
+        void = Wallet(pxsol.core.PriKey.int_decode(1))
+        void.pubkey = pubkey
+        hole_account_pubkey = void.spl_account(mint_pubkey)
         r0 = pxsol.core.Requisition(pxsol.core.ProgramAssociatedTokenAccount.pubkey, [], bytearray())
         r0.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
         r0.account.append(pxsol.core.AccountMeta(hole_account_pubkey, 1))
         r0.account.append(pxsol.core.AccountMeta(pubkey, 0))
-        r0.account.append(pxsol.core.AccountMeta(mint, 0))
+        r0.account.append(pxsol.core.AccountMeta(mint_pubkey, 0))
         r0.account.append(pxsol.core.AccountMeta(pxsol.core.ProgramSystem.pubkey, 0))
         r0.account.append(pxsol.core.AccountMeta(pxsol.core.ProgramToken.pubkey, 0))
         r0.data = pxsol.core.ProgramAssociatedTokenAccount.create_idempotent()
         r1 = pxsol.core.Requisition(pxsol.core.ProgramToken.pubkey, [], bytearray())
-        r1.account.append(pxsol.core.AccountMeta(self.spl_account(mint), 1))
-        r1.account.append(pxsol.core.AccountMeta(mint, 0))
+        r1.account.append(pxsol.core.AccountMeta(self_account_pubkey, 1))
         r1.account.append(pxsol.core.AccountMeta(hole_account_pubkey, 1))
         r1.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
-        r1.data = pxsol.core.ProgramToken.transfer_checked(amount, 9)
+        r1.data = pxsol.core.ProgramToken.transfer(amount)
         tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [r0, r1])
         tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
         tx.sign([self.prikey])
