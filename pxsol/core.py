@@ -177,8 +177,54 @@ class Requisition:
         }
 
 
+class ProgramAssociatedTokenAccount:
+    # See: https://github.com/solana-labs/solana-program-library/blob/master/associated-token-account/program/src/instruction.rs
+
+    pubkey = PubKey.base58_decode('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL')
+
+    @classmethod
+    def create(cls) -> bytearray:
+        # Creates an associated token account for the given wallet address and token mint. Returns an error if the
+        # account exists. Account references:
+        # 0. sw funding account (must be a system account).
+        # 1. -w associated token account address to be created.
+        # 2. -r wallet address for the new associated token account.
+        # 3. -r the token mint for the new associated token account.
+        # 4. -r system program.
+        # 5. -r spl token program.
+        r = bytearray([0x00])
+        return r
+
+    @classmethod
+    def create_idempotent(cls) -> bytearray:
+        # Creates an associated token account for the given wallet address and token mint, if it doesn't already exist.
+        # Returns an error if the account exists, but with a different owner. Account references:
+        # 0. sw funding account (must be a system account).
+        # 1. -w associated token account address to be created.
+        # 2. -r wallet address for the new associated token account.
+        # 3. -r the token mint for the new associated token account.
+        # 4. -r system program.
+        # 5. -r spl token program.
+        r = bytearray([0x01])
+        return r
+
+    @classmethod
+    def recover_nested(cls) -> bytearray:
+        # Transfers from and closes a nested associated token account: an associated token account owned by an
+        # associated token account. Account references:
+        # 0. -w nested associated token account, must be owned by 3.
+        # 1. -r token mint for the nested associated token account.
+        # 2. -w wallet's associated token account.
+        # 3. -r owner associated token account address, must be owned by 5.
+        # 4. -r token mint for the owner associated token account.
+        # 5. sw wallet address for the owner associated token account.
+        # 6. -r spl token program.
+        r = bytearray([0x02])
+        return r
+
+
 class ProgramComputeBudget:
-    # Compute Budget Instructions.
+    # Compute budget instructions.
 
     pubkey = PubKey.base58_decode('ComputeBudget111111111111111111111111111111')
 
@@ -364,6 +410,261 @@ class ProgramSysvarRent:
     # percentage is modified by manual feature activation.
 
     pubkey = PubKey.base58_decode('SysvarRent111111111111111111111111111111111')
+
+
+class ProgramToken:
+    # Solana spl token.
+    # See: https://github.com/solana-labs/solana-program-library/blob/master/token/program/src/instruction.rs
+
+    pubkey_2020 = PubKey.base58_decode('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA')
+    pubkey_2022 = PubKey.base58_decode('TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb')
+    pubkey = pubkey_2020
+    # See: https://github.com/solana-labs/solana-program-library/blob/master/token/program/src/state.rs#L18
+    size_mint = 82
+
+    @classmethod
+    def initialize_mint(cls, decimals: int, auth_mint: PubKey, auth_freeze: PubKey) -> bytearray:
+        # Initializes a new mint and optionally deposits all the newly minted tokens in an account. Account references:
+        # 0. -w the mint to initialize.
+        # 1. -r rent sysvar.
+        r = bytearray([0x00])
+        r.append(decimals)
+        r.extend(auth_mint.p)
+        r.append(0x01)
+        r.extend(auth_freeze.p)
+        return r
+
+    @classmethod
+    def initialize_account(cls):
+        # Initializes a new account to hold tokens. Account references:
+        # 0. -w the account to initialize.
+        # 1. -r the mint this account will be associated with.
+        # 2. -r the new account's owner/multisignature.
+        # 3. -r rent sysvar.
+        r = bytearray([0x01])
+        return r
+
+    @classmethod
+    def initialize_multisig(cls, m: int) -> bytearray:
+        # Initializes a multisignature account with N provided signers. Account references:
+        # 0. -w the multisignature account to initialize.
+        # 1. -r rent sysvar
+        # 2. -r the signer accounts, must equal to N where 1 <= N <= 11.
+        r = bytearray([0x02])
+        r.append(m)
+        return r
+
+    @classmethod
+    def transfer(cls, amount: int) -> bytearray:
+        # Transfers tokens from one account to another either directly or via a delegate. Account references:
+        # 0. -w the source account.
+        # 1. -w the destination account.
+        # 2. sr the source account's owner/delegate.
+        r = bytearray([0x03])
+        r.extend(amount.to_bytes(8, 'little'))
+        return r
+
+    @classmethod
+    def approve(cls, amount: int) -> bytearray:
+        # Approves a delegate.  A delegate is given the authority over tokens on behalf of the source account's owner.
+        # Account references:
+        # 0. -w the source account.
+        # 1. -r the delegate.
+        # 2. sr the source account owner.
+        r = bytearray([0x04])
+        r.extend(amount.to_bytes(8, 'little'))
+        return r
+
+    @classmethod
+    def revoke(cls) -> bytearray:
+        # Revokes the delegate's authority. Account references:
+        # 0. -w the source account.
+        # 1. sr the source account owner.
+        r = bytearray([0x05])
+        return r
+
+    @classmethod
+    def set_authority(cls, kype: int, pubkey: PubKey) -> bytearray:
+        # Sets a new authority of a mint or account. Account references:
+        # 0. -w the mint or account to change the authority of.
+        # 1. sr the current authority of the mint or account.
+        r = bytearray([0x06])
+        r.append(kype)
+        r.append(0x01)
+        r.expandtabs(pubkey.p)
+        return r
+
+    @classmethod
+    def mint_to(cls, amount: int) -> bytearray:
+        # Mints new tokens to an account. Account references:
+        # 0. -w the mint
+        # 1. -w the account to mint tokens to.
+        # 2. sr the mint's minting authority.
+        r = bytearray([0x07])
+        r.extend(amount.to_bytes(8, 'little'))
+        return r
+
+    @classmethod
+    def burn(cls, amount: int) -> bytearray:
+        # Burns tokens by removing them from an account. Account references:
+        # 0. -w the account to burn from.
+        # 1. -w the token mint.
+        # 2. sr the account's owner/delegate.
+        r = bytearray([0x08])
+        r.extend(amount.to_bytes(8, 'little'))
+        return r
+
+    @classmethod
+    def close_account(cls) -> bytearray:
+        # Close an account by transferring all its sol to the destination account. Non-native accounts may only be
+        # closed if its token amount is zero. Account references:
+        # 0. -w the account to close.
+        # 1. -w the destination account.
+        # 2. sr the account's owner.
+        r = bytearray([0x09])
+        return r
+
+    @classmethod
+    def freeze_account(cls) -> bytearray:
+        # Freeze an Initialized account using the Mint's freeze_authority (if set). Account references:
+        # 0. -w the account to freeze.
+        # 1. -r the token mint.
+        # 2. sr the mint freeze authority.
+        r = bytearray([0x0a])
+        return r
+
+    @classmethod
+    def thaw_account(cls) -> bytearray:
+        # Thaw a Frozen account using the Mint's freeze_authority (if set). Account references:
+        # 0. -w the account to freeze
+        # 1. -r the token mint
+        # 2. sr the mint freeze authority.
+        r = bytearray([0x0b])
+        return r
+
+    @classmethod
+    def transfer_checked(cls, amount: int, decimals: int) -> bytearray:
+        # Transfers tokens from one account to another either directly or via a delegate. Account references:
+        # 0. -w the source account.
+        # 1. -r the token mint.
+        # 2. -w the destination account.
+        # 3. sr the source account's owner/delegate.
+        r = bytearray([0x0c])
+        r.extend(amount.to_bytes(8, 'little'))
+        r.append(decimals)
+        return r
+
+    @classmethod
+    def approve_checked(cls, amount: int, decimals: int) -> bytearray:
+        # Approves a delegate. Account references:
+        # 0. -w the source account.
+        # 1. -r the token mint.
+        # 2. -r the delegate.
+        # 3. sr the source account owner.
+        r = bytearray([0x0d])
+        r.extend(amount.to_bytes(8, 'little'))
+        r.append(decimals)
+        return r
+
+    @classmethod
+    def mint_to_checked(cls, amount: int, decimals: int) -> bytearray:
+        # Mints new tokens to an account. Account references:
+        # 0. -w the mint.
+        # 1. -w the account to mint tokens to.
+        # 2. sr the mint's minting authority.
+        r = bytearray([0x0e])
+        r.extend(amount.to_bytes(8, 'little'))
+        r.append(decimals)
+        return r
+
+    @classmethod
+    def burn_checked(cls, amount: int, decimals: int) -> bytearray:
+        # Burns tokens by removing them from an account. Account references:
+        # 0. -w the account to burn from.
+        # 1. -w the token mint.
+        # 2. sr the account's owner/delegate.
+        r = bytearray([0x0f])
+        r.extend(amount.to_bytes(8, 'little'))
+        r.append(decimals)
+        return r
+
+    @classmethod
+    def initialize_account2(cls, owner: PubKey) -> bytearray:
+        # Like initialize_account(), but the owner pubkey is passed via instruction data rather than the accounts list.
+        # Account references:
+        # 0. -w the account to initialize.
+        # 1. -r the mint this account will be associated with.
+        # 2. -r rent sysvar
+        r = bytearray([0x10])
+        r.extend(owner.p)
+        return r
+
+    @classmethod
+    def sync_native(cls) -> bytearray:
+        # Given a wrapped / native token account (a token account containing sol) updates its amount field based on the
+        # account's underlying `lamports`. Account references:
+        # 0. -w the native token account to sync with its underlying lamports.
+        r = bytearray([0x11])
+        return r
+
+    @classmethod
+    def initialize_account3(cls, owner: PubKey) -> bytearray:
+        # Like initialize_account2(), but does not require the Rent sysvar to be provided. Account references:
+        # 0. -w the account to initialize.
+        # 1. -r the mint this account will be associated with.
+        r = bytearray([0x12])
+        r.extend(owner.p)
+        return r
+
+    @classmethod
+    def initialize_multisig2(cls, m: int) -> bytearray:
+        # Like initialize_multisig(), but does not require the Rent sysvar to be provided. Account references:
+        # 0. -w the multisignature account to initialize.
+        # 1. -r the signer accounts, must equal to N where 1 <= N <= 11.
+        r = bytearray([0x13])
+        r.append(m)
+        return r
+
+    @classmethod
+    def initialize_mint2(cls, decimals: int, auth_mint: PubKey, auth_freeze: PubKey) -> bytearray:
+        # Like initialize_mint(), but does not require the Rent sysvar to be provided. Account references:
+        # 0. -w the mint to initialize.
+        r = bytearray([0x14])
+        r.append(decimals)
+        r.extend(auth_mint.p)
+        r.append(0x01)
+        r.extend(auth_freeze.p)
+        return r
+
+    @classmethod
+    def get_account_data_size(cls) -> bytearray:
+        # Gets the required size of an account for the given mint as a little-endian u64. Account references:
+        # . -r the mint to calculate for.
+        r = bytearray([0x15])
+        return r
+
+    @classmethod
+    def initialize_immutable_owner(cls) -> bytearray:
+        # Initialize the immutable owner extension for the given token account. Account references:
+        # 0. -w the account to initialize.
+        r = bytearray([0x16])
+        return r
+
+    @classmethod
+    def amount_to_ui_amount(cls, amount: int) -> bytearray:
+        # Convert an amount of tokens to a ui amount string, using the given mint. Account references:
+        # 0. -r the mint to calculate for.
+        r = bytearray([0x17])
+        r.extend(amount.to_bytes(8, 'little'))
+        return r
+
+    @classmethod
+    def ui_amount_to_amount(cls, amount: str) -> bytearray:
+        # Convert a ui amount of tokens to a little-endian u64 raw amount, using the given mint. Account references:
+        # 0. -r the mint to calculate for.
+        r = bytearray([0x18])
+        r.extend(bytearray(amount.encode()))
+        return r
 
 
 def compact_u16_encode(n: int) -> bytearray:
