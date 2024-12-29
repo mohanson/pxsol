@@ -56,6 +56,20 @@ $ python example/balance.py --net mainnet --addr 6ASf5EcmmEHTgDJ4X4ZT5vT6iHVJBXP
 # 0.002030181
 ```
 
+**example/base58.py**
+
+Base58 encode or decode hex string.
+
+```sh
+$ python example/base58.py --decode 3Bxs46DNLk1oRbZR
+
+# 020000002007150000000000
+
+$ python example/base58.py --encode 020000002007150000000000
+
+# 3Bxs46DNLk1oRbZR
+```
+
 **example/program.py**
 
 Deploy a hello solana program, call it to show "Hello, Solana!". Then we update the program and call it again, it will display another welcome message. Finally, we close the program to withdraw all solanas.
