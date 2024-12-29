@@ -418,7 +418,7 @@ class ProgramToken:
 
     pubkey_2020 = PubKey.base58_decode('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA')
     pubkey_2022 = PubKey.base58_decode('TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb')
-    pubkey = pubkey_2020
+    pubkey = pubkey_2022
     # See: https://github.com/solana-labs/solana-program-library/blob/master/token/program/src/state.rs#L18
     size_mint = 82
 
