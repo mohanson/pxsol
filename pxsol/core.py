@@ -245,12 +245,12 @@ class ProgramComputeBudget:
         return r
 
     @classmethod
-    def set_compute_unit_price(cls, price: int) -> bytearray:
+    def set_compute_unit_price(cls, unit: int) -> bytearray:
         # Set a compute unit price in "micro-lamports" to pay a higher transaction fee for higher transaction
         # prioritization. There are 10^6 micro-lamports in one lamport.
-        assert price <= 4  # Are you sure you want to pay such a high fee? You must have filled in the wrong number bro!
+        assert unit <= 4  # Are you sure you want to pay such a high fee? You must have filled in the wrong number bro!
         r = bytearray([0x03, 0x00, 0x00, 0x00])
-        r.extend(bytearray(price.to_bytes(8, 'little')))
+        r.extend(bytearray(unit.to_bytes(8, 'little')))
         return r
 
     @classmethod
