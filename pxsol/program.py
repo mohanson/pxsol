@@ -369,7 +369,9 @@ class Token:
     size_mint = 82
     # The minimum for any account with extensions.
     size_extensions_base = 165 + 1
-    size_extensions_metadata_pointer = 2 + 2 + 64
+    size_extensions_metadata_pointer = 4 + 64
+    size_extensions_metadata = 4 + 64 + 4 * 3
+    size_extensions_uninitialized = 4
 
     @classmethod
     def initialize_mint(cls, decimals: int, auth_mint: pxsol.core.PubKey, auth_freeze: pxsol.core.PubKey) -> bytearray:
@@ -649,5 +651,4 @@ class Token:
         r.extend(bytearray(symbol.encode()))
         r.extend(bytearray(len(jurl).to_bytes(4, 'little')))
         r.extend(bytearray(jurl.encode()))
-        print(r.hex())
         return r

@@ -46,6 +46,10 @@ def test_spl():
     mint_decimals = random.randint(0, 9)
     mint_exponent = 10**mint_decimals
     mint = user.spl_create(mint_name, mint_symbol, mint_url, mint_decimals)
+    mint_result = pxsol.rpc.get_account_info(mint.base58(), {})
+    mint_lamports = mint_result['lamports']
+    mint_size = mint_result['space']
+    assert pxsol.rpc.get_minimum_balance_for_rent_exemption(mint_size, {}) == mint_lamports
     if random.random() > 0.5:
         user.spl_create_account(mint)
     user.spl_mint(mint, 99 * mint_exponent)
