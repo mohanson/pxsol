@@ -5,5 +5,6 @@ from . import denomination
 from . import ed25519
 from . import eddsa
 from . import log
+from . import program
 from . import rpc
 from . import wallet
