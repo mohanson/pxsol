@@ -245,12 +245,12 @@ class ProgramComputeBudget:
         return r
 
     @classmethod
-    def set_compute_unit_price(cls, price: int) -> bytearray:
+    def set_compute_unit_price(cls, unit: int) -> bytearray:
         # Set a compute unit price in "micro-lamports" to pay a higher transaction fee for higher transaction
         # prioritization. There are 10^6 micro-lamports in one lamport.
-        assert price <= 4  # Are you sure you want to pay such a high fee? You must have filled in the wrong number bro!
+        assert unit <= 4  # Are you sure you want to pay such a high fee? You must have filled in the wrong number bro!
         r = bytearray([0x03, 0x00, 0x00, 0x00])
-        r.extend(bytearray(price.to_bytes(8, 'little')))
+        r.extend(bytearray(unit.to_bytes(8, 'little')))
         return r
 
     @classmethod
@@ -395,6 +395,121 @@ class ProgramSystem:
         # 1. -w recipient account.
         r = bytearray([0x02, 0x00, 0x00, 0x00])
         r.extend(bytearray(value.to_bytes(8, 'little')))
+        return r
+
+    def create_account_with_seed(
+        cls,
+        base: PubKey,
+        seed: bytearray,
+        value: int,
+        space: int,
+        owner: PubKey,
+    ) -> bytearray:
+        # Create a new account at an address derived from a base pubkey and a seed. Account references:
+        # 0. sw funding account.
+        # 1. -w created account.
+        # 2. sr base account.
+        r = bytearray([0x03, 0x00, 0x00, 0x00])
+        r.extend(base.p)
+        r.extend(bytearray(len(seed).to_bytes(4, 'little')))
+        r.extend(seed)
+        r.extend(bytearray(int(value).to_bytes(8, 'little')))
+        r.extend(bytearray(int(space).to_bytes(8, 'little')))
+        r.extend(owner.p)
+        return r
+
+    @classmethod
+    def advance_nonce_account(cls) -> bytearray:
+        # Consumes a stored nonce, replacing it with a successor. Account references:
+        # 0. -w nonce account.
+        # 1. -r recent blockhashes sysvar.
+        # 2. sr nonce authority.
+        r = bytearray([0x04, 0x00, 0x00, 0x00])
+        return r
+
+    @classmethod
+    def withdraw_nonce_account(cls, value: int) -> bytearray:
+        # Withdraw funds from a nonce account. Account references:
+        # 0. -w nonce account.
+        # 1. -w recipient account.
+        # 2. -r recentBlockhashes sysvar.
+        # 3. -r rent sysvar.
+        # 4. sr nonce authority.
+        r = bytearray([0x05, 0x00, 0x00, 0x00])
+        r.extend(bytearray(value.to_bytes(8, 'little')))
+        return r
+
+    @classmethod
+    def initialize_nonce_account(cls, owner: PubKey) -> bytearray:
+        # Drive state of Uninitialized nonce account to Initialized, setting the nonce value. Account references:
+        # 0. -w nonce account.
+        # 1. -r recent blockhashes sysvar.
+        # 2. -r rent sysvar.
+        r = bytearray([0x06, 0x00, 0x00, 0x00])
+        r.extend(owner.p)
+        return r
+
+    @classmethod
+    def authorize_nonce_account(cls, owner: PubKey) -> bytearray:
+        # Change the entity authorized to execute nonce instructions on the account. Account references:
+        # 0. -w Nonce account
+        # 1. sr Nonce authority
+        r = bytearray([0x07, 0x00, 0x00, 0x00])
+        r.extend(owner.p)
+        return r
+
+    @classmethod
+    def allocate(cls, space: int) -> bytearray:
+        # Allocate space in a (possibly new) account without funding. Account references:
+        # 0. sw new account.
+        r = bytearray([0x08, 0x00, 0x00, 0x00])
+        r.extend(bytearray(space.to_bytes(8, 'little')))
+        return r
+
+    @classmethod
+    def allocate_with_seed(cls, base: PubKey, seed: bytearray, space: int, owner: PubKey) -> bytearray:
+        # Allocate space for and assign an account at an address derived from a base public key and a seed.
+        # Account references
+        # 0. -w Allocated account
+        # 1. sr Base account
+        r = bytearray([0x09, 0x00, 0x00, 0x00])
+        r.extend(base.p)
+        r.extend(bytearray(len(seed).to_bytes(4, 'little')))
+        r.extend(seed)
+        r.extend(bytearray(space.to_bytes(8, 'little')))
+        r.extend(owner.p)
+        return r
+
+    @classmethod
+    def assign_with_seed(cls, base: PubKey, seed: bytearray, owner: PubKey) -> bytearray:
+        # Assign account to a program based on a seed. Account references:
+        # 0. -w Assigned account
+        # 1. sr Base account
+        r = bytearray([0x0a, 0x00, 0x00, 0x00])
+        r.extend(base.p)
+        r.extend(bytearray(len(seed).to_bytes(4, 'little')))
+        r.extend(seed)
+        r.extend(owner.p)
+        return r
+
+    @classmethod
+    def transfer_with_seed(cls, value: int, seed: bytearray, owner: PubKey) -> bytearray:
+        # Transfer lamports from a derived address. Account references:
+        # 0. -w Funding account
+        # 1. sr Base for funding account
+        # 2. -w Recipient account
+        r = bytearray([0x0b, 0x00, 0x00, 0x00])
+        r.extend(bytearray(value.to_bytes(8, 'little')))
+        r.extend(bytearray(len(seed).to_bytes(4, 'little')))
+        r.extend(owner.p)
+        return r
+
+    @classmethod
+    def upgrade_nonce_account(cls) -> bytearray:
+        # One-time idempotent upgrade of legacy nonce versions in order to bump them out of chain blockhash domain.
+        # Account references:
+        # 0. -w nonce account.
+        r = bytearray([0x0c, 0x00, 0x00, 0x00])
         return r
 
 
