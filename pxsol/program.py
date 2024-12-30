@@ -93,10 +93,13 @@ class LoaderUpgradeable:
 
     pubkey = pxsol.core.PubKey.base58_decode('BPFLoaderUpgradeab1e11111111111111111111111')
 
-    size_uninitialized = 4  # Size of a serialized program account.
-    size_buffer_metadata = 37  # Size of a buffer account's serialized metadata.
-    size_program_data_metadata = 45  # Size of a programdata account's serialized metadata.
-    size_program = 36  # Size of a serialized program account.
+    # Account data is serialized by bincode. The enum type takes 4 bytes, and the option takes 1 byte.
+    # Size of a buffer account's serialized metadata, calculated by the formula 4 + 1 + 32.
+    size_program_buffer = 37
+    # Size of a programdata account's serialized metadata, calculated by the formula 4 + 8 + 1 + 32.
+    size_program_data = 45
+    # Size of a serialized program account. calculated by the formula 4 + 32.
+    size_program = 36
 
     @classmethod
     def initialize_buffer(cls) -> bytearray:

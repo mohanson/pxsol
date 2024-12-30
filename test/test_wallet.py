@@ -50,13 +50,11 @@ def test_spl():
     mint_lamports = mint_result['lamports']
     mint_size = mint_result['space']
     assert pxsol.rpc.get_minimum_balance_for_rent_exemption(mint_size, {}) == mint_lamports
-    if random.random() > 0.5:
-        user.spl_create_account(mint)
-    user.spl_mint(mint, 99 * mint_exponent)
+    user.spl_create_account(mint)
+    user.spl_mint(mint, user.pubkey, 99 * mint_exponent)
     user.spl_transfer(mint, hole.pubkey, 20 * mint_exponent)
     assert user.spl_balance(mint)[0] == 79 * mint_exponent
     assert hole.spl_balance(mint)[0] == 20 * mint_exponent
-    user.sol_transfer(hole.pubkey, pxsol.denomination.sol)
-    hole.spl_transfer(mint, user.pubkey, 10 * mint_exponent)
-    assert user.spl_balance(mint)[0] == 89 * mint_exponent
-    assert hole.spl_balance(mint)[0] == 10 * mint_exponent
+    user.spl_mint(mint, hole.pubkey, 10 * mint_exponent)
+    assert user.spl_balance(mint)[0] == 79 * mint_exponent
+    assert hole.spl_balance(mint)[0] == 30 * mint_exponent

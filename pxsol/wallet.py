@@ -25,11 +25,11 @@ class Wallet:
             'pubkey': self.pubkey.base58(),
         }
 
-    def program_buffer_closed(self, program_buffer_pubkey: pxsol.core.PubKey) -> None:
+    def program_buffer_closed(self, program_buffer: pxsol.core.PubKey) -> None:
         # Close a buffer account. This method is used to withdraw all lamports when the buffer account is no longer in
         # use due to unexpected errors.
         rq = pxsol.core.Requisition(pxsol.program.LoaderUpgradeable.pubkey, [], bytearray)
-        rq.account.append(pxsol.core.AccountMeta(program_buffer_pubkey, 1))
+        rq.account.append(pxsol.core.AccountMeta(program_buffer, 1))
         rq.account.append(pxsol.core.AccountMeta(self.pubkey, 1))
         rq.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
         rq.data = pxsol.program.LoaderUpgradeable.close()
@@ -39,40 +39,42 @@ class Wallet:
         txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
         pxsol.rpc.wait([txid])
 
-    def program_buffer_create(self, program: bytearray) -> pxsol.core.PubKey:
+    def program_buffer_create(self, bincode: bytearray) -> pxsol.core.PubKey:
         # Writes a program into a buffer account. The buffer account is randomly generated, and its public key serves
         # as the function's return value.
-        program_buffer_prikey = pxsol.core.PriKey(bytearray(random.randbytes(32)))
-        program_buffer_pubkey = program_buffer_prikey.pubkey()
-        program_data_size = pxsol.program.LoaderUpgradeable.size_program_data_metadata + len(program)
+        tempory_prikey = pxsol.core.PriKey(bytearray(random.randbytes(32)))
+        program_buffer = tempory_prikey.pubkey()
         # Sends a transaction which creates a buffer account large enough for the byte-code being deployed. It also
         # invokes the initialize buffer instruction to set the buffer authority to restrict writes to the deployer's
         # chosen address.
         r0 = pxsol.core.Requisition(pxsol.program.System.pubkey, [], bytearray())
         r0.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
-        r0.account.append(pxsol.core.AccountMeta(program_buffer_pubkey, 3))
+        r0.account.append(pxsol.core.AccountMeta(program_buffer, 3))
         r0.data = pxsol.program.System.create_account(
-            pxsol.rpc.get_minimum_balance_for_rent_exemption(program_data_size, {}),
-            pxsol.program.LoaderUpgradeable.size_buffer_metadata + len(program),
+            pxsol.rpc.get_minimum_balance_for_rent_exemption(
+                pxsol.program.LoaderUpgradeable.size_program_data + len(bincode),
+                {},
+            ),
+            pxsol.program.LoaderUpgradeable.size_program_buffer + len(bincode),
             pxsol.program.LoaderUpgradeable.pubkey,
         )
         r1 = pxsol.core.Requisition(pxsol.program.LoaderUpgradeable.pubkey, [], bytearray())
-        r1.account.append(pxsol.core.AccountMeta(program_buffer_pubkey, 1))
+        r1.account.append(pxsol.core.AccountMeta(program_buffer, 1))
         r1.account.append(pxsol.core.AccountMeta(self.pubkey, 0))
         r1.data = pxsol.program.LoaderUpgradeable.initialize_buffer()
         tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [r0, r1])
         tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
-        tx.sign([self.prikey, program_buffer_prikey])
+        tx.sign([self.prikey, tempory_prikey])
         txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
         pxsol.rpc.wait([txid])
         # Breaks up the program byte-code into ~1KB chunks and sends transactions to write each chunk with the write
         # buffer instruction.
         size = 1012
         hall = []
-        for i in range(0, len(program), size):
-            elem = program[i:i+size]
+        for i in range(0, len(bincode), size):
+            elem = bincode[i:i+size]
             rq = pxsol.core.Requisition(pxsol.program.LoaderUpgradeable.pubkey, [], bytearray())
-            rq.account.append(pxsol.core.AccountMeta(program_buffer_pubkey, 1))
+            rq.account.append(pxsol.core.AccountMeta(program_buffer, 1))
             rq.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
             rq.data = pxsol.program.LoaderUpgradeable.write(i, elem)
             tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [rq])
@@ -82,16 +84,16 @@ class Wallet:
             txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
             hall.append(txid)
         pxsol.rpc.wait(hall)
-        return program_buffer_pubkey
+        return program_buffer
 
-    def program_closed(self, program_pubkey: pxsol.core.PubKey) -> None:
+    def program_closed(self, program: pxsol.core.PubKey) -> None:
         # Close a program. The sol allocated to the on-chain program can be fully recovered by performing this action.
-        program_data_pubkey = pxsol.program.LoaderUpgradeable.pubkey.derive(program_pubkey.p)
+        program_data_pubkey = pxsol.program.LoaderUpgradeable.pubkey.derive(program.p)
         rq = pxsol.core.Requisition(pxsol.program.LoaderUpgradeable.pubkey, [], bytearray())
         rq.account.append(pxsol.core.AccountMeta(program_data_pubkey, 1))
         rq.account.append(pxsol.core.AccountMeta(self.pubkey, 1))
         rq.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
-        rq.account.append(pxsol.core.AccountMeta(program_pubkey, 1))
+        rq.account.append(pxsol.core.AccountMeta(program, 1))
         rq.data = pxsol.program.LoaderUpgradeable.close()
         tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [rq])
         tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
@@ -99,16 +101,16 @@ class Wallet:
         txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
         pxsol.rpc.wait([txid])
 
-    def program_deploy(self, program: bytearray) -> pxsol.core.PubKey:
+    def program_deploy(self, bincode: bytearray) -> pxsol.core.PubKey:
         # Deploying a program on solana, returns the program's public key.
-        program_buffer_pubkey = self.program_buffer_create(program)
-        program_prikey = pxsol.core.PriKey(bytearray(random.randbytes(32)))
-        program_pubkey = program_prikey.pubkey()
-        program_data_pubkey = pxsol.program.LoaderUpgradeable.pubkey.derive(program_pubkey.p)
+        tempory_prikey = pxsol.core.PriKey(bytearray(random.randbytes(32)))
+        program_buffer = self.program_buffer_create(bincode)
+        program = tempory_prikey.pubkey()
+        program_data = pxsol.program.LoaderUpgradeable.pubkey.derive(program.p)
         # Deploy with max data len.
         r0 = pxsol.core.Requisition(pxsol.program.System.pubkey, [], bytearray())
         r0.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
-        r0.account.append(pxsol.core.AccountMeta(program_pubkey, 3))
+        r0.account.append(pxsol.core.AccountMeta(program, 3))
         r0.data = pxsol.program.System.create_account(
             pxsol.rpc.get_minimum_balance_for_rent_exemption(pxsol.program.LoaderUpgradeable.size_program, {}),
             pxsol.program.LoaderUpgradeable.size_program,
@@ -116,29 +118,29 @@ class Wallet:
         )
         r1 = pxsol.core.Requisition(pxsol.program.LoaderUpgradeable.pubkey, [], bytearray())
         r1.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
-        r1.account.append(pxsol.core.AccountMeta(program_data_pubkey, 1))
-        r1.account.append(pxsol.core.AccountMeta(program_pubkey, 1))
-        r1.account.append(pxsol.core.AccountMeta(program_buffer_pubkey, 1))
+        r1.account.append(pxsol.core.AccountMeta(program_data, 1))
+        r1.account.append(pxsol.core.AccountMeta(program, 1))
+        r1.account.append(pxsol.core.AccountMeta(program_buffer, 1))
         r1.account.append(pxsol.core.AccountMeta(pxsol.program.SysvarRent.pubkey, 0))
         r1.account.append(pxsol.core.AccountMeta(pxsol.program.SysvarClock.pubkey, 0))
         r1.account.append(pxsol.core.AccountMeta(pxsol.program.System.pubkey, 0))
         r1.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
-        r1.data = pxsol.program.LoaderUpgradeable.deploy_with_max_data_len(len(program) * 2)
+        r1.data = pxsol.program.LoaderUpgradeable.deploy_with_max_data_len(len(bincode) * 2)
         tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [r0, r1])
         tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
-        tx.sign([self.prikey, program_prikey])
+        tx.sign([self.prikey, tempory_prikey])
         txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
         pxsol.rpc.wait([txid])
-        return program_pubkey
+        return program
 
-    def program_update(self, program_pubkey: pxsol.core.PubKey, program: bytearray) -> None:
+    def program_update(self, program: pxsol.core.PubKey, bincode: bytearray) -> None:
         # Updating an existing solana program by new program data and the same program id.
-        program_buffer_pubkey = self.program_buffer_create(program)
-        program_data_pubkey = pxsol.program.LoaderUpgradeable.pubkey.derive(program_pubkey.p)
+        program_buffer = self.program_buffer_create(bincode)
+        program_data = pxsol.program.LoaderUpgradeable.pubkey.derive(program.p)
         rq = pxsol.core.Requisition(pxsol.program.LoaderUpgradeable.pubkey, [], bytearray())
-        rq.account.append(pxsol.core.AccountMeta(program_data_pubkey, 1))
-        rq.account.append(pxsol.core.AccountMeta(program_pubkey, 1))
-        rq.account.append(pxsol.core.AccountMeta(program_buffer_pubkey, 1))
+        rq.account.append(pxsol.core.AccountMeta(program_data, 1))
+        rq.account.append(pxsol.core.AccountMeta(program, 1))
+        rq.account.append(pxsol.core.AccountMeta(program_buffer, 1))
         rq.account.append(pxsol.core.AccountMeta(self.pubkey, 1))
         rq.account.append(pxsol.core.AccountMeta(pxsol.program.SysvarRent.pubkey, 0))
         rq.account.append(pxsol.core.AccountMeta(pxsol.program.SysvarClock.pubkey, 0))
@@ -154,12 +156,12 @@ class Wallet:
         # Returns the lamport balance of the account.
         return pxsol.rpc.get_balance(self.pubkey.base58(), {})
 
-    def sol_transfer(self, pubkey: pxsol.core.PubKey, amount: int) -> bytearray:
+    def sol_transfer(self, recv: pxsol.core.PubKey, amount: int) -> bytearray:
         # Transfers the specified lamports to the target. The function returns the first signature of the transaction,
         # which is used to identify the transaction (transaction id).
         rq = pxsol.core.Requisition(pxsol.program.System.pubkey, [], bytearray())
         rq.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
-        rq.account.append(pxsol.core.AccountMeta(pubkey, 1))
+        rq.account.append(pxsol.core.AccountMeta(recv, 1))
         rq.data = pxsol.program.System.transfer(amount)
         tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [rq])
         tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
@@ -169,26 +171,26 @@ class Wallet:
         pxsol.rpc.wait([txid])
         return tx.signatures[0]
 
-    def sol_transfer_all(self, pubkey: pxsol.core.PubKey) -> bytearray:
+    def sol_transfer_all(self, recv: pxsol.core.PubKey) -> bytearray:
         # Transfers all lamports to the target.
         # Solana's base fee is a fixed 5000 lamports (0.000005 SOL) per signature.
-        return self.sol_transfer(pubkey, self.sol_balance() - 5000)
+        return self.sol_transfer(recv, self.sol_balance() - 5000)
 
-    def spl_account(self, mint_pubkey: pxsol.core.PubKey) -> pxsol.core.PubKey:
+    def spl_account(self, mint: pxsol.core.PubKey) -> pxsol.core.PubKey:
         # Returns associated token account.
         # See: https://solana.com/docs/core/tokens#associated-token-account.
         seed = bytearray()
         seed.extend(self.pubkey.p)
-        mint_info = pxsol.rpc.get_account_info(mint_pubkey.base58(), {})
-        mint_from = pxsol.core.PubKey.base58_decode(mint_info['owner'])
-        assert mint_from in [pxsol.program.Token.pubkey_2020, pxsol.program.Token.pubkey_2022]
-        seed.extend(mint_from.p)
-        seed.extend(mint_pubkey.p)
+        info = pxsol.rpc.get_account_info(mint.base58(), {})
+        host = pxsol.core.PubKey.base58_decode(info['owner'])
+        assert host in [pxsol.program.Token.pubkey_2020, pxsol.program.Token.pubkey_2022]
+        seed.extend(host.p)
+        seed.extend(mint.p)
         return pxsol.program.AssociatedTokenAccount.pubkey.derive(seed)
 
-    def spl_balance(self, mint_pubkey: pxsol.core.PubKey) -> typing.List[int]:
+    def spl_balance(self, mint: pxsol.core.PubKey) -> typing.List[int]:
         # Returns the current token balance and the decimals of the token.
-        r = pxsol.rpc.get_token_account_balance(self.spl_account(mint_pubkey).base58(), {})['value']
+        r = pxsol.rpc.get_token_account_balance(self.spl_account(mint).base58(), {})['value']
         return [int(r['amount']), r['decimals']]
 
     def spl_create(self, name: str, symbol: str, uri: str, decimals: int) -> pxsol.core.PubKey:
@@ -226,15 +228,15 @@ class Wallet:
         pxsol.rpc.wait([txid])
         return mint_pubkey
 
-    def spl_create_account(self, mint_pubkey: pxsol.core.PubKey) -> pxsol.core.PubKey:
+    def spl_create_account(self, mint: pxsol.core.PubKey) -> pxsol.core.PubKey:
         # Create a token account. To track the individual ownership of each unit of a specific token, another type of
         # data account owned by the token program must be created.
-        account_pubkey = self.spl_account(mint_pubkey)
+        self_account_pubkey = self.spl_account(mint)
         rq = pxsol.core.Requisition(pxsol.program.AssociatedTokenAccount.pubkey, [], bytearray())
         rq.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
-        rq.account.append(pxsol.core.AccountMeta(account_pubkey, 1))
+        rq.account.append(pxsol.core.AccountMeta(self_account_pubkey, 1))
         rq.account.append(pxsol.core.AccountMeta(self.pubkey, 0))
-        rq.account.append(pxsol.core.AccountMeta(mint_pubkey, 0))
+        rq.account.append(pxsol.core.AccountMeta(mint, 0))
         rq.account.append(pxsol.core.AccountMeta(pxsol.program.System.pubkey, 0))
         rq.account.append(pxsol.core.AccountMeta(pxsol.program.Token.pubkey, 0))
         rq.data = pxsol.program.AssociatedTokenAccount.create()
@@ -243,24 +245,26 @@ class Wallet:
         tx.sign([self.prikey])
         txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
         pxsol.rpc.wait([txid])
-        return account_pubkey
+        return self_account_pubkey
 
-    def spl_mint(self, mint_pubkey: pxsol.core.PubKey, amount: int) -> bytearray:
+    def spl_mint(self, mint: pxsol.core.PubKey, recv: pxsol.core.PubKey, amount: int) -> bytearray:
         # Mint a specified number of tokens and distribute them to self. Note that amount refers to the smallest unit
         # of count, For example, when the decimals of token is 2, you should use 100 to represent 1 token. If the
         # token account does not exist, it will be created automatically.
-        account_pubkey = self.spl_account(mint_pubkey)
+        void = Wallet(pxsol.core.PriKey.int_decode(1))
+        void.pubkey = recv
+        recv_account_pubkey = void.spl_account(mint)
         r0 = pxsol.core.Requisition(pxsol.program.AssociatedTokenAccount.pubkey, [], bytearray())
         r0.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
-        r0.account.append(pxsol.core.AccountMeta(account_pubkey, 1))
-        r0.account.append(pxsol.core.AccountMeta(self.pubkey, 0))
-        r0.account.append(pxsol.core.AccountMeta(mint_pubkey, 0))
+        r0.account.append(pxsol.core.AccountMeta(recv_account_pubkey, 1))
+        r0.account.append(pxsol.core.AccountMeta(recv, 0))
+        r0.account.append(pxsol.core.AccountMeta(mint, 0))
         r0.account.append(pxsol.core.AccountMeta(pxsol.program.System.pubkey, 0))
         r0.account.append(pxsol.core.AccountMeta(pxsol.program.Token.pubkey, 0))
         r0.data = pxsol.program.AssociatedTokenAccount.create_idempotent()
         r1 = pxsol.core.Requisition(pxsol.program.Token.pubkey, [], bytearray())
-        r1.account.append(pxsol.core.AccountMeta(mint_pubkey, 1))
-        r1.account.append(pxsol.core.AccountMeta(account_pubkey, 1))
+        r1.account.append(pxsol.core.AccountMeta(mint, 1))
+        r1.account.append(pxsol.core.AccountMeta(recv_account_pubkey, 1))
         r1.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
         r1.data = pxsol.program.Token.mint_to(amount)
         tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [r0, r1])
@@ -270,25 +274,25 @@ class Wallet:
         pxsol.rpc.wait([txid])
         return txid
 
-    def spl_transfer(self, mint_pubkey: pxsol.core.PubKey, pubkey: pxsol.core.PubKey, amount: int) -> bytearray:
+    def spl_transfer(self, mint: pxsol.core.PubKey, recv: pxsol.core.PubKey, amount: int) -> bytearray:
         # Transfers tokens to the target. Note that amount refers to the smallest unit of count, For example, when the
         # decimals of token is 2, you should use 100 to represent 1 token. If the token account does not exist, it will
         # be created automatically.
-        self_account_pubkey = self.spl_account(mint_pubkey)
+        self_account_pubkey = self.spl_account(mint)
         void = Wallet(pxsol.core.PriKey.int_decode(1))
-        void.pubkey = pubkey
-        hole_account_pubkey = void.spl_account(mint_pubkey)
+        void.pubkey = recv
+        recv_account_pubkey = void.spl_account(mint)
         r0 = pxsol.core.Requisition(pxsol.program.AssociatedTokenAccount.pubkey, [], bytearray())
         r0.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
-        r0.account.append(pxsol.core.AccountMeta(hole_account_pubkey, 1))
-        r0.account.append(pxsol.core.AccountMeta(pubkey, 0))
-        r0.account.append(pxsol.core.AccountMeta(mint_pubkey, 0))
+        r0.account.append(pxsol.core.AccountMeta(recv_account_pubkey, 1))
+        r0.account.append(pxsol.core.AccountMeta(recv, 0))
+        r0.account.append(pxsol.core.AccountMeta(mint, 0))
         r0.account.append(pxsol.core.AccountMeta(pxsol.program.System.pubkey, 0))
         r0.account.append(pxsol.core.AccountMeta(pxsol.program.Token.pubkey, 0))
         r0.data = pxsol.program.AssociatedTokenAccount.create_idempotent()
         r1 = pxsol.core.Requisition(pxsol.program.Token.pubkey, [], bytearray())
         r1.account.append(pxsol.core.AccountMeta(self_account_pubkey, 1))
-        r1.account.append(pxsol.core.AccountMeta(hole_account_pubkey, 1))
+        r1.account.append(pxsol.core.AccountMeta(recv_account_pubkey, 1))
         r1.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
         r1.data = pxsol.program.Token.transfer(amount)
         tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [r0, r1])
