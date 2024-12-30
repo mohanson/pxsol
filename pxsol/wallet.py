@@ -44,7 +44,7 @@ class Wallet:
         # as the function's return value.
         tempory_prikey = pxsol.core.PriKey(bytearray(random.randbytes(32)))
         program_buffer = tempory_prikey.pubkey()
-        account_size = pxsol.program.LoaderUpgradeable.size_program_data_metadata + len(bincode)
+        account_size = pxsol.program.LoaderUpgradeable.size_program_data + len(bincode)
         # Sends a transaction which creates a buffer account large enough for the byte-code being deployed. It also
         # invokes the initialize buffer instruction to set the buffer authority to restrict writes to the deployer's
         # chosen address.
@@ -53,7 +53,7 @@ class Wallet:
         r0.account.append(pxsol.core.AccountMeta(program_buffer, 3))
         r0.data = pxsol.program.System.create_account(
             pxsol.rpc.get_minimum_balance_for_rent_exemption(account_size, {}),
-            pxsol.program.LoaderUpgradeable.size_buffer_metadata + len(bincode),
+            pxsol.program.LoaderUpgradeable.size_program_buffer + len(bincode),
             pxsol.program.LoaderUpgradeable.pubkey,
         )
         r1 = pxsol.core.Requisition(pxsol.program.LoaderUpgradeable.pubkey, [], bytearray())
