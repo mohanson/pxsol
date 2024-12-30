@@ -191,23 +191,38 @@ class Wallet:
         r = pxsol.rpc.get_token_account_balance(self.spl_account(mint_pubkey).base58(), {})['value']
         return [int(r['amount']), r['decimals']]
 
-    def spl_create(self, decimals: int) -> pxsol.core.PubKey:
+    def spl_create(self, name: str, symbol: str, uri: str, decimals: int) -> pxsol.core.PubKey:
         # Create a new token.
         mint_prikey = pxsol.core.PriKey(bytearray(random.randbytes(32)))
         mint_pubkey = mint_prikey.pubkey()
+        mint_size = pxsol.core.ProgramToken.size_extensions_base + pxsol.core.ProgramToken.size_extensions_metadata_pointer
+        addi_size = 84 + len(name) + len(symbol) + len(uri)
         r0 = pxsol.core.Requisition(pxsol.core.ProgramSystem.pubkey, [], bytearray())
         r0.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
         r0.account.append(pxsol.core.AccountMeta(mint_pubkey, 3))
         r0.data = pxsol.core.ProgramSystem.create_account(
-            pxsol.rpc.get_minimum_balance_for_rent_exemption(pxsol.core.ProgramToken.size_mint, {}),
-            pxsol.core.ProgramToken.size_mint,
+            pxsol.rpc.get_minimum_balance_for_rent_exemption(mint_size, {}),
+            mint_size,
             pxsol.core.ProgramToken.pubkey,
         )
         r1 = pxsol.core.Requisition(pxsol.core.ProgramToken.pubkey, [], bytearray())
         r1.account.append(pxsol.core.AccountMeta(mint_pubkey, 1))
-        r1.account.append(pxsol.core.AccountMeta(pxsol.core.ProgramSysvarRent.pubkey, 0))
-        r1.data = pxsol.core.ProgramToken.initialize_mint(decimals, self.pubkey, self.pubkey)
-        tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [r0, r1])
+        r1.data = pxsol.core.ProgramToken.metadata_pointer_extension_initialize(self.pubkey, mint_pubkey)
+        r2 = pxsol.core.Requisition(pxsol.core.ProgramToken.pubkey, [], bytearray())
+        r2.account.append(pxsol.core.AccountMeta(mint_pubkey, 1))
+        r2.account.append(pxsol.core.AccountMeta(pxsol.core.ProgramSysvarRent.pubkey, 0))
+        r2.data = pxsol.core.ProgramToken.initialize_mint(decimals, self.pubkey, self.pubkey)
+        r3 = pxsol.core.Requisition(pxsol.core.ProgramSystem.pubkey, [], bytearray())
+        r3.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
+        r3.account.append(pxsol.core.AccountMeta(mint_pubkey, 1))
+        r3.data = pxsol.core.ProgramSystem.transfer(pxsol.rpc.get_minimum_balance_for_rent_exemption(addi_size, {}))
+        r4 = pxsol.core.Requisition(pxsol.core.ProgramToken.pubkey, [], bytearray())
+        r4.account.append(pxsol.core.AccountMeta(mint_pubkey, 1))
+        r4.account.append(pxsol.core.AccountMeta(self.pubkey, 0))
+        r4.account.append(pxsol.core.AccountMeta(mint_pubkey, 0))
+        r4.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
+        r4.data = pxsol.core.ProgramToken.metadata_initialize(name, symbol, uri)
+        tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [r0, r1, r2, r3, r4])
         tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
         tx.sign([self.prikey, mint_prikey])
         txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
