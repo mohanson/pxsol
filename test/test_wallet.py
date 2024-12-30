@@ -40,17 +40,19 @@ def test_sol_transfer_all():
 def test_spl():
     user = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(1))
     hole = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(2))
+    mint_name = 'PXS'
+    mint_symbol = 'PXS'
+    mint_url = 'https://raw.githubusercontent.com/mohanson/pxsol/refs/heads/master/res/pxs.json'
     mint_decimals = random.randint(0, 9)
     mint_exponent = 10**mint_decimals
-    mint = user.spl_create(mint_decimals)
+    mint = user.spl_create(mint_name, mint_symbol, mint_url, mint_decimals)
     if random.random() > 0.5:
         user.spl_create_account(mint)
     user.spl_mint(mint, 99 * mint_exponent)
     user.spl_transfer(mint, hole.pubkey, 20 * mint_exponent)
     assert user.spl_balance(mint)[0] == 79 * mint_exponent
     assert hole.spl_balance(mint)[0] == 20 * mint_exponent
-    if hole.sol_balance() < pxsol.denomination.sol:
-        user.sol_transfer(hole.pubkey, pxsol.denomination.sol)
+    user.sol_transfer(hole.pubkey, pxsol.denomination.sol)
     hole.spl_transfer(mint, user.pubkey, 10 * mint_exponent)
     assert user.spl_balance(mint)[0] == 89 * mint_exponent
     assert hole.spl_balance(mint)[0] == 10 * mint_exponent

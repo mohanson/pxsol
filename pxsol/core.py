@@ -421,6 +421,9 @@ class ProgramToken:
     pubkey = pubkey_2022
     # See: https://github.com/solana-labs/solana-program-library/blob/master/token/program/src/state.rs#L18
     size_mint = 82
+    # The minimum for any account with extensions.
+    size_extensions_base = 165 + 1
+    size_extensions_metadata_pointer = 2 + 2 + 64
 
     @classmethod
     def initialize_mint(cls, decimals: int, auth_mint: PubKey, auth_freeze: PubKey) -> bytearray:
@@ -461,7 +464,7 @@ class ProgramToken:
         # 1. -w the destination account.
         # 2. sr the source account's owner/delegate.
         r = bytearray([0x03])
-        r.extend(amount.to_bytes(8, 'little'))
+        r.extend(bytearray(amount.to_bytes(8, 'little')))
         return r
 
     @classmethod
@@ -472,7 +475,7 @@ class ProgramToken:
         # 1. -r the delegate.
         # 2. sr the source account owner.
         r = bytearray([0x04])
-        r.extend(amount.to_bytes(8, 'little'))
+        r.extend(bytearray(amount.to_bytes(8, 'little')))
         return r
 
     @classmethod
@@ -501,7 +504,7 @@ class ProgramToken:
         # 1. -w the account to mint tokens to.
         # 2. sr the mint's minting authority.
         r = bytearray([0x07])
-        r.extend(amount.to_bytes(8, 'little'))
+        r.extend(bytearray(amount.to_bytes(8, 'little')))
         return r
 
     @classmethod
@@ -511,7 +514,7 @@ class ProgramToken:
         # 1. -w the token mint.
         # 2. sr the account's owner/delegate.
         r = bytearray([0x08])
-        r.extend(amount.to_bytes(8, 'little'))
+        r.extend(bytearray(amount.to_bytes(8, 'little')))
         return r
 
     @classmethod
@@ -550,7 +553,7 @@ class ProgramToken:
         # 2. -w the destination account.
         # 3. sr the source account's owner/delegate.
         r = bytearray([0x0c])
-        r.extend(amount.to_bytes(8, 'little'))
+        r.extend(bytearray(amount.to_bytes(8, 'little')))
         r.append(decimals)
         return r
 
@@ -562,7 +565,7 @@ class ProgramToken:
         # 2. -r the delegate.
         # 3. sr the source account owner.
         r = bytearray([0x0d])
-        r.extend(amount.to_bytes(8, 'little'))
+        r.extend(bytearray(amount.to_bytes(8, 'little')))
         r.append(decimals)
         return r
 
@@ -573,7 +576,7 @@ class ProgramToken:
         # 1. -w the account to mint tokens to.
         # 2. sr the mint's minting authority.
         r = bytearray([0x0e])
-        r.extend(amount.to_bytes(8, 'little'))
+        r.extend(bytearray(amount.to_bytes(8, 'little')))
         r.append(decimals)
         return r
 
@@ -584,7 +587,7 @@ class ProgramToken:
         # 1. -w the token mint.
         # 2. sr the account's owner/delegate.
         r = bytearray([0x0f])
-        r.extend(amount.to_bytes(8, 'little'))
+        r.extend(bytearray(amount.to_bytes(8, 'little')))
         r.append(decimals)
         return r
 
@@ -655,7 +658,7 @@ class ProgramToken:
         # Convert an amount of tokens to a ui amount string, using the given mint. Account references:
         # 0. -r the mint to calculate for.
         r = bytearray([0x17])
-        r.extend(amount.to_bytes(8, 'little'))
+        r.extend(bytearray(amount.to_bytes(8, 'little')))
         return r
 
     @classmethod
@@ -664,6 +667,95 @@ class ProgramToken:
         # 0. -r the mint to calculate for.
         r = bytearray([0x18])
         r.extend(bytearray(amount.encode()))
+        return r
+
+    @classmethod
+    def metadata_pointer_extension_initialize(cls, auth: PubKey, mint: PubKey) -> bytearray:
+        # Initialize a new mint with a metadata pointer. Account references:
+        # 0. -w the mint to initialize.
+        r = bytearray([0x27, 0x00])
+        r.extend(auth.p)
+        r.extend(mint.p)
+        return r
+
+    @classmethod
+    def metadata_pointer_extension_update(cls, mint: PubKey) -> bytearray:
+        # Update the metadata pointer address. Only supported for mints that include the metadata pointer extension.
+        # Account references:
+        # 0. -w the mint.
+        # 1. sr the metadata pointer authority.
+        r = bytearray([0x27, 0x01])
+        r.extend(mint.p)
+        return r
+
+    @classmethod
+    def metadata_initialize(cls, name: str, symbol: str, uri: str) -> bytearray:
+        # Initializes a tlv entry with the basic token-metadata fields. Account references:
+        # 0. -w metadata.
+        # 1. -r update authority.
+        # 2. -r mint.
+        # 3. sr mint authority.
+        r = bytearray(hashlib.sha256(b'spl_token_metadata_interface:initialize_account').digest()[:8])
+        r.extend(bytearray(len(name).to_bytes(4, 'little')))
+        r.extend(bytearray(name.encode()))
+        r.extend(bytearray(len(symbol).to_bytes(4, 'little')))
+        r.extend(bytearray(symbol.encode()))
+        r.extend(bytearray(len(uri).to_bytes(4, 'little')))
+        r.extend(bytearray(uri.encode()))
+        print(r.hex())
+        return r
+
+    @classmethod
+    def metadata_update_field(cls, key: str, value: str) -> bytearray:
+        # Updates a field in a token-metadata account. The field can be one of the required fields (name, symbol, uri),
+        # or a totally new field denoted by a "key" string. Account references:
+        # 0. -w metadata account.
+        # 1. sr update authority.
+        r = bytearray(hashlib.sha256(b'spl_token_metadata_interface:updating_field').digest()[:8])
+        match key:
+            case 'name':
+                r.append(0x00)
+            case 'symbol':
+                r.append(0x01)
+            case 'uri':
+                r.append(0x02)
+            case _:
+                r.append(0x03)
+                r.extend(bytearray(len(key).to_bytes(4, 'little')))
+                r.extend(bytearray(key.encode()))
+        r.extend(bytearray(len(value).to_bytes(4, 'little')))
+        r.extend(bytearray(value.encode()))
+        return r
+
+    @classmethod
+    def metadata_remove_key(cls, key: str) -> bytearray:
+        # Removes a key-value pair in a token-metadata account. Account references:
+        # 0. -w metadata account.
+        # 1. sr update authority.
+        r = bytearray(hashlib.sha256(b'spl_token_metadata_interface:remove_key_ix').digest()[:8])
+        r.append(0x00)
+        r.extend(bytearray(len(key).to_bytes(4, 'little')))
+        r.extend(bytearray(key.encode()))
+        return r
+
+    @classmethod
+    def metadata_update_authority(cls, auth: PubKey) -> bytearray:
+        # Updates the token-metadata authority. Account references:
+        # 0. -w metadata account.
+        # 1. sr current update authority.
+        r = bytearray(hashlib.sha256(b'spl_token_metadata_interface:update_the_authority').digest()[:8])
+        r.extend(auth.p)
+        return r
+
+    @classmethod
+    def metadata_emit(cls, offset: int, end: int) -> bytearray:
+        # Emits the token-metadata as return data. Account references:
+        # 0. -r metadata account.
+        r = bytearray(hashlib.sha256(b'spl_token_metadata_interface:emitter').digest()[:8])
+        r.extend(bytearray([0x01]))
+        r.extend(bytearray(offset.to_bytes(4, 'little')))
+        r.extend(bytearray([0x01]))
+        r.extend(bytearray(end.to_bytes(4, 'little')))
         return r
 
 
