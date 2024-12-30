@@ -39,12 +39,12 @@ class Wallet:
         txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
         pxsol.rpc.wait([txid])
 
-    def program_buffer_create(self, program: bytearray) -> pxsol.core.PubKey:
+    def program_buffer_create(self, bincode: bytearray) -> pxsol.core.PubKey:
         # Writes a program into a buffer account. The buffer account is randomly generated, and its public key serves
         # as the function's return value.
         program_buffer_prikey = pxsol.core.PriKey(bytearray(random.randbytes(32)))
         program_buffer_pubkey = program_buffer_prikey.pubkey()
-        program_data_size = pxsol.program.LoaderUpgradeable.size_program_data_metadata + len(program)
+        program_data_size = pxsol.program.LoaderUpgradeable.size_program_data_metadata + len(bincode)
         # Sends a transaction which creates a buffer account large enough for the byte-code being deployed. It also
         # invokes the initialize buffer instruction to set the buffer authority to restrict writes to the deployer's
         # chosen address.
@@ -53,7 +53,7 @@ class Wallet:
         r0.account.append(pxsol.core.AccountMeta(program_buffer_pubkey, 3))
         r0.data = pxsol.program.System.create_account(
             pxsol.rpc.get_minimum_balance_for_rent_exemption(program_data_size, {}),
-            pxsol.program.LoaderUpgradeable.size_buffer_metadata + len(program),
+            pxsol.program.LoaderUpgradeable.size_buffer_metadata + len(bincode),
             pxsol.program.LoaderUpgradeable.pubkey,
         )
         r1 = pxsol.core.Requisition(pxsol.program.LoaderUpgradeable.pubkey, [], bytearray())
@@ -69,8 +69,8 @@ class Wallet:
         # buffer instruction.
         size = 1012
         hall = []
-        for i in range(0, len(program), size):
-            elem = program[i:i+size]
+        for i in range(0, len(bincode), size):
+            elem = bincode[i:i+size]
             rq = pxsol.core.Requisition(pxsol.program.LoaderUpgradeable.pubkey, [], bytearray())
             rq.account.append(pxsol.core.AccountMeta(program_buffer_pubkey, 1))
             rq.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
@@ -99,9 +99,9 @@ class Wallet:
         txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
         pxsol.rpc.wait([txid])
 
-    def program_deploy(self, program: bytearray) -> pxsol.core.PubKey:
+    def program_deploy(self, bincode: bytearray) -> pxsol.core.PubKey:
         # Deploying a program on solana, returns the program's public key.
-        program_buffer_pubkey = self.program_buffer_create(program)
+        program_buffer_pubkey = self.program_buffer_create(bincode)
         program_prikey = pxsol.core.PriKey(bytearray(random.randbytes(32)))
         program_pubkey = program_prikey.pubkey()
         program_data_pubkey = pxsol.program.LoaderUpgradeable.pubkey.derive(program_pubkey.p)
@@ -123,7 +123,7 @@ class Wallet:
         r1.account.append(pxsol.core.AccountMeta(pxsol.program.SysvarClock.pubkey, 0))
         r1.account.append(pxsol.core.AccountMeta(pxsol.program.System.pubkey, 0))
         r1.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
-        r1.data = pxsol.program.LoaderUpgradeable.deploy_with_max_data_len(len(program) * 2)
+        r1.data = pxsol.program.LoaderUpgradeable.deploy_with_max_data_len(len(bincode) * 2)
         tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [r0, r1])
         tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
         tx.sign([self.prikey, program_prikey])
@@ -131,9 +131,9 @@ class Wallet:
         pxsol.rpc.wait([txid])
         return program_pubkey
 
-    def program_update(self, program_pubkey: pxsol.core.PubKey, program: bytearray) -> None:
+    def program_update(self, program_pubkey: pxsol.core.PubKey, bincode: bytearray) -> None:
         # Updating an existing solana program by new program data and the same program id.
-        program_buffer_pubkey = self.program_buffer_create(program)
+        program_buffer_pubkey = self.program_buffer_create(bincode)
         program_data_pubkey = pxsol.program.LoaderUpgradeable.pubkey.derive(program_pubkey.p)
         rq = pxsol.core.Requisition(pxsol.program.LoaderUpgradeable.pubkey, [], bytearray())
         rq.account.append(pxsol.core.AccountMeta(program_data_pubkey, 1))
