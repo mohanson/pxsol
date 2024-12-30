@@ -421,6 +421,9 @@ class ProgramToken:
     pubkey = pubkey_2022
     # See: https://github.com/solana-labs/solana-program-library/blob/master/token/program/src/state.rs#L18
     size_mint = 82
+    # The minimum for any account with extensions.
+    size_extensions_base = 165 + 1
+    size_extensions_metadata_pointer = 2 + 2 + 64
 
     @classmethod
     def initialize_mint(cls, decimals: int, auth_mint: PubKey, auth_freeze: PubKey) -> bytearray:
@@ -664,6 +667,25 @@ class ProgramToken:
         # 0. -r the mint to calculate for.
         r = bytearray([0x18])
         r.extend(bytearray(amount.encode()))
+        return r
+
+    @classmethod
+    def metadata_pointer_extension_initialize(cls, auth: PubKey, mint: PubKey) -> bytearray:
+        # Initialize a new mint with a metadata pointer. Account references:
+        # 0. -w the mint to initialize.
+        r = bytearray([0x27, 0x00])
+        r.extend(auth.p)
+        r.extend(mint.p)
+        return r
+
+    @classmethod
+    def metadata_pointer_extension_update(cls, mint: PubKey) -> bytearray:
+        # Update the metadata pointer address. Only supported for mints that include the metadata pointer extension.
+        # Account references:
+        # 0. -w the mint.
+        # 1. sr the metadata pointer authority.
+        r = bytearray([0x27, 0x01])
+        r.extend(mint.p)
         return r
 
 
