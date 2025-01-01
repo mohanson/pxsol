@@ -3,7 +3,7 @@ import pxsol.core
 
 
 class AssociatedTokenAccount:
-    # See: https://github.com/solana-labs/solana-program-library/blob/master/associated-token-account
+    # See: https://github.com/solana-program/associated-token-account
 
     pubkey = pxsol.core.PubKey.base58_decode('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL')
 
@@ -36,7 +36,10 @@ class AssociatedTokenAccount:
     @classmethod
     def recover_nested(cls) -> bytearray:
         # Transfers from and closes a nested associated token account: an associated token account owned by an
-        # associated token account. Account references:
+        # associated token account. The tokens are moved from the nested associated token account to the wallet's
+        # associated token account, and the nested account lamports are moved to the wallet. Note: Nested token
+        # accounts are an anti-pattern, and almost always created unintentionally, so this instruction should only be
+        # used to recover from errors. Account references:
         # 0. -w nested associated token account, must be owned by 3.
         # 1. -r token mint for the nested associated token account.
         # 2. -w wallet's associated token account.
