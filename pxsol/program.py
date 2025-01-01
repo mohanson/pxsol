@@ -3,7 +3,7 @@ import pxsol.core
 
 
 class AssociatedTokenAccount:
-    # See: https://github.com/solana-labs/solana-program-library/blob/master/associated-token-account
+    # See: https://github.com/solana-program/associated-token-account
 
     pubkey = pxsol.core.PubKey.base58_decode('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL')
 
@@ -36,7 +36,10 @@ class AssociatedTokenAccount:
     @classmethod
     def recover_nested(cls) -> bytearray:
         # Transfers from and closes a nested associated token account: an associated token account owned by an
-        # associated token account. Account references:
+        # associated token account. The tokens are moved from the nested associated token account to the wallet's
+        # associated token account, and the nested account lamports are moved to the wallet. Note: Nested token
+        # accounts are an anti-pattern, and almost always created unintentionally, so this instruction should only be
+        # used to recover from errors. Account references:
         # 0. -w nested associated token account, must be owned by 3.
         # 1. -r token mint for the nested associated token account.
         # 2. -w wallet's associated token account.
@@ -49,7 +52,8 @@ class AssociatedTokenAccount:
 
 
 class ComputeBudget:
-    # Compute budget instructions.
+    # See: https://github.com/anza-xyz/agave/tree/master/sdk/compute-budget-interface
+    # See: https://github.com/solana-program/compute-budget
 
     pubkey = pxsol.core.PubKey.base58_decode('ComputeBudget111111111111111111111111111111')
 
@@ -58,14 +62,14 @@ class ComputeBudget:
         # Request a specific transaction-wide program heap region size in bytes. The value requested must be a multiple
         # of 1024. This new heap region size applies to each program executed in the transaction, including all calls
         # to cpis.
-        r = bytearray([0x01, 0x00, 0x00, 0x00])
+        r = bytearray([0x01])
         r.extend(bytearray(size.to_bytes(4, 'little')))
         return r
 
     @classmethod
     def set_compute_unit_limit(cls, size: int) -> bytearray:
         # Set a specific compute unit limit that the transaction is allowed to consume.
-        r = bytearray([0x02, 0x00, 0x00, 0x00])
+        r = bytearray([0x02])
         r.extend(bytearray(size.to_bytes(4, 'little')))
         return r
 
@@ -74,14 +78,14 @@ class ComputeBudget:
         # Set a compute unit price in "micro-lamports" to pay a higher transaction fee for higher transaction
         # prioritization. There are 10^6 micro-lamports in one lamport.
         assert unit <= 4  # Are you sure you want to pay such a high fee? You must have filled in the wrong number bro!
-        r = bytearray([0x03, 0x00, 0x00, 0x00])
+        r = bytearray([0x03])
         r.extend(bytearray(unit.to_bytes(8, 'little')))
         return r
 
     @classmethod
     def set_loaded_accounts_data_size_limit(cls, size: int) -> bytearray:
         # Set a specific transaction-wide account data size limit, in bytes, is allowed to load.
-        r = bytearray([0x04, 0x00, 0x00, 0x00])
+        r = bytearray([0x04])
         r.extend(bytearray(size.to_bytes(4, 'little')))
         return r
 
