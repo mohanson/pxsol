@@ -94,6 +94,7 @@ class LoaderUpgradeable:
     # The bpf loader program is the program that owns all executable accounts on solana. When you deploy a program, the
     # owner of the program account is set to the the bpf loader program.
     # See: https://github.com/anza-xyz/agave/blob/master/sdk/program/src/loader_upgradeable_instruction.rs
+    # See: https://github.com/anza-xyz/agave/blob/master/sdk/program/src/bpf_loader_upgradeable.rs
 
     pubkey = pxsol.core.PubKey.base58_decode('BPFLoaderUpgradeab1e11111111111111111111111')
 
@@ -196,8 +197,8 @@ class LoaderUpgradeable:
 
 class System:
     # The system program is responsible for the creation of accounts.
+    # See: https://github.com/solana-program/system
     # See: https://github.com/anza-xyz/agave/blob/master/sdk/program/src/system_instruction.rs
-    # See: https://github.com/solana-program/system/blob/main/interface/src/instruction.rs
 
     pubkey = pxsol.core.PubKey(bytearray(32))
 
@@ -243,7 +244,7 @@ class System:
         # 2. sr base account.
         r = bytearray([0x03, 0x00, 0x00, 0x00])
         r.extend(base.p)
-        r.extend(bytearray(len(seed).to_bytes(4, 'little')))
+        r.extend(bytearray(len(seed).to_bytes(8, 'little')))
         r.extend(seed)
         r.extend(bytearray(int(lamports).to_bytes(8, 'little')))
         r.extend(bytearray(int(size).to_bytes(8, 'little')))
@@ -312,7 +313,7 @@ class System:
         # 1. sr Base account
         r = bytearray([0x09, 0x00, 0x00, 0x00])
         r.extend(base.p)
-        r.extend(bytearray(len(seed).to_bytes(4, 'little')))
+        r.extend(bytearray(len(seed).to_bytes(8, 'little')))
         r.extend(seed)
         r.extend(bytearray(size.to_bytes(8, 'little')))
         r.extend(host.p)
@@ -325,20 +326,21 @@ class System:
         # 1. sr Base account
         r = bytearray([0x0a, 0x00, 0x00, 0x00])
         r.extend(base.p)
-        r.extend(bytearray(len(seed).to_bytes(4, 'little')))
+        r.extend(bytearray(len(seed).to_bytes(8, 'little')))
         r.extend(seed)
         r.extend(host.p)
         return r
 
     @classmethod
-    def transfer_with_seed(cls, value: int, seed: bytearray, host: pxsol.core.PubKey) -> bytearray:
+    def transfer_with_seed(cls, lamports: int, seed: bytearray, host: pxsol.core.PubKey) -> bytearray:
         # Transfer lamports from a derived address. Account references:
         # 0. -w Funding account
         # 1. sr Base for funding account
         # 2. -w Recipient account
         r = bytearray([0x0b, 0x00, 0x00, 0x00])
-        r.extend(bytearray(value.to_bytes(8, 'little')))
-        r.extend(bytearray(len(seed).to_bytes(4, 'little')))
+        r.extend(bytearray(lamports.to_bytes(8, 'little')))
+        r.extend(bytearray(len(seed).to_bytes(8, 'little')))
+        r.extend(seed)
         r.extend(host.p)
         return r
 
