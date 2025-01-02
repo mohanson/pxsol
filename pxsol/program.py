@@ -1,5 +1,6 @@
 import hashlib
 import pxsol.core
+import typing
 
 
 class AssociatedTokenAccount:
@@ -599,10 +600,12 @@ class Token:
         return r
 
     @classmethod
-    def get_account_data_size(cls) -> bytearray:
+    def get_account_data_size(cls, extension_type: typing.List[int]) -> bytearray:
         # Gets the required size of an account for the given mint as a little-endian u64. Account references:
-        # . -r the mint to calculate for.
+        # 0. -r the mint to calculate for.
         r = bytearray([0x15])
+        for e in extension_type:
+            r.extend(e.to_bytes(2, 'little'))
         return r
 
     @classmethod
