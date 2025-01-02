@@ -197,12 +197,11 @@ class Wallet:
         # Create a new token.
         mint_prikey = pxsol.core.PriKey(bytearray(random.randbytes(32)))
         mint_pubkey = mint_prikey.pubkey()
-        mint_size = 0
-        mint_size += pxsol.program.Token.size_extensions_base
-        mint_size += pxsol.program.Token.size_extensions_metadata_pointer
-        addi_size = 0
-        addi_size += pxsol.program.Token.size_extensions_metadata + len(name) + len(symbol) + len(uri)
-        addi_size += pxsol.program.Token.size_extensions_uninitialized
+        mint_size = pxsol.program.Token.size_extensions_base + pxsol.program.Token.size_extensions_metadata_pointer
+        # Helper function to tack on the size of an extension bytes if an account with extensions is exactly the size
+        # of a multisig.
+        assert mint_size != 355
+        addi_size = pxsol.program.Token.size_extensions_metadata + len(name) + len(symbol) + len(uri)
         mint_lamports = pxsol.rpc.get_minimum_balance_for_rent_exemption(mint_size + addi_size, {})
         r0 = pxsol.core.Requisition(pxsol.program.System.pubkey, [], bytearray())
         r0.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
