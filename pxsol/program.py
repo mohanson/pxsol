@@ -374,13 +374,14 @@ class Token:
     pubkey_2020 = pxsol.core.PubKey.base58_decode('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA')
     pubkey_2022 = pxsol.core.PubKey.base58_decode('TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb')
     pubkey = pubkey_2022
-    # See: https://github.com/solana-labs/solana-program-library/blob/master/token/program/src/state.rs#L18
+    # See: https://github.com/solana-labs/solana-program-library/blob/master/token/program-2022/src/state.rs
     size_mint = 82
     # The minimum for any account with extensions.
     size_extensions_base = 165 + 1
+    # See: https://github.com/solana-labs/solana-program-library/blob/master/token/program-2022/src/extension/metadata_pointer/mod.rs
     size_extensions_metadata_pointer = 4 + 64
-    size_extensions_metadata = 4 + 64 + 4 * 3
-    size_extensions_uninitialized = 4
+    # See: https://github.com/solana-labs/solana-program-library/blob/master/token-metadata/interface/src/state.rs
+    size_extensions_metadata = 4 + 64 + 4 * 3 + 4
 
     @classmethod
     def initialize_mint(cls, decimals: int, auth_mint: pxsol.core.PubKey, auth_freeze: pxsol.core.PubKey) -> bytearray:
