@@ -13,6 +13,15 @@ def test_balance():
     call('python example/balance.py --net develop --addr 6ASf5EcmmEHTgDJ4X4ZT5vT6iHVJBXPg5AN5YoTCpGWt')
 
 
+def test_base58():
+    call('python example/base58.py --decode 3Bxs46DNLk1oRbZR')
+    call('python example/base58.py --encode 020000002007150000000000')
+
+
+def test_history():
+    call('python example/history.py --addr 6ArN9XvxNndXKoZEgHECiC8M4LftBQ9nVdfyrC5tsii6 --limit 1')
+
+
 def test_program():
     r = call('python example/program.py --action deploy --prikey 0x1')
     program_pubkey = r.stdout.decode().rstrip().split()[1]

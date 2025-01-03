@@ -70,6 +70,16 @@ $ python example/base58.py --encode 020000002007150000000000
 # 3Bxs46DNLk1oRbZR
 ```
 
+**example/history.py**
+
+Shows the most recent transactions for a address.
+
+```sh
+$ python example/history.py --addr 6ArN9XvxNndXKoZEgHECiC8M4LftBQ9nVdfyrC5tsii6 --limit 1
+
+# {'signatures': ['5aAPZipgfGVPSuz2wdSg5hNFbudnELjCKYLRap6o...
+```
+
 **example/program.py**
 
 Deploy a hello solana program, call it to show "Hello, Solana!". Then we update the program and call it again, it will display another welcome message. Finally, we close the program to withdraw all solanas.
