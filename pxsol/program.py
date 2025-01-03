@@ -665,16 +665,3 @@ class Token:
         r.extend(bytearray(len(uri).to_bytes(4, 'little')))
         r.extend(bytearray(uri.encode()))
         return r
-
-    @classmethod
-    def metadata_update_field(cls, field: str, value: str) -> bytearray:
-        # Updates a field in a token-metadata account. By the end of the instruction, the metadata account must be
-        # properly resized based on the new size of the tlv entry. Account references:
-        # 0. -w metadata account.
-        # 1. st update authority.
-        assert field in ['name', 'symbol', 'uri']
-        r = bytearray(hashlib.sha256(b'spl_token_metadata_interface:updating_field').digest()[:8])
-        r.append(['name', 'symbol', 'uri'].index(field))
-        r.extend(bytearray(len(value).to_bytes(4, 'little')))
-        r.extend(bytearray(value.encode()))
-        return r
