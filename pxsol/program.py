@@ -651,7 +651,7 @@ class Token:
         return r
 
     @classmethod
-    def metadata_initialize(cls, name: str, symbol: str, jurl: str) -> bytearray:
+    def metadata_initialize(cls, name: str, symbol: str, uri: str) -> bytearray:
         # Initializes a tlv entry with the basic token-metadata fields. Account references:
         # 0. -w metadata.
         # 1. -r update authority.
@@ -662,6 +662,6 @@ class Token:
         r.extend(bytearray(name.encode()))
         r.extend(bytearray(len(symbol).to_bytes(4, 'little')))
         r.extend(bytearray(symbol.encode()))
-        r.extend(bytearray(len(jurl).to_bytes(4, 'little')))
-        r.extend(bytearray(jurl.encode()))
+        r.extend(bytearray(len(uri).to_bytes(4, 'little')))
+        r.extend(bytearray(uri.encode()))
         return r

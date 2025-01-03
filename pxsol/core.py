@@ -271,12 +271,7 @@ class MessageHeader:
     # 2. The number of read-only account addresses that require signatures.
     # 3. The number of read-only account addresses that do not require signatures.
 
-    def __init__(
-        self,
-        required_signatures: int,
-        readonly_signatures: int,
-        readonly: int
-    ) -> None:
+    def __init__(self, required_signatures: int, readonly_signatures: int, readonly: int) -> None:
         self.required_signatures = required_signatures
         self.readonly_signatures = readonly_signatures
         self.readonly = readonly
