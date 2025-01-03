@@ -651,7 +651,7 @@ class Token:
         return r
 
     @classmethod
-    def metadata_initialize(cls, name: str, symbol: str, jurl: str) -> bytearray:
+    def metadata_initialize(cls, name: str, symbol: str, uri: str) -> bytearray:
         # Initializes a tlv entry with the basic token-metadata fields. Account references:
         # 0. -w metadata.
         # 1. -r update authority.
@@ -662,6 +662,19 @@ class Token:
         r.extend(bytearray(name.encode()))
         r.extend(bytearray(len(symbol).to_bytes(4, 'little')))
         r.extend(bytearray(symbol.encode()))
-        r.extend(bytearray(len(jurl).to_bytes(4, 'little')))
-        r.extend(bytearray(jurl.encode()))
+        r.extend(bytearray(len(uri).to_bytes(4, 'little')))
+        r.extend(bytearray(uri.encode()))
+        return r
+
+    @classmethod
+    def metadata_update_field(cls, field: str, value: str) -> bytearray:
+        # Updates a field in a token-metadata account. By the end of the instruction, the metadata account must be
+        # properly resized based on the new size of the tlv entry. Account references:
+        # 0. -w metadata account.
+        # 1. st update authority.
+        assert field in ['name', 'symbol', 'uri']
+        r = bytearray(hashlib.sha256(b'spl_token_metadata_interface:updating_field').digest()[:8])
+        r.append(['name', 'symbol', 'uri'].index(field))
+        r.extend(bytearray(len(value).to_bytes(4, 'little')))
+        r.extend(bytearray(value.encode()))
         return r
