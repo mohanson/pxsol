@@ -567,12 +567,18 @@ class TokenMint:
     def __repr__(self) -> str:
         return json.dumps(self.json())
 
+    def extension_metadata_pointer(self) -> TokenExtensionMetadataPointer:
+        return TokenExtensionMetadataPointer.serialize_decode(self.extensions[0x12])
+
+    def extension_metadata(self) -> TokenExtensionMetadata:
+        return TokenExtensionMetadata.serialize_decode(self.extensions[0x13])
+
     def json(self) -> typing.Dict:
         extensions = {}
         for k, v in self.extensions.items():
             match k:
-                case 0x12: extensions[k] = TokenExtensionMetadataPointer.serialize_decode(v).json()
-                case 0x13: extensions[k] = TokenExtensionMetadata.serialize_decode(v).json(),
+                case 0x12: extensions[k] = self.extension_metadata_pointer().json()
+                case 0x13: extensions[k] = self.extension_metadata().json(),
                 case _: extensions[k] = v.hex()
         return {
             'auth_mint': self.auth_mint.base58(),
