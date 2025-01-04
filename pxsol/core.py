@@ -425,3 +425,53 @@ class Transaction:
         m = self.message.serialize()
         for k in prikey:
             self.signatures.append(k.sign(m))
+
+
+class TokenMint:
+    # Account structure for storing token mint information.
+
+    def __init__(self, auth_mint: PubKey, supply: int, decimals: int, inited: bool, auth_freeze: PubKey) -> None:
+        # Optional authority used to mint new tokens. The mint authority may only be provided during mint creation. If
+        # no mint authority is present then the mint has a fixed supply and no further tokens may be minted.
+        self.auth_mint = auth_mint
+        # Total supply of tokens.
+        self.supply = supply
+        # Number of base 10 digits to the right of the decimal place.
+        self.decimals = decimals
+        # Is `true` if this structure has been initialized.
+        self.inited = inited
+        # Optional authority to freeze token accounts.
+        self.auth_freeze = auth_freeze
+
+    def __repr__(self) -> str:
+        return json.dumps(self.json())
+
+    def json(self) -> typing.Dict:
+        return {
+            'auth_mint': self.auth_mint.base58(),
+            'supply': self.supply,
+            'decimals': self.decimals,
+            'inited': self.inited,
+            'auth_freeze': self.auth_freeze.base58()
+        }
+
+    def serialize(self) -> bytearray:
+        r = bytearray(82)
+        r[0x00:0x04] = bytearray([0x01, 0x00, 0x00, 0x00])
+        r[0x04:0x24] = self.auth_mint.p
+        r[0x24:0x2c] = bytearray(self.supply.to_bytes(8, 'little'))
+        r[0x2c] = self.decimals
+        r[0x2d] = int(self.inited)
+        r[0x2e:0x32] = bytearray([0x01, 0x00, 0x00, 0x00])
+        r[0x32:0x52] = self.auth_freeze.p
+        return r
+
+    @classmethod
+    def serialize_decode(cls, data: bytearray) -> typing.Self:
+        return TokenMint(
+            PubKey(data[0x04:0x24]),
+            int.from_bytes(data[0x24:0x2c], 'little'),
+            data[0x2c],
+            data[0x2d] != 0x00,
+            PubKey(data[0x32:0x52]),
+        )
