@@ -437,9 +437,8 @@ class TokenMint:
         decimals: int,
         inited: bool,
         auth_freeze: PubKey,
-        extensions: typing.List[bytearray],
+        extensions: typing.Dict[int, bytearray],
     ) -> None:
-        assert len(extensions) == 27
         # Optional authority used to mint new tokens. The mint authority may only be provided during mint creation. If
         # no mint authority is present then the mint has a fixed supply and no further tokens may be minted.
         self.auth_mint = auth_mint
@@ -458,12 +457,17 @@ class TokenMint:
         return json.dumps(self.json())
 
     def json(self) -> typing.Dict:
+        extensions = {}
+        for k, v in self.extensions.items():
+            match k:
+                case _: extensions[k] = v.hex()
         return {
             'auth_mint': self.auth_mint.base58(),
             'supply': self.supply,
             'decimals': self.decimals,
             'inited': self.inited,
-            'auth_freeze': self.auth_freeze.base58()
+            'auth_freeze': self.auth_freeze.base58(),
+            'extensions': extensions,
         }
 
     def serialize(self) -> bytearray:
@@ -475,15 +479,38 @@ class TokenMint:
         r[0x2d] = int(self.inited)
         r[0x2e:0x32] = bytearray([0x01, 0x00, 0x00, 0x00])
         r[0x32:0x52] = self.auth_freeze.p
+        if len(self.extensions):
+            # Mint creators and account owners can opt-in to token-2022 features. Extension data is written after the
+            # end of the account data in token, which is the byte at index 165. This means it is always possible to
+            # differentiate mints and accounts.
+            r.extend(bytearray(83))
+            # Append account type mint.
+            r.append(0x01)
+            for k in sorted(list(self.extensions.keys())):
+                v = self.extensions[k]
+                r.extend(bytearray(k.to_bytes(2, 'little')))
+                r.extend(bytearray(len(v).to_bytes(2, 'little')))
+                r.extend(v)
         return r
 
     @classmethod
     def serialize_decode(cls, data: bytearray) -> typing.Self:
+        extensions = {}
+        extensions_reader = io.BytesIO(data[166:])
+        for _ in range(1 << 32):
+            kype_byte = extensions_reader.read(2)
+            if not kype_byte:
+                break
+            kype = int.from_bytes(kype_byte, 'little')
+            size_byte = extensions_reader.read(2)
+            size = int.from_bytes(size_byte, 'little')
+            body = bytearray(extensions_reader.read(size))
+            extensions[kype] = body
         return TokenMint(
             PubKey(data[0x04:0x24]),
             int.from_bytes(data[0x24:0x2c], 'little'),
             data[0x2c],
             data[0x2d] != 0x00,
             PubKey(data[0x32:0x52]),
-            [bytearray() for _ in range(27)],
+            extensions,
         )
