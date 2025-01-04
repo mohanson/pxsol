@@ -430,7 +430,16 @@ class Transaction:
 class TokenMint:
     # Account structure for storing token mint information.
 
-    def __init__(self, auth_mint: PubKey, supply: int, decimals: int, inited: bool, auth_freeze: PubKey) -> None:
+    def __init__(
+        self,
+        auth_mint: PubKey,
+        supply: int,
+        decimals: int,
+        inited: bool,
+        auth_freeze: PubKey,
+        extensions: typing.List[bytearray],
+    ) -> None:
+        assert len(extensions) == 27
         # Optional authority used to mint new tokens. The mint authority may only be provided during mint creation. If
         # no mint authority is present then the mint has a fixed supply and no further tokens may be minted.
         self.auth_mint = auth_mint
@@ -442,6 +451,8 @@ class TokenMint:
         self.inited = inited
         # Optional authority to freeze token accounts.
         self.auth_freeze = auth_freeze
+        # Extensions available to token mints and accounts.
+        self.extensions = extensions
 
     def __repr__(self) -> str:
         return json.dumps(self.json())
@@ -474,4 +485,5 @@ class TokenMint:
             data[0x2c],
             data[0x2d] != 0x00,
             PubKey(data[0x32:0x52]),
+            [bytearray() for _ in range(27)],
         )
