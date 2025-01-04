@@ -459,6 +459,85 @@ class TokenExtensionMetadataPointer:
         )
 
 
+class TokenExtensionMetadata:
+    # Metadata pointer extension data for mints.
+    # See: https://github.com/solana-program/token-metadata/tree/main/interface.
+
+    def __init__(
+        self,
+        auth_update: PubKey,
+        mint: PubKey,
+        name: str,
+        symbol: str,
+        uri: str,
+        addition: typing.Dict[str, str],
+    ) -> None:
+        # The authority that can sign to update the metadata.
+        self.auth_update = auth_update
+        # The associated mint, used to counter spoofing to be sure that metadata belongs to a particular mint.
+        self.mint = mint
+        # The longer name of the token.
+        self.name = name
+        # The shortened symbol for the token.
+        self.symbol = symbol
+        # The URI pointing to richer metadata.
+        self.uri = uri
+        # Any additional metadata about the token as key-value pairs. The program must avoid storing the same key twice.
+        self.addition = addition
+
+    def __repr__(self) -> str:
+        return json.dumps(self.json())
+
+    def json(self) -> typing.Dict:
+        return {
+            'auth_update': self.auth_update.base58(),
+            'mint': self.mint.base58(),
+            'name': self.name,
+            'symbol': self.symbol,
+            'uri': self.uri,
+            'addition': self.addition,
+        }
+
+    def serialize(self) -> bytearray:
+        r = bytearray()
+        r.extend(self.auth_update.p)
+        r.extend(self.mint.p)
+        r.extend(bytearray(len(self.name).to_bytes(4, 'little')))
+        r.extend(bytearray(self.name.encode()))
+        r.extend(bytearray(len(self.symbol).to_bytes(4, 'little')))
+        r.extend(bytearray(self.symbol.encode()))
+        r.extend(bytearray(len(self.uri).to_bytes(4, 'little')))
+        r.extend(bytearray(self.uri.encode()))
+        r.extend(bytearray(len(self.addition).to_bytes(4, 'little')))
+        for k, v in self.addition.items():
+            r.extend(bytearray(len(k).to_bytes(4, 'little')))
+            r.extend(bytearray(k.encode()))
+            r.extend(bytearray(len(v).to_bytes(4, 'little')))
+            r.extend(bytearray(v.encode()))
+        return r
+
+    @classmethod
+    def serialize_decode(cls, data: bytearray) -> typing.Self:
+        return TokenExtensionMetadata.serialize_decode_reader(io.BytesIO(data))
+
+    @classmethod
+    def serialize_decode_reader(cls, reader: io.BytesIO) -> typing.Self:
+        m = TokenExtensionMetadata(
+            PubKey(bytearray(reader.read(32))),
+            PubKey(bytearray(reader.read(32))),
+            reader.read(int.from_bytes(reader.read(4), 'little')).decode(),
+            reader.read(int.from_bytes(reader.read(4), 'little')).decode(),
+            reader.read(int.from_bytes(reader.read(4), 'little')).decode(),
+            {},
+        )
+        l = int.from_bytes(reader.read(4), 'little')
+        for _ in range(l):
+            k = reader.read(int.from_bytes(reader.read(4), 'little')).decode()
+            v = reader.read(int.from_bytes(reader.read(4), 'little')).decode()
+            m.addition[k] = v
+        return m
+
+
 class TokenMint:
     # Account structure for storing token mint information.
 
@@ -493,6 +572,7 @@ class TokenMint:
         for k, v in self.extensions.items():
             match k:
                 case 0x12: extensions[k] = TokenExtensionMetadataPointer.serialize_decode(v).json()
+                case 0x13: extensions[k] = TokenExtensionMetadata.serialize_decode(v).json(),
                 case _: extensions[k] = v.hex()
         return {
             'auth_mint': self.auth_mint.base58(),
