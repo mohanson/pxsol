@@ -427,6 +427,38 @@ class Transaction:
             self.signatures.append(k.sign(m))
 
 
+class TokenExtensionMetadataPointer:
+    # Metadata pointer extension data for mints.
+
+    def __init__(self, auth: PubKey, hold: PubKey) -> None:
+        # Authority that can set the metadata address.
+        self.auth = auth
+        # Account address that holds the metadata.
+        self.hold = hold
+
+    def __repr__(self) -> str:
+        return json.dumps(self.json())
+
+    def json(self) -> typing.Dict:
+        return {
+            'auth': self.auth.base58(),
+            'hold': self.hold.base58(),
+        }
+
+    def serialize(self) -> bytearray:
+        r = bytearray()
+        r.extend(self.auth.p)
+        r.extend(self.hold.p)
+        return r
+
+    @classmethod
+    def serialize_decode(cls, data: bytearray) -> typing.Self:
+        return TokenExtensionMetadataPointer(
+            PubKey(data[0x00:0x20]),
+            PubKey(data[0x20:0x40]),
+        )
+
+
 class TokenMint:
     # Account structure for storing token mint information.
 
@@ -460,6 +492,7 @@ class TokenMint:
         extensions = {}
         for k, v in self.extensions.items():
             match k:
+                case 0x12: extensions[k] = TokenExtensionMetadataPointer.serialize_decode(v).json()
                 case _: extensions[k] = v.hex()
         return {
             'auth_mint': self.auth_mint.base58(),
