@@ -26,7 +26,7 @@ def wait(sigs: typing.List[str]) -> None:
     # Wait for all signatures in the parameter to be confirmed. There is no limit on the number of signatures.
     remain = sigs.copy()
     for _ in itertools.repeat(0):
-        pxsol.log.debugln(f'pxsol: transaction wait remain={len(remain)}')
+        pxsol.log.debugln(f'pxsol: transaction wait unconfirmed={len(remain)}')
         if len(remain) == 0:
             break
         time.sleep(0.5)

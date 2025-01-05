@@ -19,6 +19,7 @@ if args.net == 'mainnet':
     pxsol.config.current = pxsol.config.mainnet
 if args.net == 'testnet':
     pxsol.config.current = pxsol.config.testnet
+pxsol.config.current.log = 1
 
 user = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(int(args.prikey, 0)))
 

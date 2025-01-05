@@ -156,7 +156,7 @@ class Wallet:
         # Returns the lamport balance of the account.
         return pxsol.rpc.get_balance(self.pubkey.base58(), {})
 
-    def sol_transfer(self, recv: pxsol.core.PubKey, amount: int) -> bytearray:
+    def sol_transfer(self, recv: pxsol.core.PubKey, amount: int) -> None:
         # Transfers the specified lamports to the target. The function returns the first signature of the transaction,
         # which is used to identify the transaction (transaction id).
         rq = pxsol.core.Requisition(pxsol.program.System.pubkey, [], bytearray())
@@ -169,12 +169,11 @@ class Wallet:
         txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
         assert pxsol.base58.decode(txid) == tx.signatures[0]
         pxsol.rpc.wait([txid])
-        return tx.signatures[0]
 
-    def sol_transfer_all(self, recv: pxsol.core.PubKey) -> bytearray:
+    def sol_transfer_all(self, recv: pxsol.core.PubKey) -> None:
         # Transfers all lamports to the target.
         # Solana's base fee is a fixed 5000 lamports (0.000005 SOL) per signature.
-        return self.sol_transfer(recv, self.sol_balance() - 5000)
+        self.sol_transfer(recv, self.sol_balance() - 5000)
 
     def spl_account(self, mint: pxsol.core.PubKey) -> pxsol.core.PubKey:
         # Returns associated token account.
@@ -246,7 +245,7 @@ class Wallet:
         pxsol.rpc.wait([txid])
         return self_account_pubkey
 
-    def spl_mint(self, mint: pxsol.core.PubKey, recv: pxsol.core.PubKey, amount: int) -> bytearray:
+    def spl_mint(self, mint: pxsol.core.PubKey, recv: pxsol.core.PubKey, amount: int) -> None:
         # Mint a specified number of tokens and distribute them to self. Note that amount refers to the smallest unit
         # of count, For example, when the decimals of token is 2, you should use 100 to represent 1 token. If the
         # token account does not exist, it will be created automatically.
@@ -271,9 +270,8 @@ class Wallet:
         tx.sign([self.prikey])
         txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
         pxsol.rpc.wait([txid])
-        return txid
 
-    def spl_transfer(self, mint: pxsol.core.PubKey, recv: pxsol.core.PubKey, amount: int) -> bytearray:
+    def spl_transfer(self, mint: pxsol.core.PubKey, recv: pxsol.core.PubKey, amount: int) -> None:
         # Transfers tokens to the target. Note that amount refers to the smallest unit of count, For example, when the
         # decimals of token is 2, you should use 100 to represent 1 token. If the token account does not exist, it will
         # be created automatically.
@@ -299,9 +297,8 @@ class Wallet:
         tx.sign([self.prikey])
         txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
         pxsol.rpc.wait([txid])
-        return txid
 
-    def spl_update(self, mint: pxsol.core.PubKey, name: str, symbol: str, uri: str) -> bytearray:
+    def spl_update(self, mint: pxsol.core.PubKey, name: str, symbol: str, uri: str) -> None:
         # Update the token name, symbol and uri.
         mint_result = pxsol.rpc.get_account_info(mint.base58(), {})
         mint_size = mint_result['space']
@@ -341,4 +338,3 @@ class Wallet:
         tx.sign([self.prikey])
         txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
         pxsol.rpc.wait([txid])
-        return txid
