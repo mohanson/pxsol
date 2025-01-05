@@ -16,8 +16,8 @@ if args.net == 'mainnet':
     pxsol.config.current = pxsol.config.mainnet
 if args.net == 'testnet':
     pxsol.config.current = pxsol.config.testnet
+pxsol.config.current.log = 1
 
 user = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(int(args.prikey, 0)))
 hole = pxsol.core.PubKey.base58_decode(args.to)
-txid = user.sol_transfer(hole, int(args.value * pxsol.denomination.sol))
-print(pxsol.base58.encode(txid))
+user.sol_transfer(hole, int(args.value * pxsol.denomination.sol))

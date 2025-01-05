@@ -24,11 +24,21 @@ def test_history():
 
 def test_program():
     r = call('python example/program.py --action deploy --prikey 0x1')
-    program_pubkey = r.stdout.decode().rstrip().split()[1]
+    program_pubkey = r.stdout.decode().splitlines()[-1].rstrip().split()[1]
     call(f'python example/program.py --prikey 0x1 --action call --addr {program_pubkey}')
     call(f'python example/program.py --prikey 0x1 --action update --addr {program_pubkey}')
     call(f'python example/program.py --prikey 0x1 --action call --addr {program_pubkey}')
     call(f'python example/program.py --prikey 0x1 --action closed --addr {program_pubkey}')
+
+
+def test_spl():
+    path = 'https://raw.githubusercontent.com/mohanson/pxsol/refs/heads/master/res/pxs.json'
+    r = call(f'python example/spl.py --prikey 1 --action create --name PXSOL --symbol PXS --uri {path}')
+    mint = r.stdout.decode().splitlines()[-1].rstrip()
+    call(f'python example/spl.py --prikey 1 --token {mint} --action mint --amount 100')
+    call(f'python example/spl.py --prikey 1 --token {mint} --action balance')
+    addr = '8pM1DN3RiT8vbom5u1sNryaNT1nyL8CTTW3b5PwWXRBH'
+    call(f'python example/spl.py --prikey 1 --token {mint} --action transfer --to {addr} --amount 20')
 
 
 def test_transfer():
