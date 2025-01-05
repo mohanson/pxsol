@@ -632,6 +632,16 @@ class Token:
         return r
 
     @classmethod
+    def withdraw_excess_lamports(cls) -> bytearray:
+        # This instruction is to be used to rescue sol sent to any token program owned account by sending them to any
+        # other account, leaving behind only lamports for rent exemption. Account references:
+        # 0. -w source account owned by the token program.
+        # 1. -w destination account.
+        # 2. sr authority.
+        r = bytearray([0x26])
+        return r
+
+    @classmethod
     def metadata_pointer_extension_initialize(cls, auth: pxsol.core.PubKey, mint: pxsol.core.PubKey) -> bytearray:
         # Initialize a new mint with a metadata pointer. Account references:
         # 0. -w the mint to initialize.
@@ -664,4 +674,56 @@ class Token:
         r.extend(bytearray(symbol.encode()))
         r.extend(bytearray(len(uri).to_bytes(4, 'little')))
         r.extend(bytearray(uri.encode()))
+        return r
+
+    @classmethod
+    def metadata_update_field(cls, field: str, value: str) -> bytearray:
+        # Updates a field in a token-metadata account. The field can be one of the required fields (name, symbol, uri),
+        # or a totally new field denoted by a "key" string. Account references:
+        # 0. -w metadata account.
+        # 1. sr update authority.
+        r = bytearray(hashlib.sha256(b'spl_token_metadata_interface:updating_field').digest()[:8])
+        match field:
+            case 'name':
+                r.append(0x00)
+            case 'symbol':
+                r.append(0x01)
+            case 'uri':
+                r.append(0x02)
+            case _:
+                r.append(0x03)
+                r.extend(bytearray(len(field).to_bytes(4, 'little')))
+                r.extend(bytearray(field.encode()))
+        r.extend(bytearray(len(value).to_bytes(4, 'little')))
+        r.extend(bytearray(value.encode()))
+        return r
+
+    @classmethod
+    def metadata_remove_key(cls, idempotent: bool, key: str) -> bytearray:
+        # Removes a key-value pair in a token-metadata account. This only applies to additional fields, and not the
+        # base name / symbol / uri fields. Account references:
+        # 0. -w metadata account.
+        # 1. sr update authority.
+        r = bytearray(hashlib.sha256(b'spl_token_metadata_interface:remove_key_ix').digest()[:8])
+        r.append(int(idempotent))
+        r.extend(bytearray(len(key).to_bytes(4, 'little')))
+        r.extend(bytearray(key.encode()))
+        return r
+
+    @classmethod
+    def metadata_update_authority(cls, auth: pxsol.core.PubKey) -> bytearray:
+        # Updates the token-metadata authority. Account references:
+        # 0. -w metadata account.
+        # 1. sr current update authority.
+        r = bytearray(hashlib.sha256(b'spl_token_metadata_interface:update_the_authority').digest()[:8])
+        r.extend(auth.p)
+        return r
+
+    @classmethod
+    def metadata_emit(cls) -> bytearray:
+        # Emits the token-metadata as return data. Account references:
+        # 0. -r metadata account.
+        r = bytearray(hashlib.sha256(b'spl_token_metadata_interface:emitter').digest()[:8])
+        r.append(0x00)
+        r.append(0x00)
         return r

@@ -41,12 +41,36 @@ def test_sol_transfer_all():
 def test_spl():
     user = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(1))
     hole = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(2))
-    mint_name = 'PXS'
-    mint_symbol = 'PXS'
-    mint_uri = 'https://raw.githubusercontent.com/mohanson/pxsol/refs/heads/master/res/pxs.json'
+    mint_name = 'Ethereum'
+    mint_symbol = 'ETH'
+    mint_uri = 'https://ethereum.org'
     mint_decimals = random.randint(0, 9)
     mint_exponent = 10**mint_decimals
     mint = user.spl_create(mint_name, mint_symbol, mint_uri, mint_decimals)
+    mint_result = pxsol.rpc.get_account_info(mint.base58(), {})
+    mint_info = pxsol.core.TokenMint.serialize_decode(bytearray(base64.b64decode(mint_result['data'][0])))
+    assert mint_info.extension_metadata().name == mint_name
+    assert mint_info.extension_metadata().symbol == mint_symbol
+    assert mint_info.extension_metadata().uri == mint_uri
+    mint_lamports = mint_result['lamports']
+    mint_size = mint_result['space']
+    assert pxsol.rpc.get_minimum_balance_for_rent_exemption(mint_size, {}) == mint_lamports
+    mint_name = 'Ethereum Classic'
+    mint_symbol = 'ETC'
+    mint_uri = 'https://ethereumclassic.org/'
+    user.spl_update(mint, mint_name, mint_symbol, mint_uri)
+    mint_result = pxsol.rpc.get_account_info(mint.base58(), {})
+    mint_info = pxsol.core.TokenMint.serialize_decode(bytearray(base64.b64decode(mint_result['data'][0])))
+    assert mint_info.extension_metadata().name == mint_name
+    assert mint_info.extension_metadata().symbol == mint_symbol
+    assert mint_info.extension_metadata().uri == mint_uri
+    mint_lamports = mint_result['lamports']
+    mint_size = mint_result['space']
+    assert pxsol.rpc.get_minimum_balance_for_rent_exemption(mint_size, {}) == mint_lamports
+    mint_name = 'Ethereum'
+    mint_symbol = 'ETH'
+    mint_uri = 'https://ethereum.org'
+    user.spl_update(mint, mint_name, mint_symbol, mint_uri)
     mint_result = pxsol.rpc.get_account_info(mint.base58(), {})
     mint_info = pxsol.core.TokenMint.serialize_decode(bytearray(base64.b64decode(mint_result['data'][0])))
     assert mint_info.extension_metadata().name == mint_name
