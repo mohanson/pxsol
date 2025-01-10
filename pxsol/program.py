@@ -2,6 +2,11 @@ import hashlib
 import pxsol.core
 import typing
 
+# Solana programs mainly use two serialization formats, bincode and borsh. Their specifications can be found on the
+# following web pages:
+# Bincode: https://github.com/bincode-org/bincode/blob/trunk/docs/spec.md
+# Borsh: https://github.com/near/borsh#specification
+
 
 class AssociatedTokenAccount:
     # See: https://github.com/solana-program/associated-token-account
