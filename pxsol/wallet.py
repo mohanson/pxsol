@@ -131,6 +131,7 @@ class Wallet:
         tx.sign([self.prikey, tempory_prikey])
         txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
         pxsol.rpc.wait([txid])
+        pxsol.rpc.step()
         return program
 
     def program_update(self, program: pxsol.core.PubKey, bincode: bytearray) -> None:
@@ -151,6 +152,7 @@ class Wallet:
         tx.sign([self.prikey])
         txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
         pxsol.rpc.wait([txid])
+        pxsol.rpc.step()
 
     def sol_balance(self) -> int:
         # Returns the lamport balance of the account.
