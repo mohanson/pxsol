@@ -433,7 +433,7 @@ class Token:
 
     @classmethod
     def approve(cls, amount: int) -> bytearray:
-        # Approves a delegate.  A delegate is given the authority over tokens on behalf of the source account's owner.
+        # Approves a delegate. A delegate is given the authority over tokens on behalf of the source account's owner.
         # Account references:
         # 0. -w the source account.
         # 1. -r the delegate.
