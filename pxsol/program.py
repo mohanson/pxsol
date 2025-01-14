@@ -236,6 +236,7 @@ class System:
         r.extend(bytearray(lamports.to_bytes(8, 'little')))
         return r
 
+    @classmethod
     def create_account_with_seed(
         cls,
         base: pxsol.core.PubKey,
