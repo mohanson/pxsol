@@ -402,7 +402,7 @@ class Token:
         return r
 
     @classmethod
-    def initialize_account(cls):
+    def initialize_account(cls) -> bytearray:
         # Initializes a new account to hold tokens. Account references:
         # 0. -w the account to initialize.
         # 1. -r the mint this account will be associated with.
