@@ -7,7 +7,8 @@ Pxsol is a project that aims to provide human-friendly interfaces for common sol
 Features:
 
 - No third-party dependencies, everything is visible.
-- Incredibly simple, even a cat knows how to use it.
+- Incredibly simple. Just like its description says, for humanity.
+- Has a built-in wallet, most of the on-chain operations can be completed through it.
 
 ## Installation
 
