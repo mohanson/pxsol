@@ -376,7 +376,7 @@ class SysvarRent:
 
 class Token:
     # Solana spl token.
-    # See: https://github.com/solana-labs/solana-program-library/blob/master/token/program-2022
+    # See: https://github.com/solana-program/token-2022
 
     pubkey_2020 = pxsol.core.PubKey.base58_decode('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA')
     pubkey_2022 = pxsol.core.PubKey.base58_decode('TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb')
