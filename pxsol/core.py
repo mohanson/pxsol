@@ -100,7 +100,16 @@ class PubKey:
         # Convert the base58 representation to public key.
         return PubKey(pxsol.base58.decode(data))
 
-    def derive(self, seed: bytearray) -> typing.Self:
+    def derive(self, seed: bytearray, host: typing.Self) -> typing.Self:
+        # Create new pubkey with seed and host.
+        data = bytearray()
+        data.extend(self.p)
+        data.extend(seed)
+        data.extend(host.p)
+        assert not data.endswith(bytearray('ProgramDerivedAddress'.encode()))
+        return PubKey(bytearray(hashlib.sha256(data).digest()))
+
+    def derive_pda(self, seed: bytearray) -> typing.Self:
         # Program Derived Address (PDA). PDAs are addresses derived deterministically using a combination of
         # user-defined seeds, a bump seed, and a program's ID.
         # See: https://solana.com/docs/core/pda
