@@ -20,15 +20,15 @@ class Fp:
 
     def __add__(self, data: typing.Self) -> typing.Self:
         assert self.p == data.p
-        return self.__class__((self.x + data.x) % self.p)
+        return self.__class__(self.x + data.x)
 
     def __sub__(self, data: typing.Self) -> typing.Self:
         assert self.p == data.p
-        return self.__class__((self.x - data.x) % self.p)
+        return self.__class__(self.x - data.x)
 
     def __mul__(self, data: typing.Self) -> typing.Self:
         assert self.p == data.p
-        return self.__class__((self.x * data.x) % self.p)
+        return self.__class__(self.x * data.x)
 
     def __truediv__(self, data: typing.Self) -> typing.Self:
         return self * data ** -1
@@ -37,7 +37,7 @@ class Fp:
         return self.__class__(pow(self.x, data, self.p))
 
     def __pos__(self) -> typing.Self:
-        return self
+        return self.__class__(self.x)
 
     def __neg__(self) -> typing.Self:
         return self.__class__(self.p - self.x)
