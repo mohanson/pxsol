@@ -87,7 +87,7 @@ D = -Fq(121665) / Fq(121666)
 class Pt:
 
     def __init__(self, x: Fq, y: Fq) -> None:
-        assert y * y - x * x == Fq(1) + D * x * x * y * y
+        assert A * x * x + y * y == Fq(1) + D * x * x * y * y
         self.x = x
         self.y = y
 
