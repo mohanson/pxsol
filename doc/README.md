@@ -5,3 +5,4 @@
 ---
 
 - [Solana/Private Key, Public Key and Address/Introduction](./content/prikey_introduction.md)
+- [Solana/Private Key, Public Key and Address/Private Key](./content/prikey_prikey.md)
