@@ -1,3 +1,7 @@
-# Solana: We are waiting for the next possibility
+# Solana: We Are Waiting for the Next One
 
-- [Solana/We are waiting for the next possibility](./content/foreword.md)
+- [Solana/We Are Waiting for the Next One](./content/foreword.md)
+
+---
+
+- [Solana/Private Key, Public Key and Address/Introduction](./content/prikey_introduction.md)
