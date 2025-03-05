@@ -1,10 +1,6 @@
 # Solana/Private Key, Public Key and Address/A Cryptographic Explanation of Private Key (Part 2)
 
-It's okay, this chapter isn't a straightforward article. I'll be explaining some cryptographic aspects of Solana keys in this chapter, which requires readers to have a basic understanding of mathematics. If you feel uncomfortable, you can skip this chapter content without any issues - it won't hinder your progress with the rest of the course. As part of my Solana tutorial series, this article has taken me the most time, so if you're determined to read it, I assure you that you'll gain something from it afterwards.
-
-## Public-Private Key Cryptography: The Foundation of Blockchain Technology
-
-Before diving into the private key used in Solana, we first need to understand a concept widely applied in modern information security known as "public-private key cryptography." This is not only the cornerstone for Solana's security but also forms the basis of its operations. Public-private key cryptography, or asymmetric encryption, is an encryption method based on mathematical algorithms that uses two keys: a public key and a private key.
+Before diving into the private key used in Solana, we first need to understand a concept widely applied in modern information security known as "public-private key cryptography". This is not only the cornerstone for Solana's security but also forms the basis of its operations. Public-private key cryptography, or asymmetric encryption, is an encryption method based on mathematical algorithms that uses two keys: a public key and a private key.
 
 **Public Key**
 
@@ -26,8 +22,6 @@ Therefore, our journey begins outside of Solana's framework to focus on Bitcoin'
 | ---------- | -------------- | ------------------- |
 | Bitcoin    | secp256k1      | ECDSA               |
 | Solana     | ed25519        | eddsa               |
-
-Understanding these distinctions requires a foundation in the secp256k1 elliptic curve and its limitations, which in turn necessitates an understanding of the discrete logarithm problem.
 
 ## The Bitcoin Standard Curve
 
