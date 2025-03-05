@@ -1,4 +1,4 @@
-# Solana/Private Key, Public Key and Address/A Cryptographic Explanation of Private Key (Part 2)
+# Solana/Private Key, Public Key and Address/A Cryptographic Explanation of Private Key (Part 3)
 
 Elliptic curve cryptography (ECC) has gained attention due to its ability to provide robust security with shorter key lengths compared to other cryptographic methods. However, this efficiency in key size also brings certain implications.
 

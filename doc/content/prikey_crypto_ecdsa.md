@@ -1,4 +1,4 @@
-# Solana/Private Key, Public Key and Address/A Cryptographic Explanation of Private Key (Part 1)
+# Solana/Private Key, Public Key and Address/A Cryptographic Explanation of Private Key (Part 2)
 
 It's okay, this chapter isn't a straightforward article. I'll be explaining some cryptographic aspects of Solana keys in this chapter, which requires readers to have a basic understanding of mathematics. If you feel uncomfortable, you can skip this chapter content without any issues - it won't hinder your progress with the rest of the course. As part of my Solana tutorial series, this article has taken me the most time, so if you're determined to read it, I assure you that you'll gain something from it afterwards.
 
