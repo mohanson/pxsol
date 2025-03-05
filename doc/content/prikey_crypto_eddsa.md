@@ -1,4 +1,4 @@
-# Solana/Private Key, Public Key and Address/A Cryptographic Explanation of Private Key (Part 4)
+# Solana/Private Key, Public Key and Address/A Cryptographic Explanation of Private Key (Part 6)
 
 The Ed25519 is the hottest secp256k1 replacement in recent years. Its development came about by accident. Since its publication in 2005, the 25519 series of curves had been in an unheard of existence in the industry, but the turning point happened in 2013, after Snowden exposed the Prism program, people found that the p256 curve (secp256k1 belongs to the p256 curve series, but the parameters have been changed compared to the original) pushed by the U.S. Security Agency may have a backdoor in the algorithm. After this, industry began to try to use the 25519 family of curves instead of the p256 family of curves.
 
