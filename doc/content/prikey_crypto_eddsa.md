@@ -1,0 +1,312 @@
+# Solana/Private Key, Public Key and Address/A Cryptographic Explanation of Private Key (Part 3)
+
+The Ed25519 is the hottest secp256k1 replacement in recent years. Its development came about by accident. Since its publication in 2005, the 25519 series of curves had been in an unheard of existence in the industry, but the turning point happened in 2013, after Snowden exposed the Prism program, people found that the p256 curve (secp256k1 belongs to the p256 curve series, but the parameters have been changed compared to the original) pushed by the U.S. Security Agency may have a backdoor in the algorithm. After this, industry began to try to use the 25519 family of curves instead of the p256 family of curves.
+
+> The author of Ed25519 is Harold Edwards, who named the 25519 series of curves, Edwards Curve, after himself, and coincidentally, Snowden's full name is Edward Joseph Snowden.
+
+So far, the popularization and application of the Ed25519 curve has been very successful: Github.
+
+- Github. Currently, only asymmetric cryptographic algorithms are allowed to authenticate push permissions on repositories, and ed25519 is on its support list.
+- Solana. the main subject of this book, uses ed25519 to sign and verify transactions.
+- Binance. When you apply for Coin's api permissions, you'll notice that Coin offers several cryptographic signature algorithms, and ed25519 is one of them.
+
+## Ed25519
+
+Ed25519 is a class of **Twisted Edwards Curves** (ax² + y² = 1 + d * x² * y²) with the expression
+
+```txt
+-x² + y² = 1 - (121665 / 121666) * x² * y²
+```
+
+It is based on the prime number field like secp256k1, but it uses the prime number p as `2²⁵⁵ - 19`. If this prime is expressed in hexadecimal, it ends in `ed`. So ed25519 contains both the name of the author, Harold Edwards, and the prime number p, and the author is a bit of a naming genius. If we were half as good as the author, we wouldn't have to worry about naming variables.
+
+By distorting the Edwards curve, we mean adding a constant term a to the **Edwards curve** (x² + y² = 1 + d * x² * y²), which “distorts” the Edwards curve. The original Edwards curve is a very nice quadratic curve, e.g. when d = -30, the graph of the Edwards curve is shown below.
+
+![img](../img/prikey_crypto_eddsa/edwards.jpg)
+
+Since the graph of the ed25519 curve is very unintuitive, we use the distorted Edwards curve for a = 8, d = 4 as an alternative example, and the graph is shown below.
+
+![img](../img/prikey_crypto_eddsa/edwards_twisted.jpg)
+
+An Edwards curve is an alternative elliptic curve. It formally simplifies the addition of points on an elliptic curve, making it easier to implement and more computationally efficient.
+
+All twisted Edwards curves are rationally equivalent to the Montgomery curve (b * y² = x³ + a * x² + x) in both directions, and the Montgomery curve corresponding to ed25519 is called curve25519, and has the following expression. Its image is also very unintuitive, so here we give an alternative image for a = 2.5, b = 0.25.
+
+```txt
+y² = x³ + 486662 * x² + x
+```
+
+![img](../img/prikey_crypto_eddsa/montgomery.jpg)
+
+For these different types of elliptic curves, you can understand that the general form of elliptic curve is y² = x³ + ax + b, which was independently proposed by Koblitz and Miller in 1985. In 1987, Montgomery proved that Montgomery curves are bi-directionally rationally equivalent to elliptic curves in general form, and thus Montgomery curves are also known as the Montgomery representation of elliptic curves. Later in 2005, Edwards proved that twisted Edwards curves are rationally equivalent to Montgomery curves in both directions, so twisted Edwards curves are also called twisted Edwards representations of elliptic curves.
+
+Q: Determine if the point below is on ed25519.
+
+- `x = 0x1122e705f69819df8042c3a34d5294668f25830f41e9b585b2aa6b05ef4cc7e2`
+- `y = 0x2a619802432fe95214ac6fed9d01dd149d197f1202e8c2698caab03831b8f2ee`
+
+A: This question is so difficult, what should I do? But the so-called students, that is, in the encounter difficulties in time to find help it! After I secretly private message the teacher, the teacher told me ** he has written a curve implementation of ed25519 **, just type `pip install pxsol` to get the code of ed25519, the teacher is really too gentle it!
+
+```py
+import pxsol
+
+x = pxsol.ed25519.Fq(0x1122e705f69819df8042c3a34d5294668f25830f41e9b585b2aa6b05ef4cc7e2)
+y = pxsol.ed25519.Fq(0x2a619802432fe95214ac6fed9d01dd149d197f1202e8c2698caab03831b8f2ee)
+
+assert pxsol.ed25519.A * x * x + y * y == pxsol.ed25519.Fq(1) + pxsol.ed25519.D * x * x * y * y
+```
+
+## Ed25519 Addition
+
+Similar to the secp256k1 curve, we need to make the points on ed25519 form an additive group. Given two distinct points p and q on ed25519, the addition r = p + q is given by the following rule.
+
+```txt
+x₃ = (x₁ * y₂ + x₂ * y₁) / (1 + d * x₁ * x₂ * y₁ * y₂)
+y₃ = (y₁ * y₂ - a * x₁ * x₂) / (1 - d * x₁ * x₂ * y₁ * y₂)
+```
+
+The code implementation is as follows.
+
+```py
+A = -Fq(1)
+D = -Fq(121665) / Fq(121666)
+
+class Pt:
+
+    def __init__(self, x: Fq, y: Fq) -> None:
+        assert A * x * x + y * y == Fq(1) + D * x * x * y * y
+        self.x = x
+        self.y = y
+
+    def __add__(self, data: typing.Self) -> typing.Self:
+        # https://datatracker.ietf.org/doc/html/rfc8032#ref-CURVE25519
+        # Points on the curve form a group under addition, (x3, y3) = (x1, y1) + (x2, y2), with the formulas
+        #           x1 * y2 + x2 * y1                y1 * y2 - a * x1 * x2
+        # x3 = --------------------------,   y3 = ---------------------------
+        #       1 + d * x1 * x2 * y1 * y2          1 - d * x1 * x2 * y1 * y2
+        x1, x2 = self.x, data.x
+        y1, y2 = self.y, data.y
+        x3 = (x1 * y2 + x2 * y1) / (Fq(1) + D * x1 * x2 * y1 * y2)
+        y3 = (y1 * y2 - A * x1 * x2) / (Fq(1) - D * x1 * x2 * y1 * y2)
+        return Pt(x3, y3)
+```
+
+If we compare to secp256k1, we see that the addition algorithm on the ed25519 curve is drastically simplified: we don't need additional logic code to determine whether p is equal to ±q. For computers, each additional branching judgment slows down the cpu considerably, so the addition algorithm on the ed25519 curve is very Therefore, the addition algorithm on the curve of ed25519 is very efficient compared to secp256k1.
+
+Similar to secp256k1, scalar multiplication can be realized after addition, so we will not repeat it here. Finally, the generation point g is specified as follows.
+
+```py
+G = Pt(
+    Fq(0x216936d3cd6e53fec0a4e231fdd6dc5c692cc7609525a7b2c9562d608f25d51a),
+    Fq(0x6666666666666666666666666666666666666666666666666666666666666658),
+)
+```
+
+Q: Calculate the value of g * 42.
+
+A:
+
+```py
+import pxsol
+
+p = pxsol.ed25519.G * pxsol.ed25519.Fr(42)
+
+assert p.x == pxsol.ed25519.Fq(0x5dbe6cc3ccfe19f056f503fd5895e4ca00385a5f109126914b52446017318069)
+assert p.y == pxsol.ed25519.Fq(0x4237066783c4352092fdf0de4df92cae7343f40939f32b3e195c834e99321ace)
+```
+
+## Ed25519 Signature System
+
+**Encoding of points**
+
+In ed25519, we need to use a special algorithm for encoding points on a curve. Intuitively, a point on a curve consists of two values, x and y, both of which are in the range 0 <= x,y < p. Therefore, we need to use 64 points.
+Both x and y are in the range 0 <= x,y < p, so we need to use 64 bytes to represent it. But there is a way to compress the space to 32 bytes, as follows: 0.
+
+0. Since y < p, the most significant bit of y is always 0. 0.
+0. Copy the least significant bit of x to the most significant bit of y, and encode the result in 32 bytes in little-endian order.
+
+In this way, we know the exact value of y and the parity of x. The code is implemented as follows. The code is realized as follows.
+
+```py
+def pt_encode(pt: pxsol.ed25519.Pt) -> bytearray:
+    # A curve point (x,y), with coordinates in the range 0 <= x,y < p, is coded as follows. First, encode the
+    # y-coordinate as a little-endian string of 32 octets. The most significant bit of the final octet is always zero.
+    # To form the encoding of the point, copy the least significant bit of the x-coordinate to the most significant bit
+    # of the final octet.
+    # See https://datatracker.ietf.org/doc/html/rfc8032#section-5.1.2
+    n = pt.y.x | ((pt.x.x & 1) << 255)
+    return bytearray(n.to_bytes(32, 'little'))
+```
+
+**Decoding of points**
+
+Point decoding is the inverse of point encoding. The steps are as follows: 0.
+
+0. First, the 32-byte array is interpreted as an integer with small end. The 255th bit of this number is the least significant bit of the x-coordinate, indicating the parity of the x-value. Simply clearing this bit restores the y-coordinate. If the resulting value is >= p, the decoding fails. 0.
+0. To recover the x-coordinate means that the curve equation x² = (y² - 1) / (d * y² + 1) holds. Let u = y² - 1, v = d * y² + 1, and compute its candidate root x = (u / v)^((p + 3) / 8). 0. Now there are three cases: u = (u / v)^((p + 3) / 8).
+0. Now there are three cases: 1.
+    1. if x * x == u / v, do nothing. 2. if x * x == u / v, do nothing.
+    2. if x * x == u / v * -1, then x = x * 2^((p - 1) / 4). 3. the decoding fails, the dot doesn't work.
+    3. Decoding fails, the point is not on the curve. 0.
+0. Finally, determine the parity of x. If the parity does not match, the point is not on the curve. If the parity does not match, then x = -x.
+
+The code implementation is as follows
+
+```py
+def pt_decode(pt: bytearray) -> pxsol.ed25519.Pt:
+    # Decoding a point, given as a 32-octet string, is a little more complicated.
+    # See https://datatracker.ietf.org/doc/html/rfc8032#section-5.1.3
+    #
+    # First, interpret the string as an integer in little-endian representation. Bit 255 of this number is the least
+    # significant bit of the x-coordinate and denote this value x_0. The y-coordinate is recovered simply by clearing
+    # this bit. If the resulting value is >= p, decoding fails.
+    uint = int.from_bytes(pt, 'little')
+    bit0 = uint >> 255
+    yint = uint & ((1 << 255) - 1)
+    assert yint < pxsol.ed25519.P
+    # To recover the x-coordinate, the curve equation implies x^2 = (y^2 - 1) / (d y^2 + 1) (mod p). The denominator is
+    # always non-zero mod p.
+    y = pxsol.ed25519.Fq(yint)
+    u = y * y - pxsol.ed25519.Fq(1)
+    v = pxsol.ed25519.D * y * y + pxsol.ed25519.Fq(1)
+    w = u / v
+    # To compute the square root of (u/v), the first step is to compute the candidate root x = (u/v)^((p+3)/8).
+    x = w ** ((pxsol.ed25519.P + 3) // 8)
+    # Again, there are three cases:
+    # 1. If v x^2 = +u (mod p), x is a square root.
+    # 2. If v x^2 = -u (mod p), set x <-- x * 2^((p-1)/4), which is a square root.
+    # 3. Otherwise, no square root exists for modulo p, and decoding fails.
+    if x*x != w:
+        x = x * pxsol.ed25519.Fq(2) ** ((pxsol.ed25519.P - 1) // 4)
+        assert x*x == w
+    # Finally, use the x_0 bit to select the right square root. If x = 0, and x_0 = 1, decoding fails. Otherwise, if
+    # x_0 != x mod 2, set x <-- p - x.  Return the decoded point (x,y).
+    assert x != pxsol.ed25519.Fq(0) or not bit0
+    if x.x & 1 != bit0:
+        x = -x
+    return pxsol.ed25519.Pt(x, y)
+```
+
+**Private Key**
+
+As mentioned earlier, Ed25519's private key is a 32-byte random number, usually generated by a secure random number generator. The private key is central to the user's identity and must be kept strictly confidential. In the implementation of Ed25519, the private key is not used for direct signing, but is expanded into a 64-byte seed by a hash function (sha-512), part of which is used as a scalar for generating the public key, and part of which is used as a secret scalar for signing. This design enhances the security of the private key and prevents the risk of exposure due to the direct use of the original private key.
+
+Private key generation is simple, but its security depends on the quality of the random numbers. If the random numbers are predictable, an attacker may threaten the system by brute-force cracking or forging signatures. Therefore, the use of a cryptographically secure random number generator (such as /dev/urandom or a hardware random number generator) is essential for private key generation.
+
+```py
+import secrets
+
+prikey = bytearray(secrets.token_bytes(32))
+```
+
+**Public Key**
+
+The length of the public key for Ed25519 is also 32 bytes. The 32-byte public key is generated by the following steps.
+
+0. Use sha-512 to hash the 32-byte private key to generate a 64-byte hash result. Only the first 32 bytes are used to generate the public key. 0.
+0. Clear the lowest three bits of the first byte, clear the highest bit of the last octet, and set the second highest bit of the last byte. 0. Interpret the above data as a little-endian.
+0. Interpret the above data as little end-order integers to form the secret scalar a. Perform the scalar multiplication g * s and write it as A. 0.
+0. The public key is the encoding of the **point ** of point A.
+
+
+```py
+def pubkey(prikey: bytearray) -> bytearray:
+    assert len(prikey) == 32
+    h = hash(prikey)
+    a = int.from_bytes(h[:32], 'little')
+    a &= (1 << 254) - 8
+    a |= (1 << 254)
+    a = pxsol.ed25519.Fr(a)
+    return pt_encode(pxsol.ed25519.G * a)
+```
+
+The public key generation process of Ed25519 is unidirectional: the public key can be quickly computed from the private key, but the private key cannot be inverted from the public key, and this irreversibility is the central guarantee of the elliptic curve discrete logarithm problem. The role of the public key is to publicize the identity, and anyone can use the public key to verify the signature. Due to the efficient design of Ed25519, public key generation and usage are very fast, which is very suitable for high-performance scenarios.
+
+
+**Signature**
+
+Signature is a core feature of Ed25519, used to prove the authenticity and integrity of a message. The inputs to the signing process are the private key (a 32-byte array) and a message of arbitrary size m. The signing process is as follows.
+
+0. The private key (32 bytes) is hashed using sha-512. As described in the previous section, construct the secret scalar a from the first half of the hash, and the corresponding public key pubkey. Denote the second half of the hash digest as prefix. 0. Compute sha-512(sha-512(sha-512)).
+0. Compute sha-512(prefix + m), where m is the message to be signed. Interpret the resulting 64-byte hash as a small end-ordered integer r. 0. Compute point g * r, which is a small end-ordered integer.
+0. Compute point g * r, and encode the result in points, denoted digest. 0. Compute sha-512(prefix + m), where m is the message to be signed.
+0. Compute sha-512(digest + pubkey + m), and interpret the resulting 64-byte digest as a small end-order integer h. 0. Compute s = r + a. Compute s = r + a.
+0. Compute s = r + a * h. 0.
+0. Concatenate digest (32 bytes) with the little-endian encoding of s (32 bytes; the top three bits of the last byte are always zero) to form a signature.
+
+```py
+def sign(prikey: bytearray, m: bytearray) -> bytearray:
+    # The inputs to the signing procedure is the private key, a 32-octet string, and a message M of arbitrary size.
+    # See https://datatracker.ietf.org/doc/html/rfc8032#section-5.1.6
+    assert len(prikey) == 32
+    h = hash(prikey)
+    a = int.from_bytes(h[:32], 'little')
+    a &= (1 << 254) - 8
+    a |= (1 << 254)
+    a = pxsol.ed25519.Fr(a)
+    A = pxsol.ed25519.G * a
+    pubkey = pt_encode(A)
+    prefix = h[32:]
+    r = pxsol.ed25519.Fr(int.from_bytes(hash(prefix + m), 'little'))
+    R = pxsol.ed25519.G * r
+    digest = pt_encode(R)
+    h = pxsol.ed25519.Fr(int.from_bytes(hash(digest + pubkey + m), 'little'))
+    s = r + a * h
+    return digest + bytearray(s.x.to_bytes(32, 'little'))
+```
+
+**Signature verification**
+
+Signature verification is the process of verifying that a message has not been tampered with and has indeed been signed by the person holding the corresponding private key. The Ed25519 signature verification requires message m, signature v, and public key pubkey, in the following steps. 0.
+
+0. Split the signature v into two 32-byte arrays. Record the first half as digest, decode it as point r, and decode the second half as integer s. Decode the public key pubkey as point a. If any of the decoding fails (including s being out of range), the signature is invalidated. 0. Compute sha-512(s), which is the number of digits in the signature.
+0. Compute sha-512(digest + pubkey + m), and interpret the 64-bit byte digest as a low-end integer h. 0. Check if the group equation g is satisfied.
+0. Check that the group equation g * s == r + a * h is satisfied.
+
+```py
+def verify(pubkey: bytearray, m: bytearray, g: bytearray) -> bool:
+    # Verify a signature on a message using public key.
+    # See https://datatracker.ietf.org/doc/html/rfc8032#section-5.1.7
+    assert len(pubkey) == 32
+    assert len(g) == 64
+    A = pt_decode(pubkey)
+    digest = g[:32]
+    R = pt_decode(digest)
+    s = pxsol.ed25519.Fr(int.from_bytes(g[32:], 'little'))
+    h = pxsol.ed25519.Fr(int.from_bytes(hash(digest + pubkey + m), 'little'))
+    return pxsol.ed25519.G * s == R + A * h
+```
+
+Q: Assuming you have the private key `833fe62409237b9d62ec77587520911e9a759cec1d19755b7da901b96dca3d42`, please sign the message `sha-512('abc')` and verify the signature.
+
+A:
+
+```py
+import pxsol
+import hashlib
+
+prikey = bytearray.fromhex('833fe62409237b9d62ec77587520911e9a759cec1d19755b7da901b96dca3d42')
+pubkey = pxsol.eddsa.pubkey(prikey)
+msg = hashlib.sha512(b'abc').digest()
+sig = pxsol.eddsa.sign(prikey, msg)
+assert sig[:32].hex() == 'dc2a4459e7369633a52b1bf277839a00201009a3efbf3ecb69bea2186c26b589'
+assert sig[32:].hex() == '09351fc9ac90b3ecfdfbc7c66431e0303dca179c138ac17ad9bef1177331a704'
+assert pxsol.eddsa.verify(pubkey, msg, sig)
+```
+
+## Ed25519 Strengths
+
+It's a remarkable achievement: we've spent three chapters learning Ed25519. We've made it this far, and I'm sure that nothing will stop us in the future, no matter what the obstacles. I'd like to finish by talking to you about the advantages of Ed25519, some of which are obvious and some of which are hidden.
+
+The Ed25519 was invented to replace the American National Standard series of elliptic curves, so from a promotional point of view, it basically conforms to the principle of one pull and one step. The official evaluation is: 0.
+
+0. Completely open design, the choice of algorithmic parameters is straightforward and clear, without any doubt, compared to the widely used elliptic curves of the American National Standard series, where the coefficients of the equations are generated using a random seed of unknown origin, which is not described.
+0. High security, even if an elliptic curve encryption algorithm is mathematically secure, it is not necessarily secure in practice, and has a high probability of destroying the security through cache, time, and malicious inputs, but the Ed25519 series of elliptic curves have been specially designed to minimize the probability of errors, and are arguably the most secure encryption algorithms in practice. For example, any 32-bit random number is a legitimate Ed25519 public key, so a malicious numerical attack is impossible. The algorithm is designed to avoid certain branching operations, so that it can be programmed without if, reducing the probability of timing attacks with different if branching code execution times, whereas the American National Standard series of elliptic curves has a very high probability of error in practice. On the contrary, the American National Standard Series of Elliptic Curve Algorithms has a very high probability of error in practice, and is not very immune to some theoretical attacks.
+
+From the developer's point of view, it has some additional hidden advantages.
+
+0. Ed25519 The signature process does not rely on a random number generator. Therefore, we do not have to assume that a secure random number generator must exist. Basic principle of cryptography: the fewer assumptions, the fewer problems!
+
+0. Ed25519's public key is only 32 bytes, while secp256k1's uncompressed public key is 64 bytes, and the compressed public key is 33 bytes. There are some hidden benefits in the underlying system. For example, the commonly used memory copy function memcpy, usually uses a special small copy algorithm for byte arrays <= 32 lengths, as seen in glibc's aarch64 code, <https://github.com/bminor/glibc/blob/master/sysdeps/ aarch64/memcpy.S>. Some high-level languages also take extra care of arrays <= 32 length, e.g. rust only implements clone and copy for such small arrays.
+0. Ed25519 The point group operation on curves is complete, i.e., it holds for all elements of the point group, and no additional judgment is required in the computation, meaning that the operation does not require costly pointwise validation of untrusted external values.
+0. Ed25519 The security of the signature mechanism itself is not affected by hash collisions.
