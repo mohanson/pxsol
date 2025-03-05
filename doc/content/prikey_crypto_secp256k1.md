@@ -8,7 +8,7 @@ y² = x³ + 7
 
 在实数域下, 它的图像是一个上下对称的曲线.
 
-![img](../../img/solana/prikey_crypto_secp256k1/secp256k1.jpg)
+![img](../img/prikey_crypto_secp256k1/secp256k1.jpg)
 
 > P-256 是另一类被广泛使用的椭圆曲线, secp256k1 与其的区别只有参数不同.
 
