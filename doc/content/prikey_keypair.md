@@ -92,7 +92,7 @@ print(pxsol.base58.encode(prikey.p + pubkey.p))
 
 ## Keypair in Base64
 
-Solana has historically also had a base64 format for public-private key pairs, which encodes them in base64.
+Solana has historically also had a base64 format for the keypair, which encodes them in base64.
 
 Reminder: encoded in **base64**.
 
