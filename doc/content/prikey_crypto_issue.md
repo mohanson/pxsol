@@ -1,18 +1,18 @@
 # Solana/Private Key, Public Key and Address/A Cryptographic Explanation of Private Key (Part 5)
 
-Elliptic curve cryptography (ECC) has gained attention due to its ability to provide robust security with shorter key lengths compared to other cryptographic methods. However, this efficiency in key size also brings certain implications.
+Secp256k1 and ECDSA signing algorithms are now widely used in many systems. I know that elliptic curves have an advantage in cryptography because they can provide higher security at smaller key lengths. However, are they truly secure and perfect algorithms?
 
-Recent news indicate that the National Institute of Standards and Technology (NIST) has raised concerns regarding the secp256k1 curve, advising against its use as a standard due to identified security vulnerabilities. In response, NIST recommends alternatives like the secp256r1 curve for cryptographic applications in the U.S.
+From recent news, it seems that they have some issues. The United States National Institute of Standards and Technology (NIST) has found some security risks in secp256k1 and no longer recommends its use. Instead, NIST suggests using another elliptic curve called secp256r1 as an alternative. On the other hand, Bitcoin itself is changing, introducing a signature algorithm called Schnorr in 2021 to try to replace ECDSA.
 
-Additionally, Bitcoin has transitioned from using the elliptic curve Digital Signature Algorithm (ECDSA) to the Schnorr signature algorithm as part of its upgrade process. This shift aims to enhance security and address some of the limitations associated with ECDSA.
-
-Is the decline of secp256k1 + ECDSA usage due solely to algorithmic issues, or are external factors playing a role? To uncover the underlying reasons behind this trend, we must explore the broader context influencing these decisions.
+The underlying reason for these changes is due to problems with the ECDSA signing algorithm itself. It is extremely vulnerable to attacks and has caused many disastrous consequences. In this section, I will lead you through history and attempt to reenact those famous attacks.
 
 ## Random Number Reuse Attack
 
-Because of Bitcoin's reasons, the secp256k1 elliptic curve and ECDSA signature algorithm have become widely known to everyone. However, in reality, they were not unknown before Bitcoin. For example, during the PlayStation 3 era, Sony uses a private key stored at company headquarters to mark its PlayStation firmware as valid and unmodified. PlayStation 3 only needs one public key to verify whether a signature comes from Sony. Unfortunately, due to their poor code implementation, Sony's system was hacked by hackers, which means that any future system updates Sony releases can be easily decrypted.
+Because of Bitcoin's reasons, secp256k1 elliptic curves and ECDSA signature algorithms have become widely known. However, they were not unknown before Bitcoin. For example, in the PlayStation 3 era, Sony used a private key stored on their company premises to mark their PlayStation firmware as valid and unmodified. All they needed was one public key to verify if the signature came from Sony.
 
-At the fail0overflow conference, hackers showed part of Sony's ecdsa code and found that Sony always kept the value of the random number at 4, which resulted in the random private key k in the ecdsa signature step always getting the same value. Ecdsa signatures require that the random number k is strictly random. If k is reused, it will directly lead to the leakage of the private key. This attack is not difficult, so guys, come and challenge it!
+Unfortunately for Sony, their poor code implementation made them vulnerable to hackers, who could easily decrypt any system updates published by Sony in the future.
+
+At the fail0verflow conference, a hacker demonstrated part of Sony's ECDSA code and found that they always kept the random number value at 4. This meant that the private key k in the ECDSA signing step would always get the same value. ECDSA signature requires a strictly random private key k; if you reuse k, it directly leads to private key exposure. This attack is not difficult, so let's challenge ourselves!
 
 ```py
 def get_random_number():
@@ -20,15 +20,13 @@ def get_random_number():
   return 4
 ```
 
-Example: Given the following information
+Q: Given the following information, find the private key.
 
-- Information m₁ and its signature (r₁, s₁)
-- Information m₂ and its signature (r₂, s₂)
-- Both m₁ and m₂ are signed using the same random number k, but k is unknown
+- Information m₁ and its signature (r₁, s₁).
+- Information m₂ and its signature (r₂, s₂).
+- Both m₁ and m₂ are signed using the same random number k, but k is unknown.
 
-Find the private key prikey.
-
-Answer:
+A:
 
 ```txt
 s₁ = (m₁ + prikey * r₁) / k
