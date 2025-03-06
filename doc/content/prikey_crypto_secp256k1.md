@@ -133,7 +133,7 @@ The number of points on an elliptic curve is referred to as its order. The scala
 N = 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141
 ```
 
-## Secp256k1 Code ()
+## Secp256k1 Code
 
 In conclusion, we have the complete secp256k1 code below. You can find this code in [pabtc.secp256k1](https://github.com/mohanson/pabtc/blob/master/pabtc/secp256k1.py).
 
@@ -243,6 +243,8 @@ G = Pt(
 ```
 
 In this context, the scalar k corresponds to the secp256k1 private key. The generator point multiplied by k, i.e., g * k, represents the secp256k1 public key. Computing the public key from the private key is straightforward; however, deriving the private key from the public key is computationally very difficult.
+
+## Exercise
 
 Q: Given a Bitcoin private key of 0x5f6717883bef25f45a129c11fcac1567d74bda5a9ad4cbffc8203c0da2a1473c, find the public key.
 
