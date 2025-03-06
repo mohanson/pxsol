@@ -14,3 +14,4 @@
 - [Solana/Private Key, Public Key and Address/A Cryptographic Explanation of Private Key (Part 6)](./content/prikey_crypto_ed25519.md)
 - [Solana/Private Key, Public Key and Address/A Cryptographic Explanation of Private Key (Part 7)](./content/prikey_crypto_eddsa.md)
 - [Solana/Private Key, Public Key and Address/A Cryptographic Explanation of Private Key (Part 8)](./content/prikey_crypto_eddsa_advantages.md)
+- [Solana/Private Key, Public Key and Address/Public Key](./content/prikey_pubkey.md)
