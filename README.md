@@ -22,7 +22,7 @@ $ python -m pip install --editable .
 
 ## Documentation and Courses
 
-*Solana: We are waiting for the next possibility*
+*Solana: We Are Waiting for the Next One*
 
 - [English](https://github.com/mohanson/pxsol/tree/master/doc)
 - [Chinese](http://accu.cc/content/solana/foreword/)
