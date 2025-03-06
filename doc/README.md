@@ -16,3 +16,4 @@
 - [Solana/Private Key, Public Key and Address/A Cryptographic Explanation of Private Key (Part 8)](./content/prikey_crypto_eddsa_advantages.md)
 - [Solana/Private Key, Public Key and Address/Public Key](./content/prikey_pubkey.md)
 - [Solana/Private Key, Public Key and Address/Address](./content/prikey_addr.md)
+- [Solana/Private Key, Public Key and Address/Address Spoofing Attack and Vanity Address](./content/prikey_vanity.md)
