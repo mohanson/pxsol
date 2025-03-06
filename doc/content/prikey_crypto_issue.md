@@ -106,36 +106,34 @@ This kind of issue also exists in other blockchain systems, prompting many proje
 
 I flew next to a big brother has been watching the stock, we talked a few stock. He said the market was bad this year, and asked me to guess how much he'd lost.
 
-I said: "Just about a hundred thousand dollars." Brother froze, asked me: "How did you guess it?"
+I said: "Just about a hundred thousand yuan." Brother froze, asked me: "How did you guess it?"
 
-I said although you are wearing a shirt and pants, look very business, but carried a Swiss Army knife shoulder bag, big bosses have to carry this?
-
-You look like a businessman. Look at you wear a piece of Armani this kind of miscellaneous brand watch, thirty-something years old, even a Rolex are not mixed, that means the income is very common.
+I said although you are wearing a shirt and pants, look very business, but your clothes are very ordinary, that means the income is very common.
 
 Your shirt is old, but it's ironed properly, and the collar is clean, which your wife cleaned up for you. You have a little hellokitty charm on your bag, which your daughter must have hung for you.
 
-Your stock picks are all 5G mobile chip stocks, you think you know a lot about it, you should be working in an Internet company. All things considered, your disposable capital is only 20-30 million, combined with this year's market, a loss of about 100,000 yuan. And look at your dark circles under your eyes and thin hair in proportion to your age, it's a lot of pressure.
+Your stock picks are all 5G mobile chip stocks, you think you know a lot about it, you should be working in an Internet company. All things considered, your disposable capital is only 200-300 thousand yuan, combined with this year's market, a loss of about a hundred thousand yuan. And look at your dark circles under your eyes and thin hair in proportion to your age, it's a lot of pressure.
 
-Your wife probably doesn't know you've lost so much money in stocks. I just saw that you have a virtual currency app on your cell phone, last on the list, which means it's a recent download.
+Your wife probably doesn't know you've lost so much money in stocks. I just saw that you have a cryptocurrency exchange app on your cell phone, last on the list, which means it's a recent download.
 
-If you lose more money in stocks, you're going to go into virtual coins, but you're only going to lose more money. After that I clicked on his cell phone speculation software interface, it shows that the total investment of 280,000, the current loss of 102,000.
+If you lose more money in stocks, you're going to go into cryptocurrency coins, but you're only going to lose more money. After that I clicked on his cell phone speculation software interface, it shows that the total investment of 280,000, the current loss of 102,000.
 
 Brother silent, never said a word to me on the way, just occasionally look down with the index finger joints to rub a slightly red eyes, the airplane meal box lunch opened, but did not eat.
 
-The above story is from the Chinese Internet, first appeared in 2015, and has been republished so many times that its author is unknown. In this story, "I" launched a **side-channel attack** on "Big Brother". Although Big Brother did not disclose any information about his investments to me, since Big Brother's return on assets affects what Big Brother wears, we can reverse engineer Big Brother's return on assets by what Big Brother wears.
+The above story is from the Chinese Internet, first appeared in 2015, and has been republished so many times that its author is unknown. In this story, "I" launched a side-channel attack on big brother". Although big brother did not disclose any information about his investments to me, since big brother's return on assets affects what big brother wears, we can reverse engineer big brother's return on assets by what big brother wears.
 
 In the field of cryptography, **side-channel attacks** are techniques that exploit information gained from the physical or behavioral characteristics of a device during the execution of cryptographic operations. These attacks can include analyzing factors such as execution time, power consumption patterns, and electromagnetic radiation.
 
 In Ecdsa, the signature process involves generating a random number k, which is then used to compute part of the signature. The security of this random number is crucial, as it allows an attacker to recover the private key if k is compromised.
 
-Example: For the following information, please calculate the private key for secp256k1.
+Q: For the following information, please calculate the private key for secp256k1.
 
 - `m = 0x72a963cdfb01bc37cd283106875ff1f07f02bc9ad6121b75c3d17629df128d4e`
 - `k = 0x1058387903e128125f2715d7de954f53686172b78c3f919521ae4664f30b00ca`
 - `r = 0x75ee776c554b1dd5e1680a4cc9a3d0e8cb11400742d8af0222ce383e642f98db`
 - `s = 0x35fd48c9157256558184e20c9392ff3c9517f9753e3745aede06cab285f4bc0d`
 
-Answer: According to the ecdsa signature algorithm, it is easy to get the formula for calculating the private key as `prikey = (s * k - m) / r`, and substituting it into the numerical calculation, we get the private key as 1. The authentication code is as follows:
+A: According to the ecdsa signature algorithm, it is easy to get the formula for calculating the private key as `prikey = (s * k - m) / r`, and substituting it into the numerical calculation, we get the private key as 1. The authentication code is as follows:
 
 ```py
 import pabtc
@@ -151,9 +149,9 @@ assert prikey == pabtc.secp256k1.Fr(1)
 
 The computation of a random number k involves elliptic curve dot product and inverse element operations (usually implemented by extending Euclid's algorithm). The time of these operations can be correlated with k, and a bypass attacker can measure the difference in execution time to extract k. To reveal the principle, I will try to simplify the attack.
 
-Example: There is an unknown random number k, and now a hacker can somehow detect the execution time of g * k. Try to find out if it is possible to get some information about the random number k. Answer: Observe the elliptic curve on which the random number k is stored.
+Q: There is an unknown random number k, and now a hacker can somehow detect the execution time of g * k. Try to find out if it is possible to get some information about the random number k.
 
-Answer: Looking at the multiplication algorithm for points on an elliptic curve, we can see that different operations are performed when the bits of k are different. When the bit is 0, it is less computationally intensive than when the bit is 1. We take two different values of k, one with a majority of 0 and the other with a majority of 1, and calculate the difference between their execution times. When a new unknown k is computed, its execution time is detected and compared with the previous two values to approximate the number of unknown k's with bit 1. The experimental code is as follows. Note that in order to simplify the attack, we assume in the experimental code that the first bit of all the k's involved in the computation is always 1.
+A: Looking at the multiplication algorithm for points on an elliptic curve, we can see that different operations are performed when the bits of k are different. When the bit is 0, it is less computationally intensive than when the bit is 1. We take two different values of k, one with a majority of 0 and the other with a majority of 1, and calculate the difference between their execution times. When a new unknown k is computed, its execution time is detected and compared with the previous two values to approximate the number of unknown k's with bit 1. The experimental code is as follows. Note that in order to simplify the attack, we assume in the experimental code that the first bit of all the k's involved in the computation is always 1.
 
 ```py
 import pabtc
@@ -174,7 +172,7 @@ print(d)
 
 The above attack process is a timing attacks in bypass attacks, if you want to protect against this attack, you can introduce constant-time operations in the code to avoid leaking information. For example, using fixed-time addition and multiplication prevents time differences from being exploited. As an after-class exercise, we hope that you will try to modify the implementation of the multiplication algorithm on elliptic curves to avoid the time attack mentioned above.
 
-In practice, in order to avoid bypass attacks in cryptographic algorithms, it is necessary to make security optimizations at the algorithmic, hardware and software levels. Unfortunately, the secp256k1 and ecdsa schemes were not designed with this attack in mind, which is an inherent flaw of their algorithms.
+In practical applications, in order to avoid side-channel attacks in cryptographic algorithms, it is necessary to make multiple security optimizations at the algorithm, hardware, and software levels. However, since the secp256k1 and ecdsa schemes did not fully consider this attack method when they were designed, it is very difficult and complicated to protect against such attacks.
 
 ## Summary
 
