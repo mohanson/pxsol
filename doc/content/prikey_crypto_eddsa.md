@@ -176,20 +176,3 @@ assert sig[:32].hex() == 'dc2a4459e7369633a52b1bf277839a00201009a3efbf3ecb69bea2
 assert sig[32:].hex() == '09351fc9ac90b3ecfdfbc7c66431e0303dca179c138ac17ad9bef1177331a704'
 assert pxsol.eddsa.verify(pubkey, msg, sig)
 ```
-
-## Ed25519 Strengths
-
-It's a remarkable achievement: we've spent three chapters learning Ed25519. We've made it this far, and I'm sure that nothing will stop us in the future, no matter what the obstacles. I'd like to finish by talking to you about the advantages of Ed25519, some of which are obvious and some of which are hidden.
-
-The Ed25519 was invented to replace the American National Standard series of elliptic curves, so from a promotional point of view, it basically conforms to the principle of one pull and one step. The official evaluation is: 0.
-
-0. Completely open design, the choice of algorithmic parameters is straightforward and clear, without any doubt, compared to the widely used elliptic curves of the American National Standard series, where the coefficients of the equations are generated using a random seed of unknown origin, which is not described.
-0. High security, even if an elliptic curve encryption algorithm is mathematically secure, it is not necessarily secure in practice, and has a high probability of destroying the security through cache, time, and malicious inputs, but the Ed25519 series of elliptic curves have been specially designed to minimize the probability of errors, and are arguably the most secure encryption algorithms in practice. For example, any 32-bit random number is a legitimate Ed25519 public key, so a malicious numerical attack is impossible. The algorithm is designed to avoid certain branching operations, so that it can be programmed without if, reducing the probability of timing attacks with different if branching code execution times, whereas the American National Standard series of elliptic curves has a very high probability of error in practice. On the contrary, the American National Standard Series of Elliptic Curve Algorithms has a very high probability of error in practice, and is not very immune to some theoretical attacks.
-
-From the developer's point of view, it has some additional hidden advantages.
-
-0. Ed25519 The signature process does not rely on a random number generator. Therefore, we do not have to assume that a secure random number generator must exist. Basic principle of cryptography: the fewer assumptions, the fewer problems!
-
-0. Ed25519's public key is only 32 bytes, while secp256k1's uncompressed public key is 64 bytes, and the compressed public key is 33 bytes. There are some hidden benefits in the underlying system. For example, the commonly used memory copy function memcpy, usually uses a special small copy algorithm for byte arrays <= 32 lengths, as seen in glibc's aarch64 code, <https://github.com/bminor/glibc/blob/master/sysdeps/ aarch64/memcpy.S>. Some high-level languages also take extra care of arrays <= 32 length, e.g. rust only implements clone and copy for such small arrays.
-0. Ed25519 The point group operation on curves is complete, i.e., it holds for all elements of the point group, and no additional judgment is required in the computation, meaning that the operation does not require costly pointwise validation of untrusted external values.
-0. Ed25519 The security of the signature mechanism itself is not affected by hash collisions.
