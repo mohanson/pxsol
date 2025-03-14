@@ -123,17 +123,17 @@ This is an example centered around solana tokens. You can create a brand-new tok
 
 ```sh
 # Create a new token.
-$ python example/spl.py --prikey 1 --action create --name PXSOL --symbol PXS --uri https://raw.githubusercontent.com/mohanson/pxsol/refs/heads/master/res/pxs.json
+$ python example/spl.py --prikey 0x1 --action create --name PXSOL --symbol PXS --uri https://raw.githubusercontent.com/mohanson/pxsol/refs/heads/master/res/pxs.json
 # H5qBQeMh2YYagEbQSvPdEeojwcn7Bg9g6W5ifTJzB7HG
 
 # Mint 100 tokens for your self.
-$ python example/spl.py --prikey 1 --token H5qBQeMh2YYagEbQSvPdEeojwcn7Bg9g6W5ifTJzB7HG --action mint --amount 100
+$ python example/spl.py --prikey 0x1 --token H5qBQeMh2YYagEbQSvPdEeojwcn7Bg9g6W5ifTJzB7HG --action mint --amount 100
 
 # Display your token balance.
-$ python example/spl.py --prikey 1 --token H5qBQeMh2YYagEbQSvPdEeojwcn7Bg9g6W5ifTJzB7HG --action balance
+$ python example/spl.py --prikey 0x1 --token H5qBQeMh2YYagEbQSvPdEeojwcn7Bg9g6W5ifTJzB7HG --action balance
 
 # Transfer 20 token to other.
-$ python example/spl.py --prikey 1 --token H5qBQeMh2YYagEbQSvPdEeojwcn7Bg9g6W5ifTJzB7HG --action transfer --to 8pM1DN3RiT8vbom5u1sNryaNT1nyL8CTTW3b5PwWXRBH --amount 20
+$ python example/spl.py --prikey 0x1 --token H5qBQeMh2YYagEbQSvPdEeojwcn7Bg9g6W5ifTJzB7HG --action transfer --to 8pM1DN3RiT8vbom5u1sNryaNT1nyL8CTTW3b5PwWXRBH --amount 20
 ```
 
 **example/transfer.py**
