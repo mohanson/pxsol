@@ -1,2 +1,2 @@
-lamports = 1
+lamport = 1
 sol = 1000000000
