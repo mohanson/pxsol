@@ -16,4 +16,4 @@ for e in pxsol.rpc.get_signatures_for_address(user.pubkey.base58(), {'limit': ar
     tx_meta = pxsol.rpc.get_transaction(e['signature'], {'encoding': 'base64'})
     tx_byte = base64.b64decode(tx_meta['transaction'][0])
     tx = pxsol.core.Transaction.serialize_decode(tx_byte)
-    print(tx.json())
+    print(tx)
