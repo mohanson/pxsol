@@ -12,7 +12,7 @@ For example, let's say the victim's wallet address is:
 7x9kPqM...XyZ3mN
 ```
 
-The hacker may generate a spoofed address like:
+The hacker may generate a vanity address like:
 
 ```text
 7x9kaA2...QxZ3mN
