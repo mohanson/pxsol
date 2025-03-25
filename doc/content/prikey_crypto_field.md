@@ -69,6 +69,7 @@ Below, we implement a prime finite field using Python code. It is quite similar 
 The following code is borrowed from [pabtc](https://github.com/mohanson/pabtc) project; you can install it via `pip install pabtc`.
 
 ```py
+import json
 import typing
 
 
@@ -76,6 +77,10 @@ class Fp:
     # Galois field. In mathematics, a finite field or Galois field is a field that contains a finite number of elements.
     # As with any field, a finite field is a set on which the operations of multiplication, addition, subtraction and
     # division are defined and satisfy certain basic rules.
+    #
+    # https://www.cs.miami.edu/home/burt/learning/Csc609.142/ecdsa-cert.pdf
+    # Don Johnson, Alfred Menezes and Scott Vanstone, The Elliptic Curve Digital Signature Algorithm (ECDSA)
+    # 3.1 The Finite Field Fp
 
     p = 0
 
@@ -98,7 +103,7 @@ class Fp:
         return self.__class__(self.p - self.x)
 
     def __repr__(self) -> str:
-        return f'Fp(0x{self.x:064x})'
+        return json.dumps(self.json())
 
     def __sub__(self, data: typing.Self) -> typing.Self:
         assert self.p == data.p
@@ -112,6 +117,9 @@ class Fp:
 
     def __pow__(self, data: int) -> typing.Self:
         return self.__class__(pow(self.x, data, self.p))
+
+    def json(self) -> str:
+        return f'{self.x:064x}'
 
     @classmethod
     def nil(cls) -> typing.Self:

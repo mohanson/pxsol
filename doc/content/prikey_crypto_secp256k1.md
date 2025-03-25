@@ -148,16 +148,10 @@ class Fq(Fp):
 
     p = P
 
-    def __repr__(self) -> str:
-        return f'Fq(0x{self.x:064x})'
-
 
 class Fr(Fp):
 
     p = N
-
-    def __repr__(self) -> str:
-        return f'Fr(0x{self.x:064x})'
 
 
 A = Fq(0)
@@ -171,15 +165,6 @@ class Pt:
             assert y ** 2 == x ** 3 + A * x + B
         self.x = x
         self.y = y
-
-    def __repr__(self) -> str:
-        return f'Pt({self.x}, {self.y})'
-
-    def __eq__(self, data: typing.Self) -> bool:
-        return all([
-            self.x == data.x,
-            self.y == data.y,
-        ])
 
     def __add__(self, data: typing.Self) -> typing.Self:
         # https://www.cs.miami.edu/home/burt/learning/Csc609.142/ecdsa-cert.pdf
@@ -203,8 +188,11 @@ class Pt:
         y3 = sk * (x1 - x3) - y1
         return Pt(x3, y3)
 
-    def __sub__(self, data: typing.Self) -> typing.Self:
-        return self + data.__neg__()
+    def __eq__(self, data: typing.Self) -> bool:
+        return all([
+            self.x == data.x,
+            self.y == data.y,
+        ])
 
     def __mul__(self, k: Fr) -> typing.Self:
         # Point multiplication: Double-and-add
@@ -220,14 +208,26 @@ class Pt:
             n = n >> 1
         return result
 
+    def __neg__(self) -> typing.Self:
+        return Pt(self.x, -self.y)
+
+    def __repr__(self) -> str:
+        return json.dumps(self.json())
+
+    def __sub__(self, data: typing.Self) -> typing.Self:
+        return self + data.__neg__()
+
     def __truediv__(self, k: Fr) -> typing.Self:
         return self.__mul__(k ** -1)
 
     def __pos__(self) -> typing.Self:
         return Pt(self.x, +self.y)
 
-    def __neg__(self) -> typing.Self:
-        return Pt(self.x, -self.y)
+    def json(self) -> typing.Self:
+        return {
+            'x': self.x.json(),
+            'y': self.y.json(),
+        }
 
 
 # Identity element
