@@ -22,7 +22,7 @@ class PriKey:
         return self.int()
 
     def __repr__(self) -> str:
-        return self.base58()
+        return json.dumps(self.json())
 
     def base58(self) -> str:
         # Convert the private key to base58 representation.
@@ -50,6 +50,9 @@ class PriKey:
     def int_decode(cls, data: int) -> typing.Self:
         # Convert the u256 number to private key, in big endian.
         return PriKey(bytearray(data.to_bytes(32)))
+
+    def json(self) -> str:
+        return self.base58()
 
     def pubkey(self):
         # Get the eddsa public key corresponding to the private key.
@@ -89,7 +92,7 @@ class PubKey:
         return self.int()
 
     def __repr__(self) -> str:
-        return self.base58()
+        return json.dumps(self.json())
 
     def base58(self) -> str:
         # Convert the public key to base58 representation.
@@ -143,6 +146,9 @@ class PubKey:
     def int_decode(cls, data: int) -> typing.Self:
         # Convert the u256 number to public key, in big endian.
         return PubKey(bytearray(data.to_bytes(32)))
+
+    def json(self) -> str:
+        return self.base58()
 
 
 class AccountMeta:
