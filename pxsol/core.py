@@ -15,14 +15,14 @@ class PriKey:
         assert len(p) == 32
         self.p = p
 
+    def __eq__(self, other) -> bool:
+        return self.p == other.p
+
     def __hash__(self) -> int:
         return self.int()
 
     def __repr__(self) -> str:
         return self.base58()
-
-    def __eq__(self, other) -> bool:
-        return self.p == other.p
 
     def base58(self) -> str:
         # Convert the private key to base58 representation.
@@ -82,14 +82,14 @@ class PubKey:
         assert len(p) == 32
         self.p = p
 
+    def __eq__(self, other) -> bool:
+        return self.p == other.p
+
     def __hash__(self) -> int:
         return self.int()
 
     def __repr__(self) -> str:
         return self.base58()
-
-    def __eq__(self, other) -> bool:
-        return self.p == other.p
 
     def base58(self) -> str:
         # Convert the public key to base58 representation.

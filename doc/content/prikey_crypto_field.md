@@ -82,36 +82,36 @@ class Fp:
     def __init__(self, x: int) -> None:
         self.x = x % self.p
 
-    def __repr__(self) -> str:
-        return f'Fp(0x{self.x:064x})'
+    def __add__(self, data: typing.Self) -> typing.Self:
+        assert self.p == data.p
+        return self.__class__(self.x + data.x)
 
     def __eq__(self, data: typing.Self) -> bool:
         assert self.p == data.p
         return self.x == data.x
 
-    def __add__(self, data: typing.Self) -> typing.Self:
+    def __mul__(self, data: typing.Self) -> typing.Self:
         assert self.p == data.p
-        return self.__class__(self.x + data.x)
+        return self.__class__(self.x * data.x)
+
+    def __neg__(self) -> typing.Self:
+        return self.__class__(self.p - self.x)
+
+    def __repr__(self) -> str:
+        return f'Fp(0x{self.x:064x})'
 
     def __sub__(self, data: typing.Self) -> typing.Self:
         assert self.p == data.p
         return self.__class__(self.x - data.x)
 
-    def __mul__(self, data: typing.Self) -> typing.Self:
-        assert self.p == data.p
-        return self.__class__(self.x * data.x)
-
     def __truediv__(self, data: typing.Self) -> typing.Self:
         return self * data ** -1
-
-    def __pow__(self, data: int) -> typing.Self:
-        return self.__class__(pow(self.x, data, self.p))
 
     def __pos__(self) -> typing.Self:
         return self.__class__(self.x)
 
-    def __neg__(self) -> typing.Self:
-        return self.__class__(self.p - self.x)
+    def __pow__(self, data: int) -> typing.Self:
+        return self.__class__(pow(self.x, data, self.p))
 
     @classmethod
     def nil(cls) -> typing.Self:
