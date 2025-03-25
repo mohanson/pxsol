@@ -1,3 +1,4 @@
+import json
 import typing
 
 
@@ -27,7 +28,7 @@ class Fp:
         return self.__class__(self.p - self.x)
 
     def __repr__(self) -> str:
-        return f'Fp(0x{self.x:064x})'
+        return json.dumps(self.json())
 
     def __sub__(self, data: typing.Self) -> typing.Self:
         assert self.p == data.p
@@ -41,6 +42,9 @@ class Fp:
 
     def __pow__(self, data: int) -> typing.Self:
         return self.__class__(pow(self.x, data, self.p))
+
+    def json(self) -> str:
+        return f'{self.x:064x}'
 
     @classmethod
     def nil(cls) -> typing.Self:
@@ -68,16 +72,10 @@ class Fq(Fp):
 
     p = P
 
-    def __repr__(self) -> str:
-        return f'Fq(0x{self.x:064x})'
-
 
 class Fr(Fp):
 
     p = N
-
-    def __repr__(self) -> str:
-        return f'Fr(0x{self.x:064x})'
 
 
 A = -Fq(1)
@@ -98,7 +96,7 @@ class Pt:
         ])
 
     def __repr__(self) -> str:
-        return f'Pt({self.x}, {self.y})'
+        return json.dumps(self.json())
 
     def __add__(self, data: typing.Self) -> typing.Self:
         # https://datatracker.ietf.org/doc/html/rfc8032#ref-CURVE25519
@@ -137,6 +135,12 @@ class Pt:
 
     def __pos__(self) -> typing.Self:
         return self
+
+    def json(self) -> typing.Self:
+        return {
+            'x': self.x.json(),
+            'y': self.y.json(),
+        }
 
 
 # Identity element
