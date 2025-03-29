@@ -26,3 +26,4 @@
 - [Solana/Transactions/Currency Denomination](./content/tx_denomination.md)
 - [Solana/Transactions/Building a Local Development Environment](./content/tx_devnet.md)
 - [Solana/Transactions/Using Built-in Wallet for Transfers](./content/tx_wallet.md)
+- [Solana/Transactions/Transaction Details](./content/tx_info.md)
