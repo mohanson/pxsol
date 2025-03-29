@@ -1,4 +1,4 @@
-# Solana/Transactions/Transaction Details
+# Solana/Transactions/Transaction Detail
 
 In the previous section, Ada transferred 1 SOL to Bob. We want to view the detailed content of this transaction. To do this, we use `pxsol.rpc.get_signatures_for_address` to query Ada's past transactions for a certain period of time. The interface returns serialized data about the transactions, which can be deserialized into a `pxsol.core.Transaction` object.
 
