@@ -37,13 +37,13 @@
 
 ## Recent Block Hash
 
-In a Solana transaction, `tx.message.recent_blockhash` is a seemingly minor yet critically important field. It ensures that transactions don’t remain valid indefinitely and prevents their repeated execution.
+In a Solana transaction, `tx.message.recent_blockhash` is a seemingly minor yet critically important field. It ensures that transactions don't remain valid indefinitely and prevents their repeated execution.
 
 ```json
 "recent_blockhash": "6vAwzjtGMrN3mJ8o7iGVDjMM46e2AnctqmjvLbqtESrx"
 ```
 
-This value is obtained in real-time from a network node when the transaction is created. Here’s the code to fetch it:
+This value is obtained in real-time from a network node when the transaction is created. Here's the code to fetch it:
 
 ```py
 import pxsol
@@ -52,15 +52,15 @@ print(pxsol.rpc.get_latest_blockhash({})['blockhash'])
 # 6vAwzjtGMrN3mJ8o7iGVDjMM46e2AnctqmjvLbqtESrx
 ```
 
-ncorporating the recent block hash into a transaction serves several purposes:
+Ncorporating the recent block hash into a transaction serves several purposes:
 
 0. Solana requires transactions to be submitted within a specific time window (typically a few minutes, depending on network configuration). If the recent block hash submitted with the transaction is too old, the transaction will be rejected.
 0. It prevents replay attacks. Each transaction is tied to a unique block hash, so even if the transaction content is identical, a different hash distinguishes it, avoiding duplicate execution.
-0. It anchors the transaction to a timeline, enabling the network to quickly verify and order transactions.
+0. It anchors the transaction to a timeline, enabling the network to quickly order and verify transactions.
 
 ## Exercise
 
-Q: Try resending Ada’s transaction and see what happens.
+Q: Try resending Ada's transaction and see what happens.
 
 A:
 

@@ -9,13 +9,9 @@ Student: "Oh, I see! That makes sense. What is its structure like? I've heard th
 Teacher: "Very much so! Solana's transaction structure is actually quite simple and efficient compared to many other blockchains."
 
 0. Signature: Every transaction needs a signature from the sender, which serves as a guarantee that the sender is the legitimate initiator of the transaction.
-
 0. Account Information: The transaction includes the accounts involved in the transaction, with the most basic being the sender's and receiver's accounts, as well as possibly other accounts, such as those related to smart contracts.
-
 0. Instruction: The instruction is the specific operation within the transaction. If you're transferring SOL, there's only one simple instruction for that. However, if you're calling a smart contract, this part can be much more complex, containing multiple instructions to tell Solana how to handle it.
-
 0. Fee: Each transaction comes with a certain fee, which is paid to the network as tolls for processing transactions. This fee rewards the nodes on the network that validate and process transactions.
-
 0. Additional Data: Sometimes you might add extra data to the transaction, such as parameters for smart contracts or specific settings.
 
 Student: "Looks like Solana's transactions are just a carefully packaged package with all the information, ready to be sent to the target address!"

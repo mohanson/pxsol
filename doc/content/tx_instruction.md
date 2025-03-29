@@ -37,7 +37,7 @@
 
 ## Instructions in Transactions
 
-A Solana transaction is like an envelope, and the instructions are the contents inside it. Each instruction tells the Solana network how to process the transaction. Think of it as putting a letter into an envelope: afterward, we seal it with wax, stamp it with our personal seal, and don't forget—you still need to pay postage!
+A Solana transaction is like an envelope, and the instructions are the contents inside it. Each instruction tells the Solana network how to process the transaction. Think of it as putting a letter into an envelope: afterward, we seal it with wax, stamp it with our personal seal, and don't forget, you still need to pay postage!
 
 ![img](../img/tx_instruction/letter.jpg)
 
@@ -49,14 +49,14 @@ Each instruction in a Solana transaction performs a specific function. In the ex
 
 Solana transactions support various types of instructions, with the transfer instruction being one of them. Each instruction is executed by a program (essentially a smart contract). Every instruction consists of three components:
 
-- program: The index of the target program (corresponding to a position in account_keys).
-- account: An array of account indices involved (corresponding to positions in account_keys).
-- data: Binary data passed to the program.
+- Program: The index of the target program (corresponding to a position in account_keys).
+- Account: A list of account indices involved (corresponding to positions in account_keys).
+- Data: Binary data passed to the program.
 
 In the example:
 
-- `"program": 2`: This invokes `tx.message.account_keys[2]`, which is the System Program `1111111...`.
-- `"account": [0, 1]`: This uses `tx.message.account_keys[0]` and `tx.message.account_keys[1]`.
+- `"program": 2`: Indicates calling `tx.message.account_keys[2]`, which is the System Program `1111111...`.
+- `"account": [0, 1]`: This means that two accounts are involved, `tx.message.account_keys[0]` and `tx.message.account_keys[1]`.
 - `"data": "3Bxs3zzLZLuLQEYX"`: This specifies the operation.
 
 When we decode the data field from Base58, we get the hexadecimal representation `0200000000ca9a3b00000000`. The System Program `1111111...` parses this data: the first 4 bytes are interpreted as an internal function index, and the next 8 bytes represent the transfer amount. In this case, the internal function index is 2 (indicating a transfer), and the amount is 1,000,000,000 lamports.

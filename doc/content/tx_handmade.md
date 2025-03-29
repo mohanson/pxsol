@@ -2,7 +2,7 @@
 
 Transactions, crafted from digits, are the poetry of flowing wealth.
 
-With the hands of a craftsman, bytes are wielded with precision, transforming chaos into order, as if sculpting jade into a refined artifact—its brilliance beyond words.
+With the hands of a craftsman, bytes are wielded with precision, transforming chaos into order, as if sculpting jade into a refined artifact, its brilliance beyond words.
 
 In this section, we'll learn how to manually construct a Solana transfer transaction. Through this process, I hope you'll gain a deeper understanding of Solana's transaction structure.
 
@@ -22,7 +22,7 @@ In Solana, transfers are facilitated by the System Program, which has a fixed ad
 
 - `System Program`: `11111111111111111111111111111111`.
 
-> Secret information: The private key corresponding to Cuc’s address is 0x03.
+> Top secret: The private key corresponding to Cuc's address is 0x03.
 
 ## Constructing Instructions
 
@@ -30,10 +30,10 @@ Solana transactions consist of one or more instructions. For this transaction, w
 
 In Solana transactions, instructions only store indices for programs and accounts, while the specific account information (public keys and permissions) is not included in the instructions themselves. This makes building transactions somewhat restrictive. To address this, pxsol provides two helper data structures:
 
-- `pxsol.core.AccountMeta`. Contains an account’s public key and its permissions. In this example, Ada and Bob should have permissions set to "signable and writable", while Cuc should be "non-signable and writable".
+- `pxsol.core.AccountMeta`. Contains an account's public key and its permissions. In this example, Ada and Bob should have permissions set to "signable and writable", while Cuc should be "non-signable and writable".
 - `pxsol.core.Requisition`. Encapsulates all the data for a single transaction instruction and can later be "compiled" into an index-based instruction when assembling the transaction.
 
-Here’s the construction code:
+Here's the construction code:
 
 ```py
 import pxsol
@@ -57,7 +57,7 @@ r1.data = pxsol.program.System.transfer(1 * pxsol.denomination.sol)
 
 ## Assembling the Transaction
 
-Using the `pxsol.core.Transaction.requisition_decode` method, compile the two requisitions defined above into instructions and assemble them into a single transaction. The first parameter specifies who pays the transaction fee, and the second is a list of `Requisition` objects. In this example, we’ve decided that Ada will cover the transaction fee.
+Using the `pxsol.core.Transaction.requisition_decode` method, compile the two requisitions defined above into instructions and assemble them into a single transaction. The first parameter specifies who pays the transaction fee, and the second is a list of `Requisition` objects. In this example, we've decided that Ada will cover the transaction fee.
 
 ```py
 tx = pxsol.core.Transaction.requisition_decode(ada.pubkey(), [r0, r1])
@@ -65,7 +65,7 @@ tx = pxsol.core.Transaction.requisition_decode(ada.pubkey(), [r0, r1])
 
 ## Obtaining the Recent Block Hash
 
-Use the RPC interface to fetch Solana’s latest block hash.
+Use the RPC interface to fetch Solana's latest block hash.
 
 ```py
 tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
@@ -73,10 +73,11 @@ tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash
 
 ## Signing the Transaction
 
-Once the transaction is assembled, Ada and Bob need to sign it with their private keys. Note that the order of signatures must match the order of accounts in the list. In this example, Ada’s signature must come before Bob’s. You can determine the signing order using these two simple rules:
+Once the transaction is assembled, Ada and Bob need to sign it with their private keys. Note that the order of signatures must match the order of accounts in the `tx.message.account_keys`. In this example, Ada's signature must come before Bob's. You can determine the signing order using these two simple rules:
 
 0. The account paying the fee is always first in the signature list.
-0. Other accounts requiring signatures are ordered based on their appearance in the transaction.
+0. Writable accounts always come before read-only accounts.
+0. The accounts are sorted in the order in which they appear in the transaction.
 
 Here is the code:
 
@@ -131,7 +132,7 @@ Using `print(tx)`, the complete transaction can be printed as follows:
 
 ## Submitting the Transaction
 
-Serialize the signed transaction into bytes and submit it to the network via Solana’s RPC interface `send_transaction`. The network will verify the signatures, check balances, and execute the transfers.
+Serialize the signed transaction into bytes and submit it to the network via Solana's RPC interface `send_transaction`. The network will verify the signatures, check balances, and execute the transfers.
 
 ```py
 txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
@@ -139,7 +140,7 @@ assert pxsol.base58.decode(txid) == tx.signatures[0]
 pxsol.rpc.wait([txid])
 ```
 
-A few seconds later, Bob’s and Cuc’s accounts will each have an additional 1 SOL!
+A few seconds later, Bob's and Cuc's accounts will each have an additional 1 SOL!
 
 ## Complete Code
 

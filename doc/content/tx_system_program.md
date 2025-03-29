@@ -13,7 +13,7 @@ Roughly speaking, for now, we only need to focus on the following Bincode rules:
 - All numbers are encoded in little-endian order.
 - Enumerations have an index value treated as a u32. During encoding, the index is encoded first, followed by its associated value.
 
-Below is an analysis of the first three main instructions in the System Program. The remaining instructions are left for you to explore on your own after this section—I'm confident you'll be able to do so. Keep it up!
+Below is an analysis of the first three main instructions in the System Program. The remaining instructions are left for you to explore on your own after this section, I'm confident you'll be able to do so. Keep it up!
 
 ## Create Account
 
@@ -21,23 +21,23 @@ Purpose: Used to create a new account and assign its ownership to the System Pro
 
 Location: `SystemInstruction::CreateAccount`
 
-Involved Accounts:
+Accounts:
 
 |     Account     | Permission |                  Description                   |
 | --------------- | ---------- | ---------------------------------------------- |
 | Funding Account | 3          | Must have sufficient SOL balance to cover fees |
 | New Account     | 1          | -                                              |
 
-> Remember how we represent account permissions? We use two bits: Bit 0 indicates whether the account is writable, and Bit 1 indicates whether it needs to sign.
+> Remember how we represent account permissions? We use two bits: bit 0 indicates whether the account is writable, and bit 1 indicates whether it needs to sign.
 
-Data Format:
+Data:
 
-|   Name   |  Type  |                    Description                     |
-| -------- | ------ | -------------------------------------------------- |
-| index    | u32    | Fixed as 0                                         |
-| lamports | u64    | Amount of SOL allocated to the new account         |
-| space    | u64    | Storage space allocated for the account (in bytes) |
-| owner    | pubkey | Public key of the program owning the new account   |
+|   Name   |  Type  |                    Description                    |
+| -------- | ------ | ------------------------------------------------- |
+| index    | u32    | Fixed as 0                                        |
+| lamports | u64    | Number of lamports to transfer to the new account |
+| space    | u64    | Number of bytes of memory to allocate             |
+| owner    | pubkey | Address of program that will own the new account  |
 
 ## Assign
 
@@ -45,18 +45,18 @@ Purpose: Transfers ownership of an account to a specified program. Solana's acco
 
 Location: `SystemInstruction::Assign`
 
-Involved Accounts:
+Accounts:
 
-|          Account          | Permission |           Description            |
-| ------------------------- | ---------- | -------------------------------- |
-| Target Account Public Key | 3          | Public key of the target account |
+|           Account           | Permission | Description |
+| --------------------------- | ---------- | ----------- |
+| Assigned account public key | 3          | -           |
 
-Data Format:
+Data:
 
-| Name  |  Type  |           Description            |
-| ----- | ------ | -------------------------------- |
-| index | u32    | Fixed as 1                       |
-| owner | pubkey | Public key of the target program |
+| Name  |  Type  |      Description      |
+| ----- | ------ | --------------------- |
+| index | u32    | Fixed as 1            |
+| owner | pubkey | Owner program account |
 
 ## Transfer
 
@@ -64,14 +64,14 @@ Purpose: Transfers SOL balance from one account to another.
 
 Location: `SystemInstruction::Transfer`
 
-Involved Accounts:
+Accounts:
 
-|       Account       | Permission | Description |
-| ------------------- | ---------- | ----------- |
-| Sender Public Key   | 3          | -           |
-| Receiver Public Key | 1          | -           |
+|      Account      | Permission | Description |
+| ----------------- | ---------- | ----------- |
+| Funding account   | 3          | -           |
+| Recipient account | 1          | -           |
 
-Data Format:
+Data:
 
 |   Name   | Type |        Description        |
 | -------- | ---- | ------------------------- |
@@ -80,7 +80,7 @@ Data Format:
 
 ## Other Built-in Programs
 
-The execution of the Solana System Program is "account-based." It performs tasks by modifying the state and stored data of accounts. Beyond the System Program, Solana includes several other built-in programs:
+The execution of the Solana System Program is "account-based", It performs tasks by modifying the state and stored data of accounts. Beyond the System Program, Solana includes several other built-in programs:
 
 - Token Program: The Solana Token Program allows users to create their own tokens and perform operations like transferring, minting, and burning tokens. If you've engaged in on-chain token transactions on Solana, you've likely interacted with this program frequently. Source code: <https://github.com/solana-program/token-2022>.
 - Stake Program: The Solana Stake Program enables users to stake SOL tokens in the network, participating in the validation process. Staking is part of Solana's consensus algorithm, allowing users to earn network rewards through staking.
@@ -101,7 +101,7 @@ assert pubkey.hex() == '00000000000000000000000000000000000000000000000000000000
 
 Q: If Ada wants to transfer 2 SOL to Bob, how should he construct the instruction data?
 
-A: We could manually assemble the data according to the rules above, or use the pxsol.program module to build it. Here, we'll demonstrate the latter method:
+A: We could manually assemble the data according to the rules above, or use the `pxsol.program` module to build it. Here, we'll demonstrate the latter method:
 
 ```py
 import pxsol

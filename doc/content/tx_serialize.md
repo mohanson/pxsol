@@ -39,9 +39,9 @@
 
 When Solana transactions are signed, propagated, and stored, they are serialized. Serialization is the process of converting a data structure into a byte stream for transmission over a network or storage. Deserialization is the reverse process, parsing the byte stream back into the original data structure. Solana uses an efficient binary format for serialization and deserialization, striking a balance between performance and data compactness.
 
-Solana’s serialization process is based on a custom binary encoding format designed to be efficient and unambiguous. This serialization method has no official name but is distinctive and straightforward. Broadly speaking, it relies on two fundamental rules:
+Solana's serialization process is based on a custom binary encoding format designed to be efficient and unambiguous. This serialization method has no official name but is distinctive and straightforward. Broadly speaking, it relies on two fundamental rules:
 
-- Compact Encoding: Solana uses variable-length integers (compact-u16) to represent length fields. For example, the number of accounts or signatures is dynamically encoded based on the actual value’s size, rather than always occupying 2 bytes. This approach reduces unnecessary space waste.
+- Compact Encoding: Solana uses variable-length integers (compact-u16) to represent length fields. For example, the number of accounts or signatures is dynamically encoded based on the actual value's size, rather than always occupying 2 bytes. This approach reduces unnecessary space waste.
 - Sequential Storage: The various parts of a transaction are arranged in a fixed order, such as the number of signatures, followed by signature data, and then the message content. This sequential structure simplifies deserialization logic.
 
 For instance, a simple transfer transaction might look like this when serialized into a byte stream:
@@ -53,7 +53,7 @@ For instance, a simple transfer transaction might look like this when serialized
 5.  Account addresses (32 bytes each, stored sequentially).
 6.  Recent blockhash (32 bytes).
 7.  Number of instructions (1 byte or more, variable-length encoded).
-8.  Instruction content
+8.  Instruction content.
     1. Program index (1 byte).
     2. Number of accounts (1 byte or more, variable-length encoded).
     3. Account indices (1 byte each, stored sequentially).
@@ -62,9 +62,11 @@ For instance, a simple transfer transaction might look like this when serialized
 
 ## Using Compact-u16 to Represent Length
 
-The variable-length integer encoding used in Solana’s serialization algorithm is called compact-u16. The core idea of this algorithm is to represent a 16-bit integer (maximum value 65535) using 1 to 3 bytes, depending on the value’s size. Its encoding rules are similar to traditional VLQ (variable-length quantity) encoding, utilizing 7 bits per byte for actual data and the highest bit (8th bit) as a "continuation bit" to indicate whether additional bytes need to be read.
+The variable-length integer encoding used in Solana's serialization algorithm is called compact-u16. The core idea of this algorithm is to represent a 16-bit integer (maximum value 65535) using 1 to 3 bytes, depending on the value's size. Its encoding rules are similar to traditional VLQ (variable-length quantity) encoding, utilizing 7 bits per byte for actual data and the highest bit (8th bit) as a "continuation bit" to indicate whether additional bytes need to be read.
+
 The specific encoding process is as follows:
-For values less than 128 (0x7f), only 1 byte is needed. The highest bit is set to 0, indicating no subsequent bytes, and the remaining 7 bits store the value.
+
+- For values less than 128 (0x7f), only 1 byte is needed. The highest bit is set to 0, indicating no subsequent bytes, and the remaining 7 bits store the value.
 
 Q: What is the encoding of the value 5 (binary 00000101)?
 
@@ -76,7 +78,7 @@ import pxsol
 assert pxsol.core.compact_u16_encode(5) == bytearray([0x05])
 ```
 
-For values between 128 and 16383 (0x3fff), 2 bytes are required. The first byte’s highest bit is set to 1, indicating a subsequent byte; the lower 7 bits store the lower 7 bits of the value. The second byte’s highest bit is set to 0, indicating the end; its lower 7 bits store the remaining portion of the value.
+- For values between 128 and 16383 (0x3fff), 2 bytes are required. The first byte's highest bit is set to 1, indicating a subsequent byte; the lower 7 bits store the lower 7 bits of the value. The second byte's highest bit is set to 0, indicating the end; its lower 7 bits store the remaining portion of the value.
 
 Q: What is the encoding of the value 132 (binary 10000100)?
 
@@ -88,7 +90,7 @@ import pxsol
 assert pxsol.core.compact_u16_encode(132) == bytearray([0x84, 0x01])
 ```
 
-For values greater than 16383, 3 bytes are needed. The continuation bits of the first two bytes are set to 1, storing the lower 14 bits. The third byte’s continuation bit is set to 0, storing the remaining portion.
+- For values greater than 16383, 3 bytes are needed. The continuation bits of the first two bytes are set to 1, storing the lower 14 bits. The third byte's continuation bit is set to 0, storing the remaining portion.
 
 Q: What is the encoding of the value 65535 (binary 11111111 11111111)?
 
@@ -100,12 +102,11 @@ import pxsol
 assert pxsol.core.compact_u16_encode(65535) == bytearray([0xff, 0xff, 0x03])
 ```
 
-In Solana, transaction data (such as account lists or instruction counts) is typically small (less than 128). Using compact-u16, these values can be represented with a single byte instead of a fixed 2 bytes, reducing transmission and storage costs.
-
+In Solana, the data inside a transaction is usually small, and the length is usually less than 128. Using compact-u16, these values can be represented with a single byte instead of a fixed 2 bytes, reducing transmission and storage costs.
 
 ## Exercise
 
-Q: Can you manually decode a transaction for ada from its serialized hexadecimal form? The transaction data is as follows:
+Q: Can you manually decode Ada's transaction from its serialized hexadecimal form? The transaction data is as follows:
 
 ```
 01767ae26660c142941a5961f6dec7237cae733edfe6517c37fbb8481f46bbb53ce300e714b4784
@@ -140,4 +141,4 @@ A:
 
 ## Note
 
-- The variable-length encoding compact-u16 is only used to represent lengths. Program indices and account indices in transactions are directly represented using uint8.
+- The variable-length encoding compact-u16 is only used to represent lengths. Program indices and account indices in transactions are directly represented using u8.
