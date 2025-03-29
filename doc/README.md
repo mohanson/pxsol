@@ -24,3 +24,4 @@
 
 - [Solana/Transactions/Introduction](./content/tx_introduction.md)
 - [Solana/Transactions/Currency Denomination](./content/tx_denomination.md)
+- [Solana/Transactions/Building a Local Development Environment](./content/tx_devnet.md)
