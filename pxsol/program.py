@@ -99,8 +99,8 @@ class ComputeBudget:
 class LoaderUpgradeable:
     # The bpf loader program is the program that owns all executable accounts on solana. When you deploy a program, the
     # owner of the program account is set to the the bpf loader program.
-    # See: https://github.com/anza-xyz/agave/blob/master/sdk/program/src/loader_upgradeable_instruction.rs
-    # See: https://github.com/anza-xyz/agave/blob/master/sdk/program/src/bpf_loader_upgradeable.rs
+    # See: https://github.com/anza-xyz/solana-sdk/blob/master/loader-v3-interface/src/instruction.rs
+    # See: https://github.com/anza-xyz/solana-sdk/blob/master/program/src/bpf_loader_upgradeable.rs
 
     pubkey = pxsol.core.PubKey.base58_decode('BPFLoaderUpgradeab1e11111111111111111111111')
 
