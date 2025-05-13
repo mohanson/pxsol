@@ -26,7 +26,7 @@ Accounts:
 |     Account     | Permission |                  Description                   |
 | --------------- | ---------- | ---------------------------------------------- |
 | Funding Account | 3          | Must have sufficient SOL balance to cover fees |
-| New Account     | 1          | -                                              |
+| New Account     | 3          | -                                              |
 
 > Remember how we represent account permissions? We use two bits: bit 0 indicates whether the account is writable, and bit 1 indicates whether it needs to sign.
 
