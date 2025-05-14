@@ -24,12 +24,10 @@ pxsol.config.current.log = 1
 user = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(int(args.prikey, 0)))
 
 if args.action == 'call':
-    tx = pxsol.core.Transaction([], pxsol.core.Message(pxsol.core.MessageHeader(1, 0, 1), [], bytearray(), []))
-    tx.message.account_keys.append(user.pubkey)
-    tx.message.account_keys.append(pxsol.core.PubKey.base58_decode(args.addr))
+    rq = pxsol.core.Requisition(pxsol.core.PubKey.base58_decode(args.addr), [], bytearray())
+    tx = pxsol.core.Transaction.requisition_decode(user.pubkey, [rq])
     tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
-    tx.message.instructions.append(pxsol.core.Instruction(1, [], bytearray()))
-    tx.signatures.append(user.prikey.sign(tx.message.serialize()))
+    tx.sign([user.prikey])
     txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
     pxsol.rpc.wait([txid])
     r = pxsol.rpc.get_transaction(txid, {})
