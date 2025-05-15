@@ -1,4 +1,4 @@
-# Solana: We Are Waiting for the Next One
+# Solana](We Are Waiting for the Next One
 
 - [Solana/We Are Waiting for the Next One](./content/foreword.md)
 
@@ -39,3 +39,12 @@
 ---
 
 - [Solana/Account Model/Introduction](./content/account_introduction.md)
+- [Solana/账户模型/账户数据结构](./content/account_type.md)
+- [Solana/账户模型/未花费交易输出模型与账户模型](./content/account_utxo_vs_account.md)
+- [Solana/账户模型/所有权和权限控制](./content/account_owner.md)
+- [Solana/账户模型/普通钱包账户](./content/account_wallet.md)
+- [Solana/账户模型/程序账户](./content/account_program.md)
+- [Solana/账户模型/数据账户](./content/account_data.md)
+- [Solana/账户模型/程序派生地址算法解析](./content/account_pda.md)
+- [Solana/账户模型/租赁与租赁豁免机制](./content/account_rent.md)
+- [Solana/账户模型/尚未深入探讨的问题](./content/account_epilog.md)
