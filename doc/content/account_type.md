@@ -65,4 +65,4 @@ What do these fields mean? Let's break them down one by one:
 - `rentEpoch`: A legacy field from an older mechanism where Solana used to deduct lamports periodically as rent. While this field still exists, Solana deprecated rent collection entirely starting from version 1.14.
 - `space`: Indicates the length of the data field in bytes. An account can store up to 10MB of data.
 
-As you can see, all account types share the same underlying data structure. The differences lie in their functionality. Compared to other blockchains, Solana's account model removes much of the complexity found in traditional state management mechanisms (although, admittedly, it introduces some new challenges of its own—which take a bit more time to fully explain...).
+As you can see, all account types share the same underlying data structure. The differences lie in their functionality. Compared to other blockchains, Solana's account model removes much of the complexity found in traditional state management mechanisms (although, admittedly, it introduces some new challenges of its own, which take a bit more time to fully explain...).

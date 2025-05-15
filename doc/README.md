@@ -40,7 +40,7 @@
 
 - [Solana/Account Model/Introduction](./content/account_introduction.md)
 - [Solana/Account Model/Account Data Structure](./content/account_type.md)
-- [Solana/账户模型/未花费交易输出模型与账户模型](./content/account_utxo_vs_account.md)
+- [Solana/Account Model/UTXO vs Account-Based Models](./content/account_utxo_vs_account.md)
 - [Solana/账户模型/所有权和权限控制](./content/account_owner.md)
 - [Solana/账户模型/普通钱包账户](./content/account_wallet.md)
 - [Solana/账户模型/程序账户](./content/account_program.md)

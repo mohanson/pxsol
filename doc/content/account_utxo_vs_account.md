@@ -1,40 +1,40 @@
-# Solana/账户模型/未花费交易输出模型与账户模型
+# Solana/Account Model/UTXO vs. Account-Based Models
 
-想象一下, 你正在处理两种不同的银行账户系统: 一个是储蓄罐式的, 另一个是传统账户式的. 这两种设计虽然都能帮助你管理资产, 但它们的工作方式有很大不同.
+Imagine you're dealing with two different types of banking systems: one is like a piggy bank, and the other is a traditional bank account. Both help you manage your assets, but the way they work is fundamentally different.
 
-这两种不同的思想, 衍生出了区块链世界中的两种截然不同的设计方向: 未花费交易输出模型(Unspent transaction output)和账户模型.
+These two concepts have inspired two distinct design philosophies in the blockchain world: the **Unspent Transaction Output (UTXO) model** and the **Account-based model**.
 
-## 未花费交易输出模型
+## UTXO Model
 
-未花费交易输出模型最早由比特币引入, 并成为比特币区块链的核心设计.
+The UTXO model was first introduced by Bitcoin and remains a core part of Bitcoin's architecture.
 
-想象你有一个零钱罐, 里面装着很多不同面额的硬币. 每当你收钱时, 它们就会作为独立的硬币放入零钱罐中, 每个硬币代表你能花费的金额. 而当你需要支付某个商品时, 你并不从账户余额中直接扣钱, 而是拿出足够的硬币来支付, 然后将剩余的部分重新放回零钱罐里. 换句话说, 每次你交易, 都是拆分或者合并这些硬币.
+Picture a piggy bank filled with various coins of different denominations. Every time you receive money, it's added to your piggy bank as separate coins, each coin representing a specific amount you can spend. When you need to make a payment, you don't simply deduct money from a balance; instead, you pull out enough coins to cover the cost, and any leftover change goes back into the piggy bank as a new coin. In other words, each transaction splits or merges these coins.
 
-在比特币中, 这些硬币就是未花费交易输出. 每个交易输出就是一个独立的金额, 它只能花费一次, 并且当你花费它时, 系统会创建新的交易输出. 例如, 你收到的 100 个比特币可能会分成 10 个 10 比特币的未花费交易输出, 而当你需要花费其中 45 个比特币时, 你就要选择将这 5 个 10 比特币的未花费交易输出合并起来, 然后将剩余的 5 个比特币作为新的未花费交易输出返回给自己.
+In Bitcoin, these "coins" are UTXOs, unspent transaction outputs. Each output is a discrete unit of value that can only be spent once. When you spend one, new outputs are created. For example, if you've received 100 BTC in ten outputs of 10 BTC each, and you want to spend 45 BTC, you'd select five 10-BTC UTXOs to cover it. The remaining 5 BTC is returned to you as a new UTXO.
 
-您可以将上述过程再次用零钱罐类比: 您的零钱罐中有 10 张 10 美元的纸币, 现在您需要花费 45 美元, 因此您选择从零钱罐中取出 5 张 10 美元, 然后将商家的 5 美元找零重新存入自己的零钱罐中.
+You can think of it like this: your piggy bank holds ten $10 bills. You need to pay $45, so you take out five $10 bills, give them to the merchant, and get $5 in change, which goes back into your piggy bank.
 
-未花费交易输出模型的特点就像零钱罐一样:
+The characteristics of the UTXO model are similar to a coin jar:
 
-- 您可以拥有多个零钱罐.
-- 每笔交易都像是从零钱罐里挑出合适的硬币来支付, 支付后剩余的硬币又被放回零钱罐中.
-- 每个硬币都是独立的, 互不相连, 因此有一定的隐私性, 别人无法知道你所有的硬币加起来有多少.
-- 灵活性高, 因为你可以随意组合和拆分硬币.
+- You can have multiple "coin jars" (addresses).
+- Every transaction is like picking the right coins to pay, and returning change to yourself.
+- Each coin is independent and unlinked, which offers some degree of privacy, others can't easily tell how much total money you own.
+- High flexibility, since you can freely combine or split coins as needed.
 
-## 账户模型
+## Account-Based Model
 
-账户模型是目前被更多区块链所使用的一种记账方式. 账户模型最初来源于以太坊区块链, 如今被很多其他区块链项目用来记录交易和状态变化. 与零钱罐不同, 账户模型就像你在银行开了一个账户, 每次你存入或取出资金时, 银行只会更新你账户的余额. 你不需要知道具体是哪个硬币被拿走或者存入了, 只要账户上的数字变了, 你就可以放心地管理你的资产.
+The account model is the more commonly adopted bookkeeping method in modern blockchains. It was first introduced by Ethereum and has since been widely used by other blockchain platforms to manage transactions and state changes. Unlike the coin jar metaphor, this is like having a traditional bank account. Every time you deposit or withdraw funds, the bank simply updates your account balance. You don't need to track specific coins, just the overall amount.
 
-在账户模型中, 资产直接存储在账户中, 而不是分散在多个交易输出中. 每当你进行一笔交易时, 区块链系统只需要更新你的账户余额. 这就像你转账给朋友时, 只需要指定金额, 银行会自动从你的账户中扣除相应的钱, 而无需你指定具体的硬币.
+In this model, assets are directly stored in an account, not spread across multiple transaction outputs. When a transaction happens, the system simply updates the sender's and receiver's balances. It's like transferring money to a friend, you specify the amount, and the bank deducts it from your account and credits your friend's account.
 
-Solana 正是采用这种账户模型. 当你向朋友转账时, 系统只会减少你账户中的余额, 并将相同金额添加到你朋友的账户中.
+Solana adopts this account-based model. When you send SOL to a friend, the system reduces your account balance and increases your friend's, without dealing with individual outputs.
 
-账户模型的特点就像银行账户一样:
+The account model is more like a bank account:
 
-- 交易过程简单直接, 你只需关心账户余额的增减.
-- 相比于未花费交易输出模型, 账户模型的隐私性较差, 因为账户的余额随时可以查询, 容易被追踪.
-- 更适合处理复杂的交易逻辑, 特别是智能合约, 因为这些合约本质上就是在账户之间管理资金流转.
+- Transactions are straightforward, you only need to track balance changes.
+- Compared to the UTXO model, it offers less privacy because balances are always visible and easy to trace.
+- It's better suited for complex transaction logic, especially smart contracts, which essentially operate by managing balances between accounts.
 
-## 思考
+## Reflection
 
-从比特币到 solana, 两种账户模型各有千秋, 设计背后的理念和适用场景不同. 站在作者的个人角度来看, 我认为比特币设计的未花费交易输出模型更加具有设计上的美感, 但于此同时又不得不承认其在用户使用上并不友好. 那么读者对这两者是怎么思考的呢?
+From Bitcoin to Solana, both models have their strengths and weaknesses, shaped by different philosophies and use cases. From a personal perspective, the UTXO model used by Bitcoin has a certain elegance in design, though it's admittedly less user-friendly. What about you, the reader, how do you view these two approaches?
