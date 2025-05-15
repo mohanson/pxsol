@@ -35,3 +35,7 @@
 - [Solana/Transactions/System Program](./content/tx_system_program.md)
 - [Solana/Transactions/Manually Constructing a Transaction](./content/tx_handmade.md)
 - [Solana/Transactions/Transaction Fee](./content/tx_fee.md)
+
+---
+
+- [Solana/Account Model/Introduction](./content/account_introduction.md)
