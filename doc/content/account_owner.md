@@ -1,13 +1,13 @@
-# Solana/账户模型/所有权和权限控制
+# Solana/Account Model/Ownership and Access Control
 
-Solana 的账户数据结构中拥有一个 `owner` 字段, 该字段指向一个程序账户, 作为该账户的所有者. 只有所有者程序可以更改账户的 data 字段和从账户余额中扣除余额.
+In Solana, each account has an `owner` field in its data structure, which points to a program account that owns the account. Only the owner program is permitted to modify the account's `data` field or deduct funds from its balance.
 
-Solana 账户的实际功能依赖于账户所有者设定的规则, 我们以现实中的银行系统进行类比:
+The actual functionality of a Solana account is governed by the rules defined by its owner program. To better understand this, let's use a real-world analogy from the banking system:
 
-Ada 在泰国汇商银行(siam commercial bank)开设了一个银行账户, 并在账户中存入了一些资金. 在这个场景下:
+Ada opens a bank account at Siam Commercial Bank in Thailand and deposits some money into it. In this scenario:
 
-- Ada 拥有账户内资金的所有权和有限使用权.
-- Ada 账户的所有权仍归属银行. 银行账户是依附于银行的工具, 是银行的附属和延伸.
-- Ada 只允许执行银行允许其执行的操作, 例如转账, 汇款等. Ada 无法销毁账户内的资金, 因为银行不允许她这么做.
+- Ada has ownership and limited usage rights over the funds in the account.
+- The account itself is owned by the bank. A bank account is a tool tied to the bank, an extension of the bank's infrastructure.
+- Ada is only allowed to perform actions permitted by the bank, such as transfers or remittances. She cannot destroy the funds in her account because the bank doesn't allow such an operation.
 
-我们再次强调一遍: 每个 solana 账户都与一个程序账户相关联, 而该程序的设计会定义账户如何被访问和操作. 所有者程序账户可以是solana 系统程序, 也可以是用户自己部署的智能合约, 这种设计下使得 solana 非常灵活, 可以实现针对账户非常细粒度的控制.
+Let's emphasize this again: Every Solana account is associated with a program account, and the logic defined by that program determines how the account can be accessed and operated on. The owner program can be Solana's built-in system program or a user-deployed smart contract. This architecture gives Solana great flexibility, enabling fine-grained control over how accounts are managed.
