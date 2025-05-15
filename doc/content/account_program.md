@@ -1,16 +1,16 @@
-# Solana/账户模型/程序账户
+# Solana/Account Model/Program Accounts
 
-Solana 上的程序账户就是一个部署了 solana 程序(智能合约)的账户. 程序部署完成后, 它就拥有一个"程序账户地址", 其他人可以通过这个地址来调用它. Solana 上的程序通常是用 rust 写的, 需要先编译成 bpf 字节码格式. 在之后的章节中我们将详细讨论 solana 上的智能合约, 现在先让我们专注于存储程序的容器, 也就是程序账户.
+A program account on Solana is an account that has a deployed Solana program (smart contract). Once deployed, it has a **program account address** that others can call. Solana programs are typically written in Rust and compiled into BPF bytecode. We will discuss Solana smart contracts in detail in later chapters. For now, let's focus on the container that stores the program, the program account.
 
-## 部署程序
+## Deploying a Program
 
-作为一名老练的开发者, 我们已经在职业生涯中编写并运行过大量的 hello world 代码. 今天也不例外, 我们会尝试在 solana 网络上部署并运行一段简单的代码. 恰巧, pxsol 的资源目录中保存了一份 [hello world 代码](https://github.com/mohanson/pxsol/blob/master/res/hello_solana_program.so), 您可以通过以下命令下载它:
+As an experienced developer, you've likely written and run many "Hello World" programs before. Today is no exception; we will try deploying and running a simple program on the Solana network. Luckily, pxsol's resource directory includes a [Hello World program](https://github.com/mohanson/pxsol/blob/master/res/hello_solana_program.so), which you can download with:
 
 ```sh
 $ wget https://raw.githubusercontent.com/mohanson/pxsol/refs/heads/master/res/hello_solana_program.so
 ```
 
-这个 `hello_solana_program.so` 文件, 这就是您的程序代码, 它将被上传到 solana 链上.
+This `hello_solana_program.so` file is your program code, which will be uploaded to the Solana blockchain.
 
 ```py
 import pathlib
@@ -35,25 +35,25 @@ print(pxsol.rpc.get_account_info(program_pubkey.base58(), {}))
 # }
 ```
 
-我们在代码中, 简单的使用 `program_deploy()` 即可将程序部署到 solana 网络上. 在上述例子里, 程序被部署在了地址为 `3EwjHuke6N6CfWPQdbRayrMUANyEkbondw96n5HJpYja` 的程序账户里.
+In the code above, calling `program_deploy()` deploys the program to the Solana network. In this example, the program is deployed to the program account at address `3EwjHuke6N6CfWPQdbRayrMUANyEkbondw96n5HJpYja`.
 
-## 程序账户的权限和状态
+## Permissions and State of Program Accounts
 
-部署后的程序账户由 [bpf upgradeable loader](https://docs.anza.xyz/runtime/programs#bpf-loader), 即 `BPFLoaderUpgradeab1e11111111111111111111111` 所拥有, 这个 loader 控制是否可以升级程序.
+The deployed program account is owned by the [BPF upgradeable loader](https://docs.anza.xyz/runtime/programs#bpf-loader), identified as `BPFLoaderUpgradeab1e11111111111111111111111`, which controls whether the program can be upgraded.
 
-账户信息里的 `executable` 被标记为 true, 表示它是一个程序账户, 可以执行代码.
+The account info's `executable: true` flag indicates it is a program account capable of executing code.
 
-Solana 包含少量原生程序, 这些程序是运行验证器节点所必需的. 与第三方程序不同, 原生程序是 solana 网络的一部分. 我们之前提到的用于 sol 转账的 solana 系统程序, 以及 bpf upgradeable loader 都是 solana 原生程序.
+Solana has several native programs essential for validator operations. Unlike third-party programs, native programs are part of the Solana network itself. The Solana system program for SOL transfers and the BPF upgradeable loader are examples of native programs.
 
-[此页面](https://docs.anza.xyz/runtime/programs)列举了 solana 当前存在的全部原生程序.
+You can find a list of all current native programs on [this page](https://docs.anza.xyz/runtime/programs).
 
-## 调用程序
+## Invoking a Program
 
-Solana 里的程序就像是个链上工具人, 只要您发出合法的指令, 它就能帮你完成一些预设的基础活!
+Programs on Solana act like on-chain workers; if you send them a valid instruction, they perform predefined tasks for you!
 
-每次您要调用链上程序, 就要给它发送一个交易, 交易中包含一个指令, 指令的目标程序是它, 然后告诉它您想干嘛.
+Every time you want to invoke an on-chain program, you send a transaction containing an instruction targeting that program, telling it what you want it to do.
 
-在我们的 `hello_solana_program.so` 程序里, 这个程序会向任何调用自己的用户发送一条"你好"的消息. 让我们试试调用它!
+Our `hello_solana_program.so` simply sends a "Hello" message to any user who calls it. Let's try calling it!
 
 ```py
 import base64
@@ -78,13 +78,13 @@ for e in r['meta']['logMessages']:
 # Program 3EwjHuke6N6CfWPQdbRayrMUANyEkbondw96n5HJpYja success
 ```
 
-在第二行输出, 我们收到了来自程序发出的 `Hello, Solana!` 消息.
+On the second line of output, we receive the program's message: `Hello, Solana!`.
 
 Hello, Solana!
 
-## 等等, 程序在那儿?
+## Wait, Where Is the Program?
 
-我们在部署程序后就立即查询了程序账户的信息, jsonrpc 接口返回信息如下:
+Right after deploying, we queried the program account info; the JSON-RPC returned:
 
 ```json
 {
@@ -100,25 +100,25 @@ Hello, Solana!
 }
 ```
 
-但事情似乎有点不对劲. 程序账户里存储的数据 data 是不是有点...太少了? 毕竟我们程序的本体可是有足足 38936 字节那么大!
+Something seems off, the data stored in the program account looks... quite small. But our program's actual bytecode is 38,936 bytes!
 
 ```sh
 $ ls hello_solana_program.so
 # -rwxrwxr-x  1 ubuntu ubuntu 38936 Sep 13  2024 hello_solana_program.so
 ```
 
-实际上, 在这个例子里, 程序账户存储的是"程序元信息", 而不是程序代码本体!
+Actually, in this example, the program account stores program metadata, not the full program code.
 
-因为历史原因, solana 支持两种部署模式:
+Due to historical reasons, Solana supports two deployment models:
 
-|     模式     |         所有者         |                                     描述                                     |
-| ------------ | ---------------------- | ---------------------------------------------------------------------------- |
-| 不可升级程序 | bpf loader             | 字节码直接存进程序账户的 data 里                                             |
-| 可升级程序   | bpf upgradeable loader | 程序账户只是壳子, 真正的字节码存放在另一个叫做 program data account 的账户里 |
+| Deployment Type |         Owner          |                                       Description                                        |
+| --------------- | ---------------------- | ---------------------------------------------------------------------------------------- |
+| Non-upgradeable | BPF Loader             | Bytecode is stored directly in the program account's data field                          |
+| Upgradeable     | BPF Upgradeable Loader | Program account is a shell; the real bytecode is stored in a program data account's data |
 
-不可升级程序在 solana 网络上已经事实上被弃用, 因此 pxsol 不再支持不可升级程序, 正因如此您部署的是一个可升级的 solana 程序, 这时候程序账户(就是你部署出来的那个地址)里的 data 其实并不直接存储整个 bpf 字节码, 而是一个指向 program data account 的"指针".
+Non-upgradeable programs are effectively deprecated on Solana, so pxsol no longer supports them. That's why your deployment is an upgradeable Solana program. Here, the program account (the deployed address) does **not** store the full BPF bytecode directly but acts as a pointer to the program data account.
 
-我们解码 data 数据 `AgAAAKqeeWx5rwCATKoazfymul8X00alxPltuX+elp+32dxO`, 得到:
+We decode the base64 data string `AgAAAKqeeWx5rwCATKoazfymul8X00alxPltuX+elp+32dxO` as follows:
 
 ```py
 import base64
@@ -128,7 +128,7 @@ print(data.hex())
 # 02000000aa9e796c79af00804caa1acdfca6ba5f17d346a5c4f96db97f9e969fb7d9dc4e
 ```
 
-这个数据结构由 bpf upgradeable loader 管理, 格式大致是:
+This structure is managed by the BPF upgradeable loader and roughly corresponds to:
 
 ```rs
 pub enum UpgradeableLoaderState {
@@ -158,10 +158,10 @@ pub enum UpgradeableLoaderState {
 }
 ```
 
-- `02000000` 表示当前的枚举类型索引.
-- `aa9e796c79af00804caa1acdfca6ba5f17d346a5c4f96db97f9e969fb7d9dc4e` 表示的则是 program data account 地址.
+- `02000000` indicates the enum variant index (Program).
+- `aa9e796c79af00804caa1acdfca6ba5f17d346a5c4f96db97f9e969fb7d9dc4e` is the address of the program data account.
 
-这一次, 我们查询 program data account 的账户信息, 得到消息如下:
+Now, querying this program data account returns:
 
 ```py
 import pxsol
@@ -184,4 +184,4 @@ print(r)
 # }
 ```
 
-可以确认, `hello_solana_program.so` 的字节码确实直接塞在了 data 里.
+We can confirm the bytecode of `hello_solana_program.so` is indeed stored in the data field of this account.

@@ -43,7 +43,7 @@
 - [Solana/Account Model/UTXO vs Account-Based Models](./content/account_utxo_vs_account.md)
 - [Solana/Account Model/Ownership and Access Control](./content/account_owner.md)
 - [Solana/Account Model/Regular Accounts](./content/account_wallet.md)
-- [Solana/账户模型/程序账户](./content/account_program.md)
+- [Solana/Account Model/Program Accounts](./content/account_program.md)
 - [Solana/账户模型/数据账户](./content/account_data.md)
 - [Solana/账户模型/程序派生地址算法解析](./content/account_pda.md)
 - [Solana/账户模型/租赁与租赁豁免机制](./content/account_rent.md)
