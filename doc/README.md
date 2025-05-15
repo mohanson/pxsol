@@ -42,7 +42,7 @@
 - [Solana/Account Model/Account Data Structure](./content/account_type.md)
 - [Solana/Account Model/UTXO vs Account-Based Models](./content/account_utxo_vs_account.md)
 - [Solana/Account Model/Ownership and Access Control](./content/account_owner.md)
-- [Solana/账户模型/普通钱包账户](./content/account_wallet.md)
+- [Solana/Account Model/Regular Accounts](./content/account_wallet.md)
 - [Solana/账户模型/程序账户](./content/account_program.md)
 - [Solana/账户模型/数据账户](./content/account_data.md)
 - [Solana/账户模型/程序派生地址算法解析](./content/account_pda.md)
