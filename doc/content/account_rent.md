@@ -1,60 +1,60 @@
-# Solana/账户模型/租赁与租赁豁免机制
+# Solana/Account Model/Rent and Rent Exemption Mechanism
 
-在 solana 上, 每个账户都要消耗存储空间, 而这些空间背后是集群中的节点在为您存数据. 所以, solana 设计了一个租赁机制: 您要为您在链上存的每一字节数据付租金. 但又因为频繁续租太麻烦, 也设计了租赁豁免制度.
+On Solana, every account consumes storage space, and this data is ultimately stored by validator nodes in the cluster. To account for this, Solana employs a rent mechanism: you must pay rent for every byte of data you store on-chain. However, to avoid the hassle of frequent rent renewals, Solana also implements a rent exemption system.
 
-## 租赁
+## Rent
 
-Solana 的账户不是免费的, 它占用存储资源, 而节点们要保存这些数据. 因此, solana 要求每个账户必须有一部分 sol 用作数据存储租金.
+Accounts on Solana are not free, they occupy storage resources, and validators must maintain this data. As a result, Solana requires each account to reserve a portion of SOL as prepaid rent for data storage.
 
-这套机制的核心规则是:
+Key rules of the rent system:
 
-- 账户存储数据越多, 占用的空间越大, 所需的租金也越多.
-- 租金是预付的, 不是按月扣款, 而是按账户余额和大小一次性锁定一笔钱.
-- 如果账户余额不足, 长期空着不用, 系统可以把它回收掉.
+- The more data an account stores, the larger its footprint, and the more rent it requires.
+- Rent is prepaid and is debited from your account on a regular basis.
+- If the balance falls short and the account remains inactive, the system may reclaim it.
 
-这笔租金实际上是您存在账户余额里的一部分 sol, solana 运行时会根据当前租金费率计算出租期.
+The rent is effectively a part of the account's balance, and the Solana runtime calculates the duration of storage based on current rent rates.
 
-设计租赁机制的根本原因是为了防止账户垃圾, 这些垃圾账户可能被有意或无意的创建:
+The core reason for this mechanism is to prevent account spamming, which could be caused by:
 
-- 用户创建大量空账户, 从不清理.
-- 合约部署后遗留无用数据.
-- 程序错误导致堆积大量临时账户.
+- Users creating many empty accounts without cleanup.
+- Programs leaving behind unused data after deployment.
+- Bugs leading to an accumulation of temporary accounts.
 
-如果账户没有成本, 链上的状态会无限膨胀, 最终影响性能和稳定性. 通过租赁机制, solana 迫使用户对链上状态负责, 用经济手段做资源管理.
+If account creation had no cost, the state size on-chain would grow unchecked, eventually degrading network performance and stability. The rent model forces users to be accountable for their on-chain state, using economic incentives to manage resources.
 
-## 租赁豁免
+## Rent Exemption
 
-Solana 也知道频繁续租会很麻烦, 所以它设计了租赁豁免机制: 只要您账户里的 sol 足够多, 超过一个阈值, 系统就默认您预付了永久租金, 您的账户就不会被回收了.
+To make things easier, Solana also offers a rent exemption mechanism: if an account holds enough SOL to meet a certain threshold, it's considered prepaid for permanent storage, and the account won't be reclaimed.
 
-假设您创建了一个数据账户, 占用了 100 字节. 系统会根据当前的租金费率算出一笔豁免租金, 比如 0.002 sol. 您只要在账户里放进去这 0.002 SOL, 系统就视作豁免, 系统永远不会向您再收租, 您的账户也永远不会被删掉.
+For example, if you create a data account that takes up 100 bytes, the system calculates the required rent exemption, say, 0.002 SOL. As long as you deposit at least that much into the account, it is marked as exempt and will never incur rent charges or be deleted.
 
-这套机制设计得非常实用, 带来了几个好处:
+This mechanism is practical and offers several benefits:
 
-- 开发者不需要给账户设置租期, 续租逻辑.
-- 用户不需要关心账户什么时候过期.
-- 合约运行更加稳定.
+- Developers don't need to manage rent renewal logic.
+- Users don't have to worry about account expiration.
+- Programs can run more reliably without rent-related disruptions.
 
-Solana 从一开始就采用了租赁和租赁豁免并存的机制. 但在 [simd-0084](https://github.com/solana-foundation/solana-improvement-documents/blob/main/proposals/0084-disable-rent-fees-collection.md) 提案中, 开发团队提出移除周期性租金收取机制. 根据 solana stack exchange 上的讨论, 这一变更于 2023 年 12 月 6 日前部署完成.
+From the beginning, Solana supported both rent and rent exemption. However, in [SIMD-0084](https://github.com/solana-foundation/solana-improvement-documents/blob/main/proposals/0084-disable-rent-fees-collection.md), the core team proposed removing periodic rent collection. According to discussions on Solana Stack Exchange, this change was deployed before December 6, 2023.
 
-因此, solana 已经彻底移除了对租金收取的实际处理逻辑. 也就是说: 租金仍然作为一个概念存在于 solana 网络中, 但系统已经不会再周期性地收取租金或因为账户余额不足而删除账户. 实际上, 现在所有账户都相当于租赁豁免, 只要创建出来了就不会被删.
+As a result, Solana has completely removed the logic for collecting rent. That means: although rent still exists conceptually within the network, the system no longer collects it or deletes accounts for insufficient balance. Effectively, all accounts are now treated as rent-exempt, once created, they persist indefinitely.
 
-> 事实上, 我花了很多时间确认了这一修改的真实性. 请注意, solana 官方文档以及他人的博客文章可能仍包含部分过时信息, 建议结合上述社区讨论和提案确认最新状态.
+> In fact, I spent a lot of time verifying the accuracy of this change. Be aware that some official documentation and third-party blog posts may still contain outdated information. Always cross-reference with the proposal and community discussions.
 
-## 租赁周期
+## Rent Cycle
 
-从技术上讲, 每个账户都会记录自己的上次租金计费时间和余额. Solana 每个 epoch(大概两天)会进行一次租金结算. 如果某个账户没达到豁免门槛, 长期没有被访问, 且余额又不足以继续支付租金, 那它就可能被标记为"可清除", 节点会对账户数据进行清理, 释放状态空间.
+Technically, each account stores metadata about its last rent collection time and balance. Solana used to perform rent collection once per epoch (about every two days). If an account didn't meet the exemption threshold, hadn't been accessed for a long time, and lacked sufficient balance, it could be flagged as "cleanable", allowing nodes to purge its data and free up storage.
 
-如果您是程序开发者, 一般只要给数据账户设置成"租赁豁免", 后续就不用管它了.
+As a developer, if you mark a data account as rent-exempt during creation, you generally don't need to worry about it again.
 
-> 请注意, 周期性租金收取的实际处理逻辑已经从 solana 网络里彻底移除.
+> Note: The actual logic for periodic rent collection has been completely removed from the Solana network.
 
-## 租赁豁免资金计算
+## Calculating Rent Exemption
 
-账户初始化时就要考虑豁免金额. 您需要提前估算账户空间大小, 并把足够的 sol 存进去. 租赁费率由 solana 网络实时计算, 您可以通过 [get_minimum_balance_for_rent_exemption](https://solana.com/zh/docs/rpc/http/getminimumbalanceforrentexemption) rpc 接口来获取当前存储指定大小的数据时需要的租赁豁免资金数量.
+You should calculate the exemption amount during account initialization. Estimate the account's data size and deposit sufficient SOL accordingly. The rent rate is dynamic and determined by the network. You can query the required exemption amount via the [get_minimum_balance_for_rent_exemption](https://solana.com/zh/docs/rpc/http/getminimumbalanceforrentexemption) RPC endpoint.
 
-例: 如果小明要在账户中存储 100 字节的数据, 他需要的租赁豁免资金是多少?
+Q: How much rent exemption is needed if you wants to store 100 bytes of data in an account?
 
-答: 当前需要 1586880 lamport. 注意这个值可能会随着时间而发生变动.
+A: The current requirement is 1,586,880 lamports. Note that this value may change over time.
 
 ```py
 import pxsol
@@ -63,8 +63,8 @@ print(pxsol.rpc.get_minimum_balance_for_rent_exemption(100, {}))
 # 1586880
 ```
 
-## 开发者要注意的细节
+## Developer Considerations
 
-Solana 的账户租赁机制是为了控制状态存储成本, 让链上的数据有代价的存储. 同时, 为了开发方便, 又引入了租赁豁免机制, 只要您存够了钱, 就可以让账户永久保留.
+Solana's rent mechanism exists to control the cost of state storage and discourage unbounded growth. At the same time, rent exemption simplifies development: by funding accounts with enough SOL, you ensure their data is retained permanently.
 
-对开发者来说, 最重要的是在初始化账户时正确设置余额, 以达成租赁豁免.
+For developers, the most important task is to correctly fund accounts at initialization to meet the rent exemption threshold.
