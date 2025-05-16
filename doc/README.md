@@ -1,4 +1,4 @@
-# Solana](We Are Waiting for the Next One
+# Solana: We Are Waiting for the Next One
 
 - [Solana/We Are Waiting for the Next One](./content/foreword.md)
 
