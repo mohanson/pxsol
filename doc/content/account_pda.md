@@ -1,14 +1,14 @@
-# Solana/账户模型/程序派生地址算法解析
+# Solana/Account Model/Program Derived Addresses
 
-在 solana 上开发程序, 您早晚会需要使用程序派生地址(pda 地址). 简单说, 这是一种专属于您程序的数据账户地址, 可以用来保存数据, 但它跟普通钱包地址不一样, 它**没有私钥**, 别人也没法控制它, 只有您的程序能指挥它做事.
+When developing on Solana, you'll inevitably need to use Program Derived Addresses (PDAs). In simple terms, these are data account addresses exclusively controlled by your program. Unlike regular addresses, a PDA **has no private key**, no one can control it manually. Only your program can instruct it to perform actions.
 
-## 如何生成
+## How PDAs Are Generated
 
-程序派生地址是程序根据一组种子(可以是字符串, 钱包地址等)加上自己的公钥算出来的一个地址. 它不是随机生成的, 而是可以预先计算, 可预测的. 这个地址不会对应任何私钥, 所以没人能签名控制它, 包括程序作者本人.
+A PDA is deterministically generated from a program's public key and a set of user-defined seeds (such as strings or wallet addresses). It's not randomly created, but rather predictably calculated in advance. Since it corresponds to no private key, no one including the program author can sign transactions on behalf of this address.
 
-这对去中心化程序(比如链上钱包, 订单簿, 投票系统)来说特别重要, 因为开发者经常要给每个用户分配一个账户, 但不想让他们自己管理这个账户的密钥, 否则用户可以直接手动修改数据账户内的数据为任意数据.
+This is particularly important for decentralized applications (like on-chain wallets, order books, or voting systems), where the developer may need to assign a unique account to each user, but doesn't want users to be able to manage or tamper with the contents of that account themselves.
 
-上个小节中有个例子:
+Recall the example from the previous section:
 
 ```py
 import pxsol
@@ -19,22 +19,23 @@ pda = thb.derive_pda(ada.pubkey.p)
 print(pda) # HCPe787nPq7TfjeFivP9ZvZwejTAq1PGGzch93qUYeC3
 ```
 
-这样几行代码就能生成一个程序派生地址, 通常我们会把它当作用户在该程序下的数据存储账户.
+With just a few lines of code, we can generate a PDA, which is typically used as the user's data account under a specific program.
 
-## 算法解释
+## How the Algorithm Works
 
-Solana 的密钥对是 ed25519 曲线上的点, 包含一个公钥和对应的私钥. 公钥用作链上账户的地址.
+Solana uses the ed25519 elliptic curve for its key pairs, where each account is identified by a 32-byte public key.
 
-程序派生地址是一个通过预定义输入集有意生成的点, 必须位于 ed25519 曲线之外. 位于 ed25519 曲线之外的点没有有效的对应私钥, 无法执行普通意义上的签名操作. 相应的, solana 网络为程序派生地址开了个特殊的后门, 程序可以为自己的派生地址进行模拟签名操作.
+A PDA, however, is a deliberately constructed address that falls off the ed25519 curve. That means there is no valid private key for it, no one can perform standard signature operations. To make PDAs usable, the Solana runtime provides a special mechanism that allows programs to perform simulated signatures for their own derived addresses.
 
-生成程序派生地址算法过程如下:
+The PDA generation algorithm works as follows:
 
-1. 把种子和程序公钥拼在一起.
-2. 给它加一个叫 bump 的值(从 255 开始向下尝试).
-3. 每次拼完后算哈希, 看看算出来的地址在不在椭圆曲线上.
-4. 若地址不在曲线上, 说明这个地址不可能被签名控制, 可以用作程序派生地址.
+1. Concatenate the seed(s) with the program's public key.
+2. Append a "bump" value, starting at 255 and counting down.
+3. For each combination, hash the entire input.
+4. Check whether the resulting address lies off the elliptic curve.
+5. If so, it qualifies as a PDA and is returned.
 
-详细代码实现如下:
+Here's a full implementation in Python:
 
 ```py
 class PubKey:
@@ -63,12 +64,12 @@ class PubKey:
         raise Exception
 ```
 
-## 习题
+## Exercise
 
-例: Bump 是干嘛的?
+Q: What is the bump for?
 
-答: 它是用来避免地址冲突的调节器. 如果某个种子组合生成的地址不合法, 程序就试着调 bump, 直到找到一个合法地址.
+A: The bump acts as a collision-avoidance mechanism. If a particular seed combination produces an invalid (on-curve) address, the algorithm tries different bump values until it finds a valid PDA.
 
-例: 程序派生地址能自己发交易吗?
+Q: Can a PDA initiate transactions on its own?
 
-答: 不行. 程序派生地址没有私钥, 因此它不能直接发交易, 只能被程序调用和控制.
+A: No. PDAs have no private keys, so they cannot independently sign or initiate transactions. They can only be operated by the owning program.

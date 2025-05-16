@@ -45,6 +45,6 @@
 - [Solana/Account Model/Regular Accounts](./content/account_wallet.md)
 - [Solana/Account Model/Program Accounts](./content/account_program.md)
 - [Solana/Account Model/Data Accounts](./content/account_data.md)
-- [Solana/账户模型/程序派生地址算法解析](./content/account_pda.md)
+- [Solana/Account Model/Program Derived Addresses](./content/account_pda.md)
 - [Solana/账户模型/租赁与租赁豁免机制](./content/account_rent.md)
 - [Solana/账户模型/尚未深入探讨的问题](./content/account_epilog.md)
