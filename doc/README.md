@@ -47,4 +47,4 @@
 - [Solana/Account Model/Data Accounts](./content/account_data.md)
 - [Solana/Account Model/Program Derived Addresses](./content/account_pda.md)
 - [Solana/Account Model/Rent and Rent Exemption Mechanism](./content/account_rent.md)
-- [Solana/账户模型/尚未深入探讨的问题](./content/account_epilog.md)
+- [Solana/Account Model/Unexplored Issues](./content/account_epilog.md)
