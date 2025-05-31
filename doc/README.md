@@ -56,3 +56,4 @@
 - [Solana/Program Development Basics/An On-Chain Program for Users to Store Arbitrary Data](./content/ss_requirement.md)
 - [Solana/Program Development Basics/Setting Up the Initial Project Structure](./content/ss_skeleton.md)
 - [Solana/Program Development Basics/Entry Point Explanation](./content/ss_entrypoint.md)
+- [Solana/Program Development Basics/Creating a Data Account with Rent-Exemption](./content/ss_pda_create.md)
