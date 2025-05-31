@@ -62,3 +62,4 @@
 - [Solana/Program Development Basics/Compiling and Deploying the Program](./content/ss_deploy.md)
 - [Solana/Program Development Basics/Save and Load Data](./content/ss_save_load.md)
 - [Solana/Program Development Basics/Upgrading Programs](./content/ss_upgrade.md)
+- [Solana/Program Development Basics/Get Complete Repo from Github](./content/ss_github.md)
