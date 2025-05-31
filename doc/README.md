@@ -53,3 +53,4 @@
 
 - [Solana/Program Development Basics/Introduction](./content/ss_introduction.md)
 - [Solana/Program Development Basics/Setting Up the Rust Development Environment](./content/ss_rust_env.md)
+- [Solana/Program Development Basics/An On-Chain Program for Users to Store Arbitrary Data](./content/ss_requirement.md)
