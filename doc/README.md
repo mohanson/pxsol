@@ -57,3 +57,4 @@
 - [Solana/Program Development Basics/Setting Up the Initial Project Structure](./content/ss_skeleton.md)
 - [Solana/Program Development Basics/Entry Point Explanation](./content/ss_entrypoint.md)
 - [Solana/Program Development Basics/Creating a Data Account with Rent-Exemption](./content/ss_pda_create.md)
+- [Solana/Program Development Basics/Updating Data Accounts and Dynamic Rent Adjustment](./content/ss_pda_update.md)
