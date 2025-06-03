@@ -1,4 +1,4 @@
-# Solana/Program Development Basics/Save and Load Data
+# Solana/Program Development Basics/Program Interaction
 
 Now, our on-chain data storage program is deployed at the address `DVapU9kvtjzFdH3sRd3VDCXjZVkwBR6Cxosx36A5sK5E`. Let's try to write some data to this program.
 

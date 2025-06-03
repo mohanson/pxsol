@@ -60,6 +60,6 @@
 - [Solana/Program Development Basics/Updating Data Accounts and Dynamic Rent Adjustment](./content/ss_pda_update.md)
 - [Solana/Program Development Basics/Complete Code](./content/ss_code.md)
 - [Solana/Program Development Basics/Compiling and Deploying the Program](./content/ss_deploy.md)
-- [Solana/Program Development Basics/Save and Load Data](./content/ss_save_load.md)
+- [Solana/Program Development Basics/Program Interaction](./content/ss_interaction.md)
 - [Solana/Program Development Basics/Upgrading Programs](./content/ss_upgrade.md)
 - [Solana/Program Development Basics/Get Complete Repo from Github](./content/ss_github.md)
