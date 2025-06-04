@@ -63,3 +63,12 @@
 - [Solana/Program Development Basics/Program Interaction](./content/ss_interaction.md)
 - [Solana/Program Development Basics/Upgrading Programs](./content/ss_upgrade.md)
 - [Solana/Program Development Basics/Get Complete Repo from Github](./content/ss_github.md)
+
+---
+
+- [Solana/Thai Baht Coin/Introduction](./content/thaibaht_introduction.md)
+- [Solana/Thai Baht Coin/Evolution](./content/thaibaht_evolution.md)
+- [Solana/Thai Baht Coin/Core Mechanism Implementation](./content/thaibaht_core.md)
+- [Solana/Thai Baht Coin/Complete Code](./content/thaibaht_code.md)
+- [Solana/Thai Baht Coin/Program Interaction](./content/thaibaht_interaction.md)
+- [Solana/Thai Baht Coin/Get Complete Repo from Github](./content/thaibaht_github.md)
