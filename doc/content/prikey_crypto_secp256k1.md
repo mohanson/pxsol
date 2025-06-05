@@ -246,7 +246,7 @@ In this context, the scalar k corresponds to the secp256k1 private key. The gene
 
 ## Exercise
 
-Q: Given a Bitcoin private key of 0x5f6717883bef25f45a129c11fcac1567d74bda5a9ad4cbffc8203c0da2a1473c, find the public key.
+Q: Given a Bitcoin private key of `0x5f6717883bef25f45a129c11fcac1567d74bda5a9ad4cbffc8203c0da2a1473c`, find the public key.
 
 A:
 
