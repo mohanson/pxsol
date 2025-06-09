@@ -90,6 +90,21 @@ $ python example/history.py --addr 6ArN9XvxNndXKoZEgHECiC8M4LftBQ9nVdfyrC5tsii6 
 # {'signatures': ['5aAPZipgfGVPSuz2wdSg5hNFbudnELjCKYLRap6o...
 ```
 
+**example/idjson.py**
+
+Parses a local `id.json` file and converts it to a different format. The most useful output is in the `prikey/wif` format, which is what most browser wallets expect.
+
+```sh
+$ python example/idjson.py --idjson res/id.json
+
+# prikey/base58 11111111111111111111111111111112
+# prikey/hex    0000000000000000000000000000000000000000000000000000000000000001
+# prikey/wif    1111111111111111111111111111111PPm2a2NNZH2EFJ5UkEjkH9Fcxn8cvjTmZDKQQisyLDmA
+
+# pubkey/base58 6ASf5EcmmEHTgDJ4X4ZT5vT6iHVJBXPg5AN5YoTCpGWt
+# pubkey/hex    4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29
+```
+
 **example/program.py**
 
 Deploy a hello solana program, call it to show "Hello, Solana!". Then we update the program and call it again, it will display another welcome message. Finally, we close the program to withdraw all solanas.

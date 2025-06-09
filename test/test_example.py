@@ -22,6 +22,10 @@ def test_history():
     call('python example/history.py --addr 6ArN9XvxNndXKoZEgHECiC8M4LftBQ9nVdfyrC5tsii6 --limit 1')
 
 
+def test_idjson():
+    call('python example/idjson.py --idjson res/id.json')
+
+
 def test_program():
     r = call('python example/program.py --action deploy --prikey 0x1')
     program_pubkey = r.stdout.decode().splitlines()[-1].rstrip().split()[1]
