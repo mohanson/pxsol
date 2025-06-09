@@ -1,5 +1,7 @@
 # Solana: We Are Waiting for the Next One
 
+![img](./img/cover.jpg)
+
 - [Solana/We Are Waiting for the Next One](./content/foreword.md)
 
 ---
