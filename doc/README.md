@@ -2,9 +2,13 @@
 
 ![img](./img/cover.jpg)
 
+**Chapter 0**
+
 - [Solana/We Are Waiting for the Next One](./content/foreword.md)
 
 ---
+
+**Chapter 1**
 
 - [Solana/Private Key, Public Key and Address/Introduction](./content/prikey_introduction.md)
 - [Solana/Private Key, Public Key and Address/Private Key](./content/prikey_prikey.md)
@@ -24,6 +28,8 @@
 
 ---
 
+**Chapter 2**
+
 - [Solana/Transactions/Introduction](./content/tx_introduction.md)
 - [Solana/Transactions/Currency Denomination](./content/tx_denomination.md)
 - [Solana/Transactions/Building a Local Development Environment](./content/tx_devnet.md)
@@ -40,6 +46,8 @@
 
 ---
 
+**Chapter 3**
+
 - [Solana/Account Model/Introduction](./content/account_introduction.md)
 - [Solana/Account Model/Account Data Structure](./content/account_type.md)
 - [Solana/Account Model/UTXO vs Account-Based Models](./content/account_utxo_vs_account.md)
@@ -52,6 +60,8 @@
 - [Solana/Account Model/Unexplored Issues](./content/account_epilog.md)
 
 ---
+
+**Chapter 4**
 
 - [Solana/Program Development Basics/Introduction](./content/ss_introduction.md)
 - [Solana/Program Development Basics/Setting Up the Rust Development Environment](./content/ss_rust_env.md)
@@ -67,6 +77,8 @@
 - [Solana/Program Development Basics/Get Complete Repo from Github](./content/ss_github.md)
 
 ---
+
+**Chapter 5**
 
 - [Solana/Thai Baht Coin/Introduction](./content/thaibaht_introduction.md)
 - [Solana/Thai Baht Coin/Evolution](./content/thaibaht_evolution.md)
