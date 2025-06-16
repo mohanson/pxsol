@@ -1,6 +1,6 @@
 # Solana/Thai Baht Coin/Introduction
 
-Student: "Professor, I've been thinking lately, could the simple on-chain data storage system we created earlier be extended into a Thai Baht Coin program that can perform transfers? It seems like all we need is for each user to record their balance in their own data account, right?"
+Student: "Teacher, I've been thinking lately, could the simple on-chain data storage system we created earlier be extended into a Thai Baht Coin program that can perform transfers? It seems like all we need is for each user to record their balance in their own data account, right?"
 
 Teacher: "Haha, you're at a very crucial stage now. In fact, any on-chain program is essentially a state machine. What functionality you want to implement depends entirely on how you interpret the data."
 
@@ -12,7 +12,7 @@ Student: "We could start simple. The program supports two instructions: minting 
 
 Teacher: "Don't forget, you'll also need to define the list of accounts involved."
 
-Student: "Yes, Professor. I think I now have a deeper understanding of Solana program design. We always need to follow these three steps: **first, design the data format; then, design the instructions; and finally, define the list of accounts**."
+Student: "Yes, Teacher. I think I now have a deeper understanding of Solana program design. We always need to follow these three steps: **first, design the data format; then, design the instructions; and finally, define the list of accounts**."
 
 Teacher: "Great! You're starting to make connections now. The Thai Baht Coin program will be your homework for the week!"
 
