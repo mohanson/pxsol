@@ -249,9 +249,7 @@ class Wallet:
         # Mint a specified number of tokens and distribute them to self. Note that amount refers to the smallest unit
         # of count, For example, when the decimals of token is 2, you should use 100 to represent 1 token. If the
         # token account does not exist, it will be created automatically.
-        void = Wallet(pxsol.core.PriKey.int_decode(1))
-        void.pubkey = recv
-        recv_account_pubkey = void.spl_account(mint)
+        recv_account_pubkey = Wallet.view_only(recv).spl_account(mint)
         r0 = pxsol.core.Requisition(pxsol.program.AssociatedTokenAccount.pubkey, [], bytearray())
         r0.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
         r0.account.append(pxsol.core.AccountMeta(recv_account_pubkey, 1))
@@ -276,9 +274,7 @@ class Wallet:
         # decimals of token is 2, you should use 100 to represent 1 token. If the token account does not exist, it will
         # be created automatically.
         self_account_pubkey = self.spl_account(mint)
-        void = Wallet(pxsol.core.PriKey.int_decode(1))
-        void.pubkey = recv
-        recv_account_pubkey = void.spl_account(mint)
+        recv_account_pubkey = Wallet.view_only(recv).spl_account(mint)
         r0 = pxsol.core.Requisition(pxsol.program.AssociatedTokenAccount.pubkey, [], bytearray())
         r0.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
         r0.account.append(pxsol.core.AccountMeta(recv_account_pubkey, 1))
@@ -338,3 +334,11 @@ class Wallet:
         tx.sign([self.prikey])
         txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
         pxsol.rpc.wait([txid])
+
+    @classmethod
+    def view_only(cls, pubkey: pxsol.core.PubKey) -> typing.Self:
+        # View only wallet let you monitor a wallet's balance and activity but you can't send, swap, or sign
+        # transactions.
+        r = cls(pxsol.core.PriKey.int_decode(1))
+        r.pubkey = pubkey
+        return r
