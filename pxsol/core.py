@@ -592,8 +592,8 @@ class TokenMint:
         extensions = {}
         for k, v in self.extensions.items():
             match k:
-                case 0x12: extensions[k] = self.extension_metadata_pointer().json()
-                case 0x13: extensions[k] = self.extension_metadata().json(),
+                case 0x12: extensions['metadata_pointer'] = self.extension_metadata_pointer().json()
+                case 0x13: extensions['metadata'] = self.extension_metadata().json(),
                 case _: extensions[k] = v.hex()
         return {
             'auth_mint': self.auth_mint.base58(),
