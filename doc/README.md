@@ -86,3 +86,18 @@
 - [Solana/Thai Baht Coin/Complete Code](./content/thaibaht_code.md)
 - [Solana/Thai Baht Coin/Program Interaction](./content/thaibaht_interaction.md)
 - [Solana/Thai Baht Coin/Get Complete Repo from Github](./content/thaibaht_github.md)
+
+---
+
+**Chapter 6**
+
+- [Solana/SPL Token/Introduction](./content/spl_introduction.md)
+- [Solana/SPL Token/History and Core Specification Overview](./content/spl_spec.md)
+- [Solana/SPL Token/Create Your Token](./content/spl_create.md)
+- [Solana/SPL Token/Analyzing the Mint Account](./content/spl_mint_account.md)
+- [Solana/SPL Token/Minting Tokens and Querying Balances](./content/spl_mint.md)
+- [Solana/SPL Token/Transfers](./content/spl_transfer.md)
+- [Solana/SPL Token/Instruction Deep Dive (Part 1)](./content/spl_detail_create.md)
+- [Solana/SPL Token/Instruction Deep Dive (Part 2)](./content/spl_detail_mint.md)
+- [Solana/SPL Token/Instruction Deep Dive (Part 3)](./content/spl_detail_transfer.md)
+- [Solana/SPL Token/Epilogue](./content/spl_epilog.md)
