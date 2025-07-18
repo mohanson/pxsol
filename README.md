@@ -1,7 +1,5 @@
 # Pxsol: Solana Library For Humans
 
-> Pysol has been renamed to Pxsol, as the name is already taken on pypi.
-
 Pxsol is a project that aims to provide human-friendly interfaces for common solana operations. Using pxsol, you can easily and happily complete everything you want to do on sol.
 
 Features:
