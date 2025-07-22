@@ -11,12 +11,13 @@ import typing
 
 def call(method: str, params: typing.List) -> typing.Any:
     # Send a json rpc request.
-    r = requests.post(pxsol.config.current.url, json={
+    r = requests.post(pxsol.config.current.rpc.url, json={
         'id': random.randint(0x00000000, 0xffffffff),
         'jsonrpc': '2.0',
         'method': method,
         'params': params,
     }).json()
+    time.sleep(pxsol.config.current.rpc.cooldown)
     if 'error' in r:
         raise Exception(r['error'])
     return r['result']
@@ -29,7 +30,6 @@ def wait(sigs: typing.List[str]) -> None:
         pxsol.log.debugln(f'pxsol: transaction wait unconfirmed={len(remain)}')
         if len(remain) == 0:
             break
-        time.sleep(0.5)
         oldest = remain[:256]
         newest = remain[256:]
         result = get_signature_statuses(oldest, {})
@@ -47,7 +47,6 @@ def step() -> None:
     # Waiting for at least one new block.
     data = get_block_height({})
     for _ in itertools.repeat(0):
-        time.sleep(0.5)
         if get_block_height({}) != data:
             break
 

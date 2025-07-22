@@ -17,20 +17,30 @@ develop = ObjectDict({
     'commitment': 'confirmed',
     # Display log output.
     'log': 0,
-    # Http rpc.
-    'url': 'http://127.0.0.1:8899',
+    'rpc': ObjectDict({
+        # Many solana public nodes will limit the number of rpc requests. Add a fixed cooldown time.
+        'cooldown': 0.2,
+        # Endpoint.
+        'url': 'http://127.0.0.1:8899',
+    }),
 })
 
 mainnet = ObjectDict({
     'commitment': 'confirmed',
     'log': 0,
-    'url': 'https://api.mainnet-beta.solana.com',
+    'rpc': ObjectDict({
+        'cooldown': 1,
+        'url': 'https://api.mainnet-beta.solana.com',
+    }),
 })
 
 testnet = ObjectDict({
     'commitment': 'confirmed',
     'log': 0,
-    'url': 'https://api.devnet.solana.com',
+    'rpc': ObjectDict({
+        'cooldown': 1,
+        'url': 'https://api.devnet.solana.com',
+    }),
 })
 
 
