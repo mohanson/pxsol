@@ -39,7 +39,7 @@ import random
 target = '6ASf5EcmmEHTgDJ4X4ZT5vT6iHVJBXPg5AN5YoTCpGWt'
 
 for _ in range(1 << 32):
-    prikey = pxsol.core.PriKey(bytearray(random.randbytes(32)))
+    prikey = pxsol.core.PriKey.random()
     pubkey = prikey.pubkey().base58()
     if pubkey[:2] == target[:2] and pubkey[-2:] == target[-2:]:
         print(prikey)

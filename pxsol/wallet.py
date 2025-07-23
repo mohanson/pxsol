@@ -40,7 +40,7 @@ class Wallet:
     def program_buffer_create(self, bincode: bytearray) -> pxsol.core.PubKey:
         # Writes a program into a buffer account. The buffer account is randomly generated, and its public key serves
         # as the function's return value.
-        tempory_prikey = pxsol.core.PriKey(bytearray(random.randbytes(32)))
+        tempory_prikey = pxsol.core.PriKey.random()
         program_buffer = tempory_prikey.pubkey()
         # Sends a transaction which creates a buffer account large enough for the byte-code being deployed. It also
         # invokes the initialize buffer instruction to set the buffer authority to restrict writes to the deployer's
@@ -101,7 +101,7 @@ class Wallet:
 
     def program_deploy(self, bincode: bytearray) -> pxsol.core.PubKey:
         # Deploying a program on solana, returns the program's public key.
-        tempory_prikey = pxsol.core.PriKey(bytearray(random.randbytes(32)))
+        tempory_prikey = pxsol.core.PriKey.random()
         program_buffer = self.program_buffer_create(bincode)
         program = tempory_prikey.pubkey()
         program_data = pxsol.program.LoaderUpgradeable.pubkey.derive_pda(program.p)
@@ -194,7 +194,7 @@ class Wallet:
 
     def spl_create(self, name: str, symbol: str, uri: str, decimals: int) -> pxsol.core.PubKey:
         # Create a new token.
-        mint_prikey = pxsol.core.PriKey(bytearray(random.randbytes(32)))
+        mint_prikey = pxsol.core.PriKey.random()
         mint_pubkey = mint_prikey.pubkey()
         mint_size = pxsol.program.Token.size_extensions_base + pxsol.program.Token.size_extensions_metadata_pointer
         # Helper function to tack on the size of an extension bytes if an account with extensions is exactly the size

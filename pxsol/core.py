@@ -3,6 +3,7 @@ import io
 import json
 import pxsol.base58
 import pxsol.eddsa
+import secrets
 import typing
 
 
@@ -57,6 +58,10 @@ class PriKey:
     def pubkey(self):
         # Get the eddsa public key corresponding to the private key.
         return PubKey(pxsol.eddsa.pubkey(self.p))
+
+    @classmethod
+    def random(cls) -> typing.Self:
+        return PriKey(bytearray(secrets.token_bytes(32)))
 
     def sign(self, data: bytearray) -> bytearray:
         # Sign a message of arbitrary length. Unlike secp256k1, the resulting signature is deterministic.
