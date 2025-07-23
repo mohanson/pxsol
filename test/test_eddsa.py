@@ -22,7 +22,7 @@ def test_pt_encode_decode():
 
 def test_pt_exists():
     for _ in range(8):
-        pt = pxsol.ed25519.G * pxsol.ed25519.Fr(random.randint(1,  pxsol.ed25519.N))
+        pt = pxsol.ed25519.G * pxsol.ed25519.Fr(random.randint(1,  pxsol.ed25519.N - 1))
         ptbyte = pxsol.eddsa.pt_encode(pt)
         assert pxsol.eddsa.pt_exists(ptbyte)
         assert pxsol.eddsa.pt_decode(ptbyte) == pt
