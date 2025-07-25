@@ -132,6 +132,18 @@ $ python example/program.py --prikey 0x1 --action closed --addr 6B7KVuUQ42x8SagF
 # Program 6B7KVuUQ42x8SagFuFaoiV9jWTSic3Qd771kNrmGwoBG closed
 ```
 
+**example/pxs_airdrop.py**
+
+Apply for PXS airdrop on the mainnet. PXS is a token issued by pxsol for teaching purposes, and anyone can claim it.
+
+Mint address: `6B1ztFd9wSm3J5zD5vmMNEKg2r85M41wZMUW7wXwvEPH`
+
+Swap: <https://raydium.io/swap/?inputMint=6B1ztFd9wSm3J5zD5vmMNEKg2r85M41wZMUW7wXwvEPH&outputMint=sol>
+
+```sh
+$ python example/pxs_airdrop.py --prikey 0xYOUR_MAINNET_PRIVATE_KEY
+```
+
 **example/spl.py**
 
 This is an example centered around solana tokens. You can create a brand-new token, mint fresh tokens, and send them as gifts to your friends.
