@@ -101,3 +101,15 @@
 - [Solana/SPL Token/Instruction Deep Dive (Part 2)](./content/spl_detail_mint.md)
 - [Solana/SPL Token/Instruction Deep Dive (Part 3)](./content/spl_detail_transfer.md)
 - [Solana/SPL Token/Epilogue](./content/spl_epilog.md)
+
+**Chapter 7**
+
+- [Solana/Deploying Your Token on the Mainnet/Introduction](./content/project_introduction.md)
+- [Solana/Deploying Your Token on the Mainnet/Migrating from Testnet to Mainnet](./content/project_mainnet.md)
+- [Solana/Deploying Your Token on the Mainnet/Deploying Your Token on the Mainnet](./content/project_deploy.md)
+- [Solana/Deploying Your Token on the Mainnet/Listing on a Decentralized Exchange](./content/project_raydium.md)
+- [Solana/Deploying Your Token on the Mainnet/Designing Airdrop Rules](./content/project_rule.md)
+- [Solana/Deploying Your Token on the Mainnet/Program-Controlled Tokens](./content/project_control_by_program.md)
+- [Solana/Deploying Your Token on the Mainnet/Implementing the Airdrop Program](./content/project_code.md)
+- [Solana/Deploying Your Token on the Mainnet/Claiming the Airdrop](./content/project_airdrop.md)
+- [Solana/Deploying Your Token on the Mainnet/Get Complete Repo from Github](./content/project_github.md)
