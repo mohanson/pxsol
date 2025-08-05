@@ -102,6 +102,8 @@
 - [Solana/SPL Token/Instruction Deep Dive (Part 3)](./content/spl_detail_transfer.md)
 - [Solana/SPL Token/Epilogue](./content/spl_epilog.md)
 
+---
+
 **Chapter 7**
 
 - [Solana/Deploying Your Token on the Mainnet/Introduction](./content/project_introduction.md)
