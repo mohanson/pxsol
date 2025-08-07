@@ -6,5 +6,6 @@ from . import ed25519
 from . import eddsa
 from . import log
 from . import program
+from . import rate
 from . import rpc
 from . import wallet

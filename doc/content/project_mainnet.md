@@ -54,7 +54,7 @@ You can customize the RPC request URL and the cooldown time between each RPC req
 import pxsol
 
 pxsol.config.current = pxsol.config.mainnet
-pxsol.config.current.rpc.cooldown = 1
+pxsol.config.current.rpc.qps = 8
 pxsol.config.current.rpc.url = 'https://api.mainnet-beta.solana.com'
 ```
 

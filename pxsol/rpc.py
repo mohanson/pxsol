@@ -1,6 +1,7 @@
 import base64
 import itertools
 import pxsol.config
+import pxsol.rate
 import random
 import requests
 import time
@@ -11,13 +12,14 @@ import typing
 
 def call(method: str, params: typing.List) -> typing.Any:
     # Send a json rpc request.
+    call.rate = getattr(call, 'rate', pxsol.rate.Limits(pxsol.config.current.rpc.qps, 1))
+    call.rate.wait(1)
     r = requests.post(pxsol.config.current.rpc.url, json={
         'id': random.randint(0x00000000, 0xffffffff),
         'jsonrpc': '2.0',
         'method': method,
         'params': params,
     }).json()
-    time.sleep(pxsol.config.current.rpc.cooldown)
     if 'error' in r:
         raise Exception(r['error'])
     return r['result']
