@@ -15,13 +15,13 @@ class Limits:
         self.addition = n // g
         self.capacity = n
         self.last = time.time_ns()
-        self.mu = threading.Lock()
+        self.lock = threading.Lock()
         self.size = n
         self.step = p // g
 
     def peek(self, n: int) -> bool:
         # Peek glances there are enough resources (n) available.
-        with self.mu:
+        with self.lock:
             cycles = (time.time_ns() - self.last) // self.step
             if cycles > 0:
                 self.last += cycles * self.step
@@ -31,7 +31,7 @@ class Limits:
 
     def wait(self, n: int) -> None:
         # Wait ensures there are enough resources (n) available, blocking if necessary.
-        with self.mu:
+        with self.lock:
             cycles = (time.time_ns() - self.last) // self.step
             if cycles > 0:
                 self.last += cycles * self.step
