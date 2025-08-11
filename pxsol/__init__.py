@@ -1,4 +1,5 @@
 from . import base58
+from . import borsh
 from . import config
 from . import core
 from . import denomination
