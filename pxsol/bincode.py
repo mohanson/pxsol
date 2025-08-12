@@ -170,10 +170,10 @@ class ListVariable:
         self.kype = kype
 
     def decode(self, reader: typing.BinaryIO) -> typing.List:
-        return [self.kype.decode(reader) for _ in range(U32.decode(reader))]
+        return [self.kype.decode(reader) for _ in range(U64.decode(reader))]
 
     def encode(self, pylist: typing.List) -> bytearray:
-        return U32.encode(len(pylist)) + bytearray(itertools.chain(*[self.kype.encode(e) for e in pylist]))
+        return U64.encode(len(pylist)) + bytearray(itertools.chain(*[self.kype.encode(e) for e in pylist]))
 
 
 class Struct:
@@ -191,11 +191,11 @@ class Struct:
 class Enum:
     @classmethod
     def decode(cls, reader: typing.BinaryIO) -> int:
-        return U8.decode(reader)
+        return U32.decode(reader)
 
     @classmethod
     def encode(cls, number: int) -> bytearray:
-        return U8.encode(number)
+        return U32.encode(number)
 
 
 class Dict:
@@ -203,14 +203,14 @@ class Dict:
         self.kype = kype
 
     def decode(self, reader: typing.BinaryIO) -> typing.Dict:
-        return dict([[self.kype[0].decode(reader), self.kype[1].decode(reader)] for _ in range(U32.decode(reader))])
+        return dict([[self.kype[0].decode(reader), self.kype[1].decode(reader)] for _ in range(U64.decode(reader))])
 
     def encode(self, pydict: typing.Dict) -> bytearray:
         data = []
         for k, v in pydict.items():
             data.append([self.kype[0].encode(k), self.kype[1].encode(v)])
         data.sort(key=lambda x: x[0])
-        r = U32.encode(len(data))
+        r = U64.encode(len(data))
         for e in data:
             r.extend(e[0])
             r.extend(e[1])
@@ -231,8 +231,8 @@ class Option:
 class String:
     @classmethod
     def decode(cls, reader: typing.BinaryIO) -> str:
-        return reader.read(U32.decode(reader)).decode()
+        return reader.read(U64.decode(reader)).decode()
 
     @classmethod
     def encode(cls, string: str) -> bytearray:
-        return U32.encode(len(string)) + bytearray(string.encode())
+        return U64.encode(len(string)) + bytearray(string.encode())

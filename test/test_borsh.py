@@ -50,16 +50,16 @@ def test_number():
     assert pxsol.borsh.F64.decode(io.BytesIO(case[1])) == case[0]
 
 
-def test_array_constant():
+def test_list_constant():
     case = [[1, 2, 3], bytearray([1, 0, 2, 0, 3, 0])]
-    assert pxsol.borsh.ArrayConstant(pxsol.borsh.I16, 3).encode(case[0]) == case[1]
-    assert pxsol.borsh.ArrayConstant(pxsol.borsh.I16, 3).decode(io.BytesIO(case[1])) == case[0]
+    assert pxsol.borsh.ListConstant(pxsol.borsh.I16, 3).encode(case[0]) == case[1]
+    assert pxsol.borsh.ListConstant(pxsol.borsh.I16, 3).decode(io.BytesIO(case[1])) == case[0]
 
 
-def test_array_variable():
+def test_list_variable():
     case = [[1, 1], bytearray([2, 0, 0, 0, 1, 0, 1, 0])]
-    assert pxsol.borsh.ArrayVariable(pxsol.borsh.I16).encode(case[0]) == case[1]
-    assert pxsol.borsh.ArrayVariable(pxsol.borsh.I16).decode(io.BytesIO(case[1])) == case[0]
+    assert pxsol.borsh.ListVariable(pxsol.borsh.I16).encode(case[0]) == case[1]
+    assert pxsol.borsh.ListVariable(pxsol.borsh.I16).decode(io.BytesIO(case[1])) == case[0]
 
 
 def test_struct():
@@ -81,16 +81,10 @@ def test_struct():
     assert kype.decode(io.BytesIO(case[1])) == case[0]
 
 
-def test_hash_map():
+def test_dict():
     case = [{'k': 'v'}, bytearray([1, 0, 0, 0, 1, 0, 0, 0, 107, 1, 0, 0, 0, 118])]
-    assert pxsol.borsh.HashMap([pxsol.borsh.String, pxsol.borsh.String]).encode(case[0]) == case[1]
-    assert pxsol.borsh.HashMap([pxsol.borsh.String, pxsol.borsh.String]).decode(io.BytesIO(case[1])) == case[0]
-
-
-def test_hash_set():
-    case = [[1, 2, 3], bytearray([3, 0, 0, 0, 1, 2, 3])]
-    assert pxsol.borsh.HashSet(pxsol.borsh.U8).encode(case[0]) == case[1]
-    assert pxsol.borsh.HashSet(pxsol.borsh.U8).decode(io.BytesIO(case[1])) == case[0]
+    assert pxsol.borsh.Dict([pxsol.borsh.String, pxsol.borsh.String]).encode(case[0]) == case[1]
+    assert pxsol.borsh.Dict([pxsol.borsh.String, pxsol.borsh.String]).decode(io.BytesIO(case[1])) == case[0]
 
 
 def test_option():
