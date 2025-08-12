@@ -78,6 +78,21 @@ $ python example/base58.py --encode 020000002007150000000000
 # 3Bxs46DNLk1oRbZR
 ```
 
+**example/base58.py**
+
+Shows the accounts in the mainnet genesis block and their sol allocations.
+
+```sh
+$ python example/genesis.py
+
+# APnSR52EC1eH676m7qTBHUJ1nrGpHYpV7XKPxgRDD8gX 162509534.46
+# 13LeFbG6m2EP1fqCj9k66fcXsoTHMMtgr7c78AivUrYD 153333633.39
+# GK2zqSsXLA2rwVZk347RYhh6jJpRsCA69FjLW93ZGi3B  57499999.98
+# 8HVqyX9jebh31Q9Hp8t5sMVJs665979ZeEr3eCfzitUe  30301031.98
+# HbZ5FfmKWNHC7uwk6TF1hVi6TCs7dtYfdjEcuPGgzFAg  14999999.98
+# ...
+```
+
 **example/history.py**
 
 Shows the most recent transactions for a address.

@@ -18,6 +18,10 @@ def test_base58():
     call('python example/base58.py --encode 020000002007150000000000')
 
 
+def test_genesis():
+    call('python example/genesis.py')
+
+
 def test_history():
     call('python example/history.py --addr 6ArN9XvxNndXKoZEgHECiC8M4LftBQ9nVdfyrC5tsii6 --limit 1')
 
