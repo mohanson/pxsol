@@ -3,7 +3,6 @@ import json
 import pxsol.base58
 import pxsol.core
 import pxsol.rpc
-import random
 import typing
 
 
