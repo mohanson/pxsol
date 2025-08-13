@@ -35,7 +35,7 @@ def test_pt_exists():
 
 def test_sign_verify():
     # https://datatracker.ietf.org/doc/html/rfc8032#section-7.1
-    # Test Vectors for Ed25519
+    # Test Slices for Ed25519
     # TEST 1
     prikey = bytearray([
         0x9d, 0x61, 0xb1, 0x9d, 0xef, 0xfd, 0x5a, 0x60, 0xba, 0x84, 0x4a, 0xf4, 0x92, 0xec, 0x2c, 0xc4,

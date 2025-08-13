@@ -115,7 +115,7 @@ class LoaderUpgradeable:
         # 1. sr buffer authority.
         return pxsol.bincode.Enum.encode(1) + pxsol.bincode.Struct([
             pxsol.bincode.U32,
-            pxsol.bincode.Vector(pxsol.bincode.U8),
+            pxsol.bincode.Slice(pxsol.bincode.U8),
         ]).encode([offset, data])
 
     @classmethod
@@ -195,14 +195,14 @@ class System:
         return pxsol.bincode.Enum.encode(0x00) + pxsol.bincode.Struct([
             pxsol.bincode.U64,
             pxsol.bincode.U64,
-            pxsol.bincode.Malloc(pxsol.bincode.U8, 32),
+            pxsol.bincode.Array(pxsol.bincode.U8, 32),
         ]).encode([lamports, size, host.p])
 
     @classmethod
     def assign(cls, host: pxsol.core.PubKey) -> bytearray:
         # Assign account to a program. Account references:
         # 0. sw assigned account public key.
-        return pxsol.bincode.Enum.encode(0x01) + pxsol.bincode.Malloc(pxsol.bincode.U8, 32).encode(host.p)
+        return pxsol.bincode.Enum.encode(0x01) + pxsol.bincode.Array(pxsol.bincode.U8, 32).encode(host.p)
 
     @classmethod
     def transfer(cls, lamports: int) -> bytearray:
@@ -225,11 +225,11 @@ class System:
         # 1. -w created account.
         # 2. sr base account.
         return pxsol.bincode.Enum.encode(0x03) + pxsol.bincode.Struct([
-            pxsol.bincode.Malloc(pxsol.bincode.U8, 32),
-            pxsol.bincode.Vector(pxsol.bincode.U8),
+            pxsol.bincode.Array(pxsol.bincode.U8, 32),
+            pxsol.bincode.Slice(pxsol.bincode.U8),
             pxsol.bincode.U64,
             pxsol.bincode.U64,
-            pxsol.bincode.Malloc(pxsol.bincode.U8, 32),
+            pxsol.bincode.Array(pxsol.bincode.U8, 32),
         ]).encode([base.p, seed, lamports, size, host.p])
 
     @classmethod
@@ -256,14 +256,14 @@ class System:
         # 0. -w nonce account.
         # 1. -r recent blockhashes sysvar.
         # 2. -r rent sysvar.
-        return pxsol.bincode.Enum.encode(0x06) + pxsol.bincode.Malloc(pxsol.bincode.U8, 32).encode(host.p)
+        return pxsol.bincode.Enum.encode(0x06) + pxsol.bincode.Array(pxsol.bincode.U8, 32).encode(host.p)
 
     @classmethod
     def authorize_nonce_account(cls, host: pxsol.core.PubKey) -> bytearray:
         # Change the entity authorized to execute nonce instructions on the account. Account references:
         # 0. -w Nonce account
         # 1. sr Nonce authority
-        return pxsol.bincode.Enum.encode(0x07) + pxsol.bincode.Malloc(pxsol.bincode.U8, 32).encode(host.p)
+        return pxsol.bincode.Enum.encode(0x07) + pxsol.bincode.Array(pxsol.bincode.U8, 32).encode(host.p)
 
     @classmethod
     def allocate(cls, size: int) -> bytearray:
@@ -284,10 +284,10 @@ class System:
         # 0. -w Allocated account
         # 1. sr Base account
         return pxsol.bincode.Enum.encode(0x09) + pxsol.bincode.Struct([
-            pxsol.bincode.Malloc(pxsol.bincode.U8, 32),
-            pxsol.bincode.Vector(pxsol.bincode.U8),
+            pxsol.bincode.Array(pxsol.bincode.U8, 32),
+            pxsol.bincode.Slice(pxsol.bincode.U8),
             pxsol.bincode.U64,
-            pxsol.bincode.Malloc(pxsol.bincode.U8, 32),
+            pxsol.bincode.Array(pxsol.bincode.U8, 32),
         ]).encode([base.p, seed, size, host.p])
 
     @classmethod
@@ -296,9 +296,9 @@ class System:
         # 0. -w Assigned account
         # 1. sr Base account
         return pxsol.bincode.Enum.encode(0x0a) + pxsol.bincode.Struct([
-            pxsol.bincode.Malloc(pxsol.bincode.U8, 32),
-            pxsol.bincode.Vector(pxsol.bincode.U8),
-            pxsol.bincode.Malloc(pxsol.bincode.U8, 32),
+            pxsol.bincode.Array(pxsol.bincode.U8, 32),
+            pxsol.bincode.Slice(pxsol.bincode.U8),
+            pxsol.bincode.Array(pxsol.bincode.U8, 32),
         ]).encode([base.p, seed, host.p])
 
     @classmethod
@@ -309,8 +309,8 @@ class System:
         # 2. -w Recipient account
         return pxsol.bincode.Enum(0x0b) + pxsol.bincode.struct([
             pxsol.bincode.U64,
-            pxsol.bincode.Vector(pxsol.bincode.U8),
-            pxsol.bincode.Malloc(pxsol.bincode.U8, 32)
+            pxsol.bincode.Slice(pxsol.bincode.U8),
+            pxsol.bincode.Array(pxsol.bincode.U8, 32)
         ]).encode([lamports, seed, host.p])
 
     @classmethod
@@ -358,8 +358,8 @@ class Token:
         # 1. -r rent sysvar.
         return pxsol.borsh.Enum.encode(0x00) + pxsol.borsh.Struct([
             pxsol.borsh.U8,
-            pxsol.borsh.Malloc(pxsol.borsh.U8, 32),
-            pxsol.borsh.Option(pxsol.borsh.Malloc(pxsol.borsh.U8, 32)),
+            pxsol.borsh.Array(pxsol.borsh.U8, 32),
+            pxsol.borsh.Option(pxsol.borsh.Array(pxsol.borsh.U8, 32)),
         ]).encode([decimals, auth_mint.p, auth_freeze.p])
 
     @classmethod
@@ -411,7 +411,7 @@ class Token:
         # 1. sr the current authority of the mint or account.
         return pxsol.borsh.Enum.encode(0x06) + pxsol.borsh.Struct([
             pxsol.borsh.Enum,
-            pxsol.borsh.Malloc(pxsol.borsh.U8, 32),
+            pxsol.borsh.Array(pxsol.borsh.U8, 32),
         ]).encode([auth_type, auth.p])
 
     @classmethod
@@ -508,7 +508,7 @@ class Token:
         # 0. -w the account to initialize.
         # 1. -r the mint this account will be associated with.
         # 2. -r rent sysvar
-        return pxsol.borsh.Enum.encode(0x10) + pxsol.borsh.Malloc(pxsol.borsh.U8, 32).encode(host.p)
+        return pxsol.borsh.Enum.encode(0x10) + pxsol.borsh.Array(pxsol.borsh.U8, 32).encode(host.p)
 
     @classmethod
     def sync_native(cls) -> bytearray:
@@ -522,7 +522,7 @@ class Token:
         # Like initialize_account2(), but does not require the Rent sysvar to be provided. Account references:
         # 0. -w the account to initialize.
         # 1. -r the mint this account will be associated with.
-        return pxsol.borsh.Enum.encode(0x12) + pxsol.borsh.Malloc(pxsol.borsh.U8, 32).encode(host.p)
+        return pxsol.borsh.Enum.encode(0x12) + pxsol.borsh.Array(pxsol.borsh.U8, 32).encode(host.p)
 
     @classmethod
     def initialize_multisig2(cls, m: int) -> bytearray:
@@ -537,15 +537,15 @@ class Token:
         # 0. -w the mint to initialize.
         return pxsol.borsh.Enum.encode(0x14) + pxsol.borsh.Struct([
             pxsol.borsh.U8,
-            pxsol.borsh.Malloc(pxsol.borsh.U8, 32),
-            pxsol.borsh.Option(pxsol.borsh.Malloc(pxsol.borsh.U8, 32)),
+            pxsol.borsh.Array(pxsol.borsh.U8, 32),
+            pxsol.borsh.Option(pxsol.borsh.Array(pxsol.borsh.U8, 32)),
         ]).encode([decimals, auth_mint.p, auth_freeze.p])
 
     @classmethod
     def get_account_data_size(cls, extension_type: typing.List[int]) -> bytearray:
         # Gets the required size of an account for the given mint as a little-endian u64. Account references:
         # 0. -r the mint to calculate for.
-        return pxsol.borsh.Enum.encode(0x15) + pxsol.borsh.Vector(pxsol.borsh.U16).encode(extension_type)
+        return pxsol.borsh.Enum.encode(0x15) + pxsol.borsh.Slice(pxsol.borsh.U16).encode(extension_type)
 
     @classmethod
     def initialize_immutable_owner(cls) -> bytearray:
@@ -579,8 +579,8 @@ class Token:
         # Initialize a new mint with a metadata pointer. Account references:
         # 0. -w the mint to initialize.
         return pxsol.borsh.Enum.encode(0x27) + pxsol.borsh.Enum.encode(0x00) + pxsol.borsh.Struct([
-            pxsol.borsh.Malloc(pxsol.borsh.U8, 32),
-            pxsol.borsh.Malloc(pxsol.borsh.U8, 32),
+            pxsol.borsh.Array(pxsol.borsh.U8, 32),
+            pxsol.borsh.Array(pxsol.borsh.U8, 32),
         ]).encode([auth.p, mint.p])
 
     @classmethod
@@ -590,7 +590,7 @@ class Token:
         # 0. -w the mint.
         # 1. sr the metadata pointer authority.
         return pxsol.borsh.Enum.encode(0x27) + pxsol.borsh.Enum.encode(0x01) + pxsol.borsh.Struct([
-            pxsol.borsh.Malloc(pxsol.borsh.U8, 32),
+            pxsol.borsh.Array(pxsol.borsh.U8, 32),
         ]).encode([mint.p])
 
     @classmethod
@@ -602,7 +602,7 @@ class Token:
         # 3. sr mint authority.
         discriminator = bytearray(hashlib.sha256(b'spl_token_metadata_interface:initialize_account').digest()[:8])
         return pxsol.borsh.Struct([
-            pxsol.borsh.Malloc(pxsol.borsh.U8, 8),
+            pxsol.borsh.Array(pxsol.borsh.U8, 8),
             pxsol.borsh.String,
             pxsol.borsh.String,
             pxsol.borsh.String,
@@ -618,25 +618,25 @@ class Token:
         match field:
             case 'name':
                 return pxsol.borsh.Struct([
-                    pxsol.borsh.Malloc(pxsol.borsh.U8, 8),
+                    pxsol.borsh.Array(pxsol.borsh.U8, 8),
                     pxsol.borsh.Enum,
                     pxsol.borsh.String,
                 ]).encode([discriminator, 0x00, value])
             case 'symbol':
                 return pxsol.borsh.Struct([
-                    pxsol.borsh.Malloc(pxsol.borsh.U8, 8),
+                    pxsol.borsh.Array(pxsol.borsh.U8, 8),
                     pxsol.borsh.Enum,
                     pxsol.borsh.String,
                 ]).encode([discriminator, 0x01, value])
             case 'uri':
                 return pxsol.borsh.Struct([
-                    pxsol.borsh.Malloc(pxsol.borsh.U8, 8),
+                    pxsol.borsh.Array(pxsol.borsh.U8, 8),
                     pxsol.borsh.Enum,
                     pxsol.borsh.String,
                 ]).encode([discriminator, 0x02, value])
             case _:
                 return pxsol.borsh.Struct([
-                    pxsol.borsh.Malloc(pxsol.borsh.U8, 8),
+                    pxsol.borsh.Array(pxsol.borsh.U8, 8),
                     pxsol.borsh.Enum,
                     pxsol.borsh.String,
                     pxsol.borsh.String,
@@ -650,7 +650,7 @@ class Token:
         # 1. sr update authority.
         discriminator = bytearray(hashlib.sha256(b'spl_token_metadata_interface:remove_key_ix').digest()[:8])
         return pxsol.borsh.Struct([
-            pxsol.borsh.Malloc(pxsol.borsh.U8, 8),
+            pxsol.borsh.Array(pxsol.borsh.U8, 8),
             pxsol.borsh.U8,
             pxsol.borsh.String,
         ]).encode([discriminator, idempotent, key])
@@ -662,7 +662,7 @@ class Token:
         # 1. sr current update authority.
         discriminator = bytearray(hashlib.sha256(b'spl_token_metadata_interface:update_the_authority').digest()[:8])
         return pxsol.borsh.Struct([
-            pxsol.borsh.Malloc(pxsol.borsh.U8, 32),
+            pxsol.borsh.Array(pxsol.borsh.U8, 32),
         ]).encode([discriminator, auth.p])
 
     @classmethod
@@ -671,7 +671,7 @@ class Token:
         # 0. -r metadata account.
         discriminator = bytearray(hashlib.sha256(b'spl_token_metadata_interface:emitter').digest()[:8])
         return pxsol.borsh.Struct([
-            pxsol.borsh.Malloc(pxsol.borsh.U8, 32),
+            pxsol.borsh.Array(pxsol.borsh.U8, 32),
             pxsol.borsh.Option(pxsol.borsh.U64),
             pxsol.borsh.Option(pxsol.borsh.U64),
         ]).encode([discriminator, None, None])
