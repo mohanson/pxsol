@@ -153,7 +153,7 @@ class Bool:
         return bytearray([int(pybool)])
 
 
-class ListConstant:
+class Malloc:
     def __init__(self, kype: typing.Any, size: int) -> None:
         self.kype = kype
         self.size = size
@@ -165,7 +165,7 @@ class ListConstant:
         return bytearray(itertools.chain(*[self.kype.encode(e) for e in pylist]))
 
 
-class ListVariable:
+class Vector:
     def __init__(self, kype: typing.Any) -> None:
         self.kype = kype
 
