@@ -95,7 +95,7 @@ $ python example/genesis.py
 
 **example/history.py**
 
-Shows the most recent transactions for a address.
+Shows the most recent transactions for an address.
 
 ```sh
 $ python example/history.py --addr 6ArN9XvxNndXKoZEgHECiC8M4LftBQ9nVdfyrC5tsii6 --limit 1
