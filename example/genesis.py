@@ -2,9 +2,8 @@ import pxsol
 
 # Shows the accounts in the mainnet genesis block and their sol allocations.
 
-PubKey = pxsol.bincode.Array(pxsol.bincode.U8, 32)
-# List is unhashable type, so cannot be used as a dictionary key.
-PubKey.decode = lambda x: pxsol.core.PubKey(bytearray(pxsol.bincode.Array(pxsol.bincode.U8, 32).decode(x)))
+# List is unhashable type, so cannot be used as a dictionary key. Define a custom type.
+PubKey = pxsol.bincode.Custom(lambda r: pxsol.core.PubKey(bytearray(r.read(32))))
 
 Account = pxsol.bincode.Struct([
     pxsol.bincode.U64,                      # Lamports

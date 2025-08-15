@@ -236,3 +236,14 @@ class String:
     @classmethod
     def encode(cls, string: str) -> bytearray:
         return U32.encode(len(string)) + bytearray(string.encode())
+
+
+class Custom:
+    def __init__(self, func: typing.Callable[[typing.BinaryIO], typing.Any]) -> None:
+        self.func = func
+
+    def decode(self, reader: typing.BinaryIO) -> typing.Any:
+        return self.func(reader)
+
+    def encode(self, pydata: bytearray) -> bytearray:
+        return pydata
