@@ -1,4 +1,4 @@
-# Solana: We Are Waiting for the Next One
+# Solana(We Are Waiting for the Next One
 
 ![img](./img/cover.jpg)
 
@@ -115,3 +115,18 @@
 - [Solana/Deploying Your Token on the Mainnet/Implementing the Airdrop Program](./content/project_code.md)
 - [Solana/Deploying Your Token on the Mainnet/Claiming the Airdrop](./content/project_airdrop.md)
 - [Solana/Deploying Your Token on the Mainnet/Get Complete Repo from Github](./content/project_github.md)
+
+---
+
+**Chapter 8**
+
+- [Solana/Economic System/Introduction](./content/economy_introduction.md)
+- [Solana/Economic System/Typical Case Analysis](./content/economy_typical_case.md)
+- [Solana/Economic System/Overview](./content/economy_overview.md)
+- [Solana/Economic System/Genesis Block (Part 1)](./content/economy_genesis_data.md)
+- [Solana/Economic System/Genesis Block (Part 2)](./content/economy_genesis_analysis.md)
+- [Solana/Economic System/Inflation Rewards](./content/economy_inflation.md)
+- [Solana/Economic System/Transaction Fees and Fee Burning](./content/economy_fee.md)
+- [Solana/Economic System/Validator Costs and Expected Returns](./content/economy_validator.md)
+- [Solana/Economic System/Staking](./content/economy_stake.md)
+- [Solana/Economic System/Controversies in Community Governance](./content/economy_governance.md)
