@@ -29,7 +29,7 @@ mainnet = ObjectDict({
     'commitment': 'confirmed',
     'log': 0,
     'rpc': ObjectDict({
-        'qps': 2,
+        'qps': 1,
         'url': 'https://api.mainnet-beta.solana.com',
     }),
 })
@@ -38,7 +38,7 @@ testnet = ObjectDict({
     'commitment': 'confirmed',
     'log': 0,
     'rpc': ObjectDict({
-        'qps': 2,
+        'qps': 1,
         'url': 'https://api.devnet.solana.com',
     }),
 })
