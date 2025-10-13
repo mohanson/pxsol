@@ -130,3 +130,16 @@
 - [Solana/Economic System/Validator Costs and Expected Returns](./content/economy_validator.md)
 - [Solana/Economic System/Staking](./content/economy_stake.md)
 - [Solana/Economic System/Controversies in Community Governance](./content/economy_governance.md)
+
+---
+
+**Chapter 9**
+
+- [Solana/More Developer Tools/Introduction](./content/tool_introduction.md)
+- [Solana/More Developer Tools/Setting Up the Anchor Environment](./content/tool_anchor_install.md)
+- [Solana/More Developer Tools/A Simple Data-Storage Program in Anchor](./content/tool_anchor_ss.md)
+- [Solana/More Developer Tools/The Anchor Testing Framework](./content/tool_anchor_test.md)
+- [Solana/More Developer Tools/Pinocchio? Pinocchio!](./content/tool_pinocchio.md)
+- [Solana/More Developer Tools/Rewriting the Simple Data Storage Program with Pinocchio](./content/tool_pinocchio_ss.md)
+- [Solana/More Developer Tools/web3.js Quick Start](./content/tool_web3.md)
+- [Solana/More Developer Tools/Common Pitfalls and Workarounds in web3.js](./content/tool_web3_pitfall.md)
