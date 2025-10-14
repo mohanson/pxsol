@@ -23,6 +23,7 @@ develop = ObjectDict({
         # Endpoint.
         'url': 'http://127.0.0.1:8899',
     }),
+    'spl': ObjectDict({})
 })
 
 mainnet = ObjectDict({
@@ -32,6 +33,11 @@ mainnet = ObjectDict({
         'qps': 1,
         'url': 'https://api.mainnet-beta.solana.com',
     }),
+    'spl': ObjectDict({
+        'pxsol': '6B1ztFd9wSm3J5zD5vmMNEKg2r85M41wZMUW7wXwvEPH',
+        'usdc': 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+        'usdt': 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB',
+    })
 })
 
 testnet = ObjectDict({
@@ -41,6 +47,7 @@ testnet = ObjectDict({
         'qps': 1,
         'url': 'https://api.devnet.solana.com',
     }),
+    'spl': ObjectDict({})
 })
 
 
