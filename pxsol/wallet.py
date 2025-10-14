@@ -174,7 +174,26 @@ class Wallet:
         # Solana's base fee is a fixed 5000 lamports (0.000005 SOL) per signature.
         self.sol_transfer(recv, self.sol_balance() - 5000)
 
-    def spl_account(self, mint: pxsol.core.PubKey) -> pxsol.core.PubKey:
+    def spl_ata_create(self, mint: pxsol.core.PubKey) -> pxsol.core.PubKey:
+        # Create a token account. To track the individual ownership of each unit of a specific token, another type of
+        # data account owned by the token program must be created.
+        self_ata_pubkey = self.spl_ata(mint)
+        rq = pxsol.core.Requisition(pxsol.program.AssociatedTokenAccount.pubkey, [], bytearray())
+        rq.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
+        rq.account.append(pxsol.core.AccountMeta(self_ata_pubkey, 1))
+        rq.account.append(pxsol.core.AccountMeta(self.pubkey, 0))
+        rq.account.append(pxsol.core.AccountMeta(mint, 0))
+        rq.account.append(pxsol.core.AccountMeta(pxsol.program.System.pubkey, 0))
+        rq.account.append(pxsol.core.AccountMeta(pxsol.program.Token.pubkey, 0))
+        rq.data = pxsol.program.AssociatedTokenAccount.create()
+        tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [rq])
+        tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
+        tx.sign([self.prikey])
+        txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
+        pxsol.rpc.wait([txid])
+        return self_ata_pubkey
+
+    def spl_ata(self, mint: pxsol.core.PubKey) -> pxsol.core.PubKey:
         # Returns associated token account.
         # See: https://solana.com/docs/core/tokens#associated-token-account.
         seed = bytearray()
@@ -188,7 +207,7 @@ class Wallet:
 
     def spl_balance(self, mint: pxsol.core.PubKey) -> typing.List[int]:
         # Returns the current token balance and the decimals of the token.
-        r = pxsol.rpc.get_token_account_balance(self.spl_account(mint).base58(), {})['value']
+        r = pxsol.rpc.get_token_account_balance(self.spl_ata(mint).base58(), {})['value']
         return [int(r['amount']), r['decimals']]
 
     def spl_create(self, name: str, symbol: str, uri: str, decimals: int) -> pxsol.core.PubKey:
@@ -225,30 +244,11 @@ class Wallet:
         pxsol.rpc.wait([txid])
         return mint_pubkey
 
-    def spl_create_account(self, mint: pxsol.core.PubKey) -> pxsol.core.PubKey:
-        # Create a token account. To track the individual ownership of each unit of a specific token, another type of
-        # data account owned by the token program must be created.
-        self_ata_pubkey = self.spl_account(mint)
-        rq = pxsol.core.Requisition(pxsol.program.AssociatedTokenAccount.pubkey, [], bytearray())
-        rq.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
-        rq.account.append(pxsol.core.AccountMeta(self_ata_pubkey, 1))
-        rq.account.append(pxsol.core.AccountMeta(self.pubkey, 0))
-        rq.account.append(pxsol.core.AccountMeta(mint, 0))
-        rq.account.append(pxsol.core.AccountMeta(pxsol.program.System.pubkey, 0))
-        rq.account.append(pxsol.core.AccountMeta(pxsol.program.Token.pubkey, 0))
-        rq.data = pxsol.program.AssociatedTokenAccount.create()
-        tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [rq])
-        tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
-        tx.sign([self.prikey])
-        txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
-        pxsol.rpc.wait([txid])
-        return self_ata_pubkey
-
     def spl_mint(self, mint: pxsol.core.PubKey, recv: pxsol.core.PubKey, amount: int) -> None:
         # Mint a specified number of tokens and distribute them to self. Note that amount refers to the smallest unit
         # of count, For example, when the decimals of token is 2, you should use 100 to represent 1 token. If the
         # token account does not exist, it will be created automatically.
-        recv_ata_pubkey = Wallet.view_only(recv).spl_account(mint)
+        recv_ata_pubkey = Wallet.view_only(recv).spl_ata(mint)
         r0 = pxsol.core.Requisition(pxsol.program.AssociatedTokenAccount.pubkey, [], bytearray())
         r0.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
         r0.account.append(pxsol.core.AccountMeta(recv_ata_pubkey, 1))
@@ -272,8 +272,8 @@ class Wallet:
         # Transfers tokens to the target. Note that amount refers to the smallest unit of count, For example, when the
         # decimals of token is 2, you should use 100 to represent 1 token. If the token account does not exist, it will
         # be created automatically.
-        self_ata_pubkey = self.spl_account(mint)
-        recv_ata_pubkey = Wallet.view_only(recv).spl_account(mint)
+        self_ata_pubkey = self.spl_ata(mint)
+        recv_ata_pubkey = Wallet.view_only(recv).spl_ata(mint)
         r0 = pxsol.core.Requisition(pxsol.program.AssociatedTokenAccount.pubkey, [], bytearray())
         r0.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
         r0.account.append(pxsol.core.AccountMeta(recv_ata_pubkey, 1))
@@ -292,6 +292,11 @@ class Wallet:
         tx.sign([self.prikey])
         txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
         pxsol.rpc.wait([txid])
+
+    def spl_transfer_all(self, mint: pxsol.core.PubKey, recv: pxsol.core.PubKey) -> None:
+        # Transfers all tokens to the target.
+        amount = self.spl_balance(mint)[0]
+        self.spl_transfer(mint, recv, amount)
 
     def spl_update(self, mint: pxsol.core.PubKey, name: str, symbol: str, uri: str) -> None:
         # Update the token name, symbol and uri.

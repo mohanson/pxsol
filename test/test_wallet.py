@@ -79,7 +79,7 @@ def test_spl():
     mint_lamports = mint_result['lamports']
     mint_size = mint_result['space']
     assert pxsol.rpc.get_minimum_balance_for_rent_exemption(mint_size, {}) == mint_lamports
-    user.spl_create_account(mint)
+    user.spl_ata_create(mint)
     user.spl_mint(mint, user.pubkey, 99 * mint_exponent)
     user.spl_transfer(mint, hole.pubkey, 20 * mint_exponent)
     assert user.spl_balance(mint)[0] == 79 * mint_exponent
