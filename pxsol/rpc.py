@@ -4,7 +4,6 @@ import pxsol.config
 import pxsol.rate
 import random
 import requests
-import time
 import typing
 
 # Doc: https://solana.com/docs/rpc/http
