@@ -1,21 +1,7 @@
-import typing
+import pxsol.objectdict
 
 
-class ObjectDict(dict):
-    def __getattr__(self, name: str) -> typing.Any:
-        try:
-            value = self[name]
-            if isinstance(value, dict):
-                return ObjectDict(value)
-            return value
-        except KeyError:
-            raise AttributeError(name)
-
-    def __setattr__(self, name: str, value: typing.Any) -> None:
-        self[name] = value
-
-
-develop = ObjectDict({
+develop = pxsol.objectdict.ObjectDict({
     # The default state of a commitment, one of the confirmed or finalized.
     'commitment': 'confirmed',
     # Display log output.
@@ -30,7 +16,7 @@ develop = ObjectDict({
     'spl': {}
 })
 
-mainnet = ObjectDict({
+mainnet = pxsol.objectdict.ObjectDict({
     'commitment': 'confirmed',
     'log': 0,
     'rpc': {
@@ -44,7 +30,7 @@ mainnet = ObjectDict({
     }
 })
 
-testnet = ObjectDict({
+testnet = pxsol.objectdict.ObjectDict({
     'commitment': 'confirmed',
     'log': 0,
     'rpc': {

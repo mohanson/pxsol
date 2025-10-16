@@ -7,6 +7,7 @@ from . import denomination
 from . import ed25519
 from . import eddsa
 from . import log
+from . import objectdict
 from . import program
 from . import rate
 from . import rpc
