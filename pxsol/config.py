@@ -26,6 +26,7 @@ develop = ObjectDict({
         # Endpoint.
         'url': 'http://127.0.0.1:8899',
     },
+    # Trusted spl token mint addresses.
     'spl': {}
 })
 
