@@ -78,7 +78,7 @@ $ python example/base58.py --encode 020000002007150000000000
 # 3Bxs46DNLk1oRbZR
 ```
 
-**example/base58.py**
+**example/genesis.py**
 
 Shows the accounts in the mainnet genesis block and their sol allocations.
 
