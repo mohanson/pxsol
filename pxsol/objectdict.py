@@ -5,7 +5,7 @@ class ObjectDict(dict):
     def __getattr__(self, name: str) -> typing.Any:
         try:
             value = self[name]
-            if isinstance(value, dict):
+            if type(value) == dict:
                 value = ObjectDict(value)
                 self[name] = value
                 return value
