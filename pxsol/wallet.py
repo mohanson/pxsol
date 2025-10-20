@@ -340,9 +340,9 @@ class Wallet:
         pxsol.rpc.wait([txid])
 
     @classmethod
-    def view_only(cls, pubkey: pxsol.core.PubKey) -> typing.Self:
+    def view_only(cls, pubkey: pxsol.core.PubKey) -> Wallet:
         # View only wallet let you monitor a wallet's balance and activity but you can't send, swap, or sign
         # transactions.
-        r = cls(pxsol.core.PriKey.int_decode(1))
+        r = Wallet(pxsol.core.PriKey.int_decode(1))
         r.pubkey = pubkey
         return r

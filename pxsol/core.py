@@ -30,7 +30,7 @@ class PriKey:
         return pxsol.base58.encode(self.p)
 
     @classmethod
-    def base58_decode(cls, data: str) -> typing.Self:
+    def base58_decode(cls, data: str) -> PriKey:
         # Convert the base58 representation to private key.
         return PriKey(pxsol.base58.decode(data))
 
@@ -39,7 +39,7 @@ class PriKey:
         return self.p.hex()
 
     @classmethod
-    def hex_decode(cls, data: str) -> typing.Self:
+    def hex_decode(cls, data: str) -> PriKey:
         # Convert the hex representation to private key.
         return PriKey(bytearray.fromhex(data))
 
@@ -48,7 +48,7 @@ class PriKey:
         return int.from_bytes(self.p)
 
     @classmethod
-    def int_decode(cls, data: int) -> typing.Self:
+    def int_decode(cls, data: int) -> PriKey:
         # Convert the u256 number to private key, in big endian.
         return PriKey(bytearray(data.to_bytes(32)))
 
@@ -60,7 +60,7 @@ class PriKey:
         return PubKey(pxsol.eddsa.pubkey(self.p))
 
     @classmethod
-    def random(cls) -> typing.Self:
+    def random(cls) -> PriKey:
         return PriKey(bytearray(secrets.token_bytes(32)))
 
     def sign(self, data: bytearray) -> bytearray:
@@ -73,7 +73,7 @@ class PriKey:
         return pxsol.base58.encode(self.p + pubkey.p)
 
     @classmethod
-    def wif_decode(cls, data: str) -> typing.Self:
+    def wif_decode(cls, data: str) -> PriKey:
         # Convert the wallet import format to private key. This is the format supported by most third-party wallets.
         pripub = pxsol.base58.decode(data)
         prikey = PriKey(pripub[:32])
@@ -104,11 +104,11 @@ class PubKey:
         return pxsol.base58.encode(self.p)
 
     @classmethod
-    def base58_decode(cls, data: str) -> typing.Self:
+    def base58_decode(cls, data: str) -> PubKey:
         # Convert the base58 representation to public key.
         return PubKey(pxsol.base58.decode(data))
 
-    def derive(self, seed: bytearray, host: typing.Self) -> typing.Self:
+    def derive(self, seed: bytearray, host: PubKey) -> PubKey:
         # Create new pubkey with seed and host.
         data = bytearray()
         data.extend(self.p)
@@ -117,7 +117,7 @@ class PubKey:
         assert not data.endswith(bytearray('ProgramDerivedAddress'.encode()))
         return PubKey(bytearray(hashlib.sha256(data).digest()))
 
-    def derive_pda(self, seed: bytearray) -> typing.Self:
+    def derive_pda(self, seed: bytearray) -> PubKey:
         # Program Derived Address (PDA). PDAs are addresses derived deterministically using a combination of
         # user-defined seeds, a bump seed, and a program's ID.
         # See: https://solana.com/docs/core/pda
@@ -139,7 +139,7 @@ class PubKey:
         return self.p.hex()
 
     @classmethod
-    def hex_decode(cls, data: str) -> typing.Self:
+    def hex_decode(cls, data: str) -> PubKey:
         # Convert the hex representation to public key.
         return PubKey(bytearray.fromhex(data))
 
@@ -148,7 +148,7 @@ class PubKey:
         return int.from_bytes(self.p)
 
     @classmethod
-    def int_decode(cls, data: int) -> typing.Self:
+    def int_decode(cls, data: int) -> PubKey:
         # Convert the u256 number to public key, in big endian.
         return PubKey(bytearray(data.to_bytes(32)))
 
@@ -271,11 +271,11 @@ class Instruction:
         return r
 
     @classmethod
-    def serialize_decode(cls, data: bytearray) -> typing.Self:
+    def serialize_decode(cls, data: bytearray) -> Instruction:
         return Instruction.serialize_decode_reader(io.BytesIO(data))
 
     @classmethod
-    def serialize_decode_reader(cls, reader: io.BytesIO) -> typing.Self:
+    def serialize_decode_reader(cls, reader: io.BytesIO) -> Instruction:
         i = Instruction(0, [], bytearray())
         i.program = int(reader.read(1)[0])
         for _ in range(compact_u16_decode_reader(reader)):
@@ -306,12 +306,12 @@ class MessageHeader:
         return bytearray([self.required_signatures, self.readonly_signatures, self.readonly])
 
     @classmethod
-    def serialize_decode(cls, data: bytearray) -> typing.Self:
+    def serialize_decode(cls, data: bytearray) -> MessageHeader:
         assert len(data) == 3
         return MessageHeader(data[0], data[1], data[2])
 
     @classmethod
-    def serialize_decode_reader(cls, reader: io.BytesIO) -> typing.Self:
+    def serialize_decode_reader(cls, reader: io.BytesIO) -> MessageHeader:
         return MessageHeader.serialize_decode(bytearray(reader.read(3)))
 
 
@@ -354,11 +354,11 @@ class Message:
         return r
 
     @classmethod
-    def serialize_decode(cls, data: bytearray) -> typing.Self:
+    def serialize_decode(cls, data: bytearray) -> Message:
         return Message.serialize_decode_reader(io.BytesIO(data))
 
     @classmethod
-    def serialize_decode_reader(cls, reader: io.BytesIO) -> typing.Self:
+    def serialize_decode_reader(cls, reader: io.BytesIO) -> Message:
         m = Message(MessageHeader.serialize_decode_reader(reader), [], bytearray(), [])
         for _ in range(compact_u16_decode_reader(reader)):
             m.account_keys.append(PubKey(bytearray(reader.read(32))))
@@ -399,7 +399,7 @@ class Transaction:
         return r
 
     @classmethod
-    def requisition_decode(cls, pubkey: PubKey, data: typing.List[Requisition]) -> typing.Self:
+    def requisition_decode(cls, pubkey: PubKey, data: typing.List[Requisition]) -> Transaction:
         # Convert the requisitions to transaction.
         account_flat: typing.List[AccountMeta] = [AccountMeta(pubkey, 3)]
         for r in data:
@@ -434,11 +434,11 @@ class Transaction:
         return r
 
     @classmethod
-    def serialize_decode(cls, data: bytearray) -> typing.Self:
+    def serialize_decode(cls, data: bytearray) -> Transaction:
         return Transaction.serialize_decode_reader(io.BytesIO(data))
 
     @classmethod
-    def serialize_decode_reader(cls, reader: io.BytesIO) -> typing.Self:
+    def serialize_decode_reader(cls, reader: io.BytesIO) -> Transaction:
         s = []
         for _ in range(compact_u16_decode_reader(reader)):
             s.append(bytearray(reader.read(64)))
@@ -477,7 +477,7 @@ class TokenExtensionMetadataPointer:
         return r
 
     @classmethod
-    def serialize_decode(cls, data: bytearray) -> typing.Self:
+    def serialize_decode(cls, data: bytearray) -> TokenExtensionMetadataPointer:
         return TokenExtensionMetadataPointer(
             PubKey(data[0x00:0x20]),
             PubKey(data[0x20:0x40]),
@@ -542,11 +542,11 @@ class TokenExtensionMetadata:
         return r
 
     @classmethod
-    def serialize_decode(cls, data: bytearray) -> typing.Self:
+    def serialize_decode(cls, data: bytearray) -> TokenExtensionMetadata:
         return TokenExtensionMetadata.serialize_decode_reader(io.BytesIO(data))
 
     @classmethod
-    def serialize_decode_reader(cls, reader: io.BytesIO) -> typing.Self:
+    def serialize_decode_reader(cls, reader: io.BytesIO) -> TokenExtensionMetadata:
         m = TokenExtensionMetadata(
             PubKey(bytearray(reader.read(32))),
             PubKey(bytearray(reader.read(32))),
@@ -638,7 +638,7 @@ class TokenMint:
         return r
 
     @classmethod
-    def serialize_decode(cls, data: bytearray) -> typing.Self:
+    def serialize_decode(cls, data: bytearray) -> TokenMint:
         extensions = {}
         extensions_reader = io.BytesIO(data[166:])
         for _ in range(1 << 32):
