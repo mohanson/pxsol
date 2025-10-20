@@ -386,11 +386,16 @@ class Transaction:
 
     def requisition(self) -> typing.List[Requisition]:
         # Convert the transaction to requisitions.
+        m3 = self.message.header.required_signatures - self.message.header.readonly_signatures
+        m2 = self.message.header.readonly_signatures
+        m1 = len(self.message.account_keys) - self.message.header.required_signatures - self.message.header.readonly
+        m0 = self.message.header.readonly
+        m = [3] * m3 + [2] * m2 + [1] * m1 + [0] * m0
         r = []
         for i in self.message.instructions:
             program = (self.message.account_keys[i.program])
-            account = [self.message.account_keys[a] for a in i.account]
-            r.append(Requisition(program, AccountMeta(account, 0), i.data))
+            account = [AccountMeta(self.message.account_keys[a], m[a]) for a in i.account]
+            r.append(Requisition(program, account, i.data))
         return r
 
     @classmethod

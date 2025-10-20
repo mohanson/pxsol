@@ -83,3 +83,7 @@ def test_transaction():
     ])
     tx = pxsol.core.Transaction.serialize_decode(data)
     assert tx.serialize() == data
+    rq = tx.requisition()[0]
+    assert rq.program == pxsol.program.System.pubkey
+    assert rq.account[0].mode == 3
+    assert rq.account[1].mode == 1
