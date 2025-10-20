@@ -14,6 +14,6 @@ user = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(1))
 
 for e in pxsol.rpc.get_signatures_for_address(user.pubkey.base58(), {'limit': args.limit}):
     tx_meta = pxsol.rpc.get_transaction(e['signature'], {'encoding': 'base64'})
-    tx_byte = base64.b64decode(tx_meta['transaction'][0])
+    tx_byte = bytearray(base64.b64decode(tx_meta['transaction'][0]))
     tx = pxsol.core.Transaction.serialize_decode(tx_byte)
     print(tx)
