@@ -16,7 +16,9 @@ class Fp:
         assert self.p == data.p
         return self.__class__(self.x + data.x)
 
-    def __eq__(self, data: typing.Self) -> bool:
+    def __eq__(self, data: object) -> bool:
+        if not isinstance(data, self.__class__):
+            return False
         assert self.p == data.p
         return self.x == data.x
 
@@ -89,7 +91,9 @@ class Pt:
         self.x = x
         self.y = y
 
-    def __eq__(self, data: typing.Self) -> bool:
+    def __eq__(self, data: object) -> bool:
+        if not isinstance(data, self.__class__):
+            return False
         return all([
             self.x == data.x,
             self.y == data.y,
@@ -108,9 +112,9 @@ class Pt:
         y1, y2 = self.y, data.y
         x3 = (x1 * y2 + x2 * y1) / (Fq(1) + D * x1 * x2 * y1 * y2)
         y3 = (y1 * y2 - A * x1 * x2) / (Fq(1) - D * x1 * x2 * y1 * y2)
-        return Pt(x3, y3)
+        return self.__class__(x3, y3)
 
-    def __mul__(self, k: Fr) -> typing.Self:
+    def __mul__(self, k: Fr) -> Pt:
         # Point multiplication: Double-and-add
         # https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication
         n = k.x
@@ -124,19 +128,19 @@ class Pt:
             n = n >> 1
         return result
 
-    def __neg__(self) -> typing.Self:
+    def __neg__(self) -> Pt:
         return Pt(-self.x, self.y)
 
-    def __sub__(self, data: typing.Self) -> typing.Self:
+    def __sub__(self, data: Pt) -> Pt:
         return self + data.__neg__()
 
-    def __truediv__(self, k: Fr) -> typing.Self:
+    def __truediv__(self, k: Fr) -> Pt:
         return self.__mul__(k ** -1)
 
-    def __pos__(self) -> typing.Self:
+    def __pos__(self) -> Pt:
         return self
 
-    def json(self) -> typing.Self:
+    def json(self) -> typing.Dict[str, str]:
         return {
             'x': self.x.json(),
             'y': self.y.json(),
