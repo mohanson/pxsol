@@ -202,7 +202,7 @@ class System:
     def assign(cls, host: pxsol.core.PubKey) -> bytearray:
         # Assign account to a program. Account references:
         # 0. sw assigned account public key.
-        return pxsol.bincode.Enum.encode(0x01) + pxsol.bincode.Array(pxsol.bincode.U8, 32).encode(host.p)
+        return pxsol.bincode.Enum.encode(0x01) + pxsol.bincode.Array(pxsol.bincode.U8, 32).encode([e for e in host.p])
 
     @classmethod
     def transfer(cls, lamports: int) -> bytearray:
@@ -248,7 +248,7 @@ class System:
         # 2. -r recentBlockhashes sysvar.
         # 3. -r rent sysvar.
         # 4. sr nonce authority.
-        return pxsol.bincode.Enum.encode(0x05) + pxsol.bincode.U64(lamports)
+        return pxsol.bincode.Enum.encode(0x05) + pxsol.bincode.U64.encode(lamports)
 
     @classmethod
     def initialize_nonce_account(cls, host: pxsol.core.PubKey) -> bytearray:
@@ -256,14 +256,14 @@ class System:
         # 0. -w nonce account.
         # 1. -r recent blockhashes sysvar.
         # 2. -r rent sysvar.
-        return pxsol.bincode.Enum.encode(0x06) + pxsol.bincode.Array(pxsol.bincode.U8, 32).encode(host.p)
+        return pxsol.bincode.Enum.encode(0x06) + pxsol.bincode.Array(pxsol.bincode.U8, 32).encode([e for e in host.p])
 
     @classmethod
     def authorize_nonce_account(cls, host: pxsol.core.PubKey) -> bytearray:
         # Change the entity authorized to execute nonce instructions on the account. Account references:
         # 0. -w Nonce account
         # 1. sr Nonce authority
-        return pxsol.bincode.Enum.encode(0x07) + pxsol.bincode.Array(pxsol.bincode.U8, 32).encode(host.p)
+        return pxsol.bincode.Enum.encode(0x07) + pxsol.bincode.Array(pxsol.bincode.U8, 32).encode([e for e in host.p])
 
     @classmethod
     def allocate(cls, size: int) -> bytearray:
@@ -307,7 +307,7 @@ class System:
         # 0. -w Funding account
         # 1. sr Base for funding account
         # 2. -w Recipient account
-        return pxsol.bincode.Enum(0x0b) + pxsol.bincode.struct([
+        return pxsol.bincode.Enum.encode(0x0b) + pxsol.bincode.Struct([
             pxsol.bincode.U64,
             pxsol.bincode.Slice(pxsol.bincode.U8),
             pxsol.bincode.Array(pxsol.bincode.U8, 32)
@@ -318,7 +318,7 @@ class System:
         # One-time idempotent upgrade of legacy nonce versions in order to bump them out of chain blockhash domain.
         # Account references:
         # 0. -w nonce account.
-        return pxsol.bincode.Enum(0x0c)
+        return pxsol.bincode.Enum.encode(0x0c)
 
 
 class SysvarClock:
@@ -508,7 +508,7 @@ class Token:
         # 0. -w the account to initialize.
         # 1. -r the mint this account will be associated with.
         # 2. -r rent sysvar
-        return pxsol.borsh.Enum.encode(0x10) + pxsol.borsh.Array(pxsol.borsh.U8, 32).encode(host.p)
+        return pxsol.borsh.Enum.encode(0x10) + pxsol.borsh.Array(pxsol.borsh.U8, 32).encode([e for e in host.p])
 
     @classmethod
     def sync_native(cls) -> bytearray:
@@ -522,7 +522,7 @@ class Token:
         # Like initialize_account2(), but does not require the Rent sysvar to be provided. Account references:
         # 0. -w the account to initialize.
         # 1. -r the mint this account will be associated with.
-        return pxsol.borsh.Enum.encode(0x12) + pxsol.borsh.Array(pxsol.borsh.U8, 32).encode(host.p)
+        return pxsol.borsh.Enum.encode(0x12) + pxsol.borsh.Array(pxsol.borsh.U8, 32).encode([e for e in host.p])
 
     @classmethod
     def initialize_multisig2(cls, m: int) -> bytearray:

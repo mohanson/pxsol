@@ -25,7 +25,7 @@ class Wallet:
     def program_buffer_closed(self, program_buffer: pxsol.core.PubKey) -> None:
         # Close a buffer account. This method is used to withdraw all lamports when the buffer account is no longer in
         # use due to unexpected errors.
-        rq = pxsol.core.Requisition(pxsol.program.LoaderUpgradeable.pubkey, [], bytearray)
+        rq = pxsol.core.Requisition(pxsol.program.LoaderUpgradeable.pubkey, [], bytearray())
         rq.account.append(pxsol.core.AccountMeta(program_buffer, 1))
         rq.account.append(pxsol.core.AccountMeta(self.pubkey, 1))
         rq.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
@@ -340,9 +340,9 @@ class Wallet:
         pxsol.rpc.wait([txid])
 
     @classmethod
-    def view_only(cls, pubkey: pxsol.core.PubKey) -> typing.Self:
+    def view_only(cls, pubkey: pxsol.core.PubKey) -> Wallet:
         # View only wallet let you monitor a wallet's balance and activity but you can't send, swap, or sign
         # transactions.
-        r = cls(pxsol.core.PriKey.int_decode(1))
+        r = Wallet(pxsol.core.PriKey.int_decode(1))
         r.pubkey = pubkey
         return r
