@@ -11,8 +11,9 @@ import typing
 
 def call(method: str, params: typing.List) -> typing.Any:
     # Send a json rpc request.
-    call.rate = getattr(call, 'rate', pxsol.rate.Limits(pxsol.config.current.rpc.qps, 1))
-    call.rate.wait(1)
+    if not hasattr(call, 'rate'):
+        setattr(call, 'rate', pxsol.rate.Limits(pxsol.config.current.rpc.qps, 1))
+    getattr(call, 'rate').wait(1)
     r = requests.post(pxsol.config.current.rpc.url, json={
         'id': random.randint(0x00000000, 0xffffffff),
         'jsonrpc': '2.0',
@@ -291,7 +292,7 @@ def request_airdrop(pubkey: str, value: int, conf: typing.Dict) -> str:
 def send_transaction(tx: str, conf: typing.Dict) -> str:
     conf.setdefault('encoding', 'base64')
     conf.setdefault('preflightCommitment', pxsol.config.current.commitment)
-    txid = pxsol.core.Transaction.serialize_decode(base64.b64decode(tx)).signatures[0]
+    txid = pxsol.core.Transaction.serialize_decode(bytearray(base64.b64decode(tx))).signatures[0]
     txid = pxsol.base58.encode(txid)
     pxsol.log.debugln(f'pxsol: transaction send signature={txid}')
     return call('sendTransaction', [tx, conf])
