@@ -3,7 +3,7 @@ import pxsol
 # Shows the accounts in the mainnet genesis block and their sol allocations.
 
 # List is unhashable type, so cannot be used as a dictionary key. Define a custom type.
-PubKey = pxsol.bincode.Custom(lambda r: pxsol.core.PubKey(bytearray(r.read(32))))
+PubKey = pxsol.bincode.Custom(lambda r: pxsol.core.PubKey(pxsol.io.read_full(r, 32)))
 
 Account = pxsol.bincode.Struct([
     pxsol.bincode.U64,                      # Lamports
@@ -28,7 +28,6 @@ Genesis = pxsol.bincode.Struct([
     ]),
     pxsol.bincode.U64,                                                               # Backwards compat with v0.23
     pxsol.bincode.Struct([                                                           # Fee rate governor
-        pxsol.bincode.U64,
         pxsol.bincode.U64,
         pxsol.bincode.U64,
         pxsol.bincode.U64,

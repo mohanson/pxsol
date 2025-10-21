@@ -1,4 +1,5 @@
 import itertools
+import pxsol.io
 import struct
 import typing
 
@@ -6,7 +7,7 @@ import typing
 class U8:
     @classmethod
     def decode(cls, reader: typing.BinaryIO) -> int:
-        return int.from_bytes(bytearray(reader.read(1)), 'little')
+        return int.from_bytes(pxsol.io.read_full(reader, 1), 'little')
 
     @classmethod
     def encode(cls, number: int) -> bytearray:
@@ -18,7 +19,7 @@ class U8:
 class U16:
     @classmethod
     def decode(cls, reader: typing.BinaryIO) -> int:
-        return int.from_bytes(bytearray(reader.read(2)), 'little')
+        return int.from_bytes(pxsol.io.read_full(reader, 2), 'little')
 
     @classmethod
     def encode(cls, number: int) -> bytearray:
@@ -30,7 +31,7 @@ class U16:
 class U32:
     @classmethod
     def decode(cls, reader: typing.BinaryIO) -> int:
-        return int.from_bytes(bytearray(reader.read(4)), 'little')
+        return int.from_bytes(pxsol.io.read_full(reader, 4), 'little')
 
     @classmethod
     def encode(cls, number: int) -> bytearray:
@@ -42,7 +43,7 @@ class U32:
 class U64:
     @classmethod
     def decode(cls, reader: typing.BinaryIO) -> int:
-        return int.from_bytes(bytearray(reader.read(8)), 'little')
+        return int.from_bytes(pxsol.io.read_full(reader, 8), 'little')
 
     @classmethod
     def encode(cls, number: int) -> bytearray:
@@ -54,7 +55,7 @@ class U64:
 class U128:
     @classmethod
     def decode(cls, reader: typing.BinaryIO) -> int:
-        return int.from_bytes(bytearray(reader.read(16)), 'little')
+        return int.from_bytes(pxsol.io.read_full(reader, 16), 'little')
 
     @classmethod
     def encode(cls, number: int) -> bytearray:
@@ -66,7 +67,7 @@ class U128:
 class I8:
     @classmethod
     def decode(cls, reader: typing.BinaryIO) -> int:
-        return int.from_bytes(bytearray(reader.read(1)), 'little', signed=True)
+        return int.from_bytes(pxsol.io.read_full(reader, 1), 'little', signed=True)
 
     @classmethod
     def encode(cls, number: int) -> bytearray:
@@ -78,7 +79,7 @@ class I8:
 class I16:
     @classmethod
     def decode(cls, reader: typing.BinaryIO) -> int:
-        return int.from_bytes(bytearray(reader.read(2)), 'little', signed=True)
+        return int.from_bytes(pxsol.io.read_full(reader, 2), 'little', signed=True)
 
     @classmethod
     def encode(cls, number: int) -> bytearray:
@@ -90,7 +91,7 @@ class I16:
 class I32:
     @classmethod
     def decode(cls, reader: typing.BinaryIO) -> int:
-        return int.from_bytes(bytearray(reader.read(4)), 'little', signed=True)
+        return int.from_bytes(pxsol.io.read_full(reader, 4), 'little', signed=True)
 
     @classmethod
     def encode(cls, number: int) -> bytearray:
@@ -102,7 +103,7 @@ class I32:
 class I64:
     @classmethod
     def decode(cls, reader: typing.BinaryIO) -> int:
-        return int.from_bytes(bytearray(reader.read(8)), 'little', signed=True)
+        return int.from_bytes(pxsol.io.read_full(reader, 8), 'little', signed=True)
 
     @classmethod
     def encode(cls, number: int) -> bytearray:
@@ -114,7 +115,7 @@ class I64:
 class I128:
     @classmethod
     def decode(cls, reader: typing.BinaryIO) -> int:
-        return int.from_bytes(bytearray(reader.read(16)), 'little', signed=True)
+        return int.from_bytes(pxsol.io.read_full(reader, 16), 'little', signed=True)
 
     @classmethod
     def encode(cls, number: int) -> bytearray:
@@ -126,7 +127,7 @@ class I128:
 class F32:
     @classmethod
     def decode(cls, reader: typing.BinaryIO) -> float:
-        return struct.unpack('<f', bytearray(reader.read(4)))[0]
+        return struct.unpack('<f', pxsol.io.read_full(reader, 4))[0]
 
     @classmethod
     def encode(cls, number: float) -> bytearray:
@@ -136,7 +137,7 @@ class F32:
 class F64:
     @classmethod
     def decode(cls, reader: typing.BinaryIO) -> float:
-        return struct.unpack('<d', bytearray(reader.read(8)))[0]
+        return struct.unpack('<d', pxsol.io.read_full(reader, 8))[0]
 
     @classmethod
     def encode(cls, number: float) -> bytearray:
@@ -146,7 +147,7 @@ class F64:
 class Bool:
     @classmethod
     def decode(cls, reader: typing.BinaryIO) -> bool:
-        return reader.read(1)[0] != 0
+        return pxsol.io.read_full(reader, 1)[0] != 0
 
     @classmethod
     def encode(cls, pybool: bool) -> bytearray:
@@ -231,7 +232,7 @@ class Option:
 class String:
     @classmethod
     def decode(cls, reader: typing.BinaryIO) -> str:
-        return reader.read(U32.decode(reader)).decode()
+        return pxsol.io.read_full(reader, U32.decode(reader)).decode()
 
     @classmethod
     def encode(cls, string: str) -> bytearray:

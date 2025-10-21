@@ -6,6 +6,7 @@ from . import core
 from . import denomination
 from . import ed25519
 from . import eddsa
+from . import io
 from . import log
 from . import objectdict
 from . import program
