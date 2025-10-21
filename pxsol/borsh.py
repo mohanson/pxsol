@@ -3,6 +3,9 @@ import pxsol.io
 import struct
 import typing
 
+# A python implementation of Borsh serialization/deserialization.
+# Source: https://github.com/near/borsh
+
 
 class U8:
     @classmethod
@@ -223,10 +226,12 @@ class Option:
         self.kype = kype
 
     def decode(self, reader: typing.BinaryIO) -> typing.Optional[typing.Any]:
-        return self.kype.decode(reader) if U8().decode(reader) != 0 else None
+        return self.kype.decode(reader) if U8.decode(reader) != 0 else None
 
     def encode(self, pydata: typing.Optional[typing.Any]) -> bytearray:
-        return bytearray([1]) + self.kype.encode(pydata) if pydata is not None else bytearray([0])
+        if pydata is not None:
+            return bytearray([1]) + self.kype.encode(pydata)
+        return bytearray([0])
 
 
 class String:
@@ -236,7 +241,7 @@ class String:
 
     @classmethod
     def encode(cls, string: str) -> bytearray:
-        return U32.encode(len(string)) + bytearray(string.encode())
+        return U32.encode(len(string.encode())) + bytearray(string.encode())
 
 
 class Custom:
