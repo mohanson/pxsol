@@ -55,7 +55,7 @@ class PriKey:
     def json(self) -> str:
         return self.base58()
 
-    def pubkey(self):
+    def pubkey(self) -> PubKey:
         # Get the eddsa public key corresponding to the private key.
         return PubKey(pxsol.eddsa.pubkey(self.p))
 
@@ -364,7 +364,7 @@ class Message:
             m.account_keys.append(PubKey(bytearray(reader.read(32))))
         m.recent_blockhash = bytearray(reader.read(32))
         for _ in range(compact_u16_decode_reader(reader)):
-            m. instructions.append(Instruction.serialize_decode_reader(reader))
+            m.instructions.append(Instruction.serialize_decode_reader(reader))
         return m
 
 
@@ -603,7 +603,7 @@ class TokenMint:
         for k, v in self.extensions.items():
             match k:
                 case 0x12: extensions['metadata_pointer'] = self.extension_metadata_pointer().json()
-                case 0x13: extensions['metadata'] = self.extension_metadata().json(),
+                case 0x13: extensions['metadata'] = self.extension_metadata().json()
                 case _: extensions[k] = v.hex()
         return {
             'auth_mint': self.auth_mint.base58(),
