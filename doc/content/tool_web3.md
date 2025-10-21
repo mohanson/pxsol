@@ -125,11 +125,15 @@ export async function sendAndConfirm(
 
 ## Run
 
+You can run the frontend project locally:
+
 ```sh
 $ npm run dev
 # Open http://localhost:5173
 # Connect Phantom wallet and save/load data.
 ```
+
+Or directly access our deployed online version: <https://pxsol-ss-pinocchio.vercel.app/>.
 
 First click "connect" to link your wallet, then type any string into the input box and click "save" to write it on-chain. Refresh the page and you should be able to read back the data you saved.
 
