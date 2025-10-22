@@ -1,6 +1,7 @@
 import base64
 import itertools
 import pxsol.config
+import pxsol.log
 import pxsol.rate
 import random
 import requests

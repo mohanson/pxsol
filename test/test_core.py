@@ -12,13 +12,13 @@ def test_addr():
 
 
 def test_compact_u16_encode():
-    assert pxsol.core.compact_u16_encode(0x0000), bytearray([0x00])
-    assert pxsol.core.compact_u16_encode(0x007f), bytearray([0x7f])
-    assert pxsol.core.compact_u16_encode(0x0080), bytearray([0x80, 0x01])
-    assert pxsol.core.compact_u16_encode(0x00ff), bytearray([0xff, 0x01])
-    assert pxsol.core.compact_u16_encode(0x0100), bytearray([0x80, 0x02])
-    assert pxsol.core.compact_u16_encode(0x7fff), bytearray([0xff, 0xff, 0x01])
-    assert pxsol.core.compact_u16_encode(0xffff), bytearray([0xff, 0xff, 0x03])
+    assert pxsol.core.compact_u16_encode(0x0000) == bytearray([0x00])
+    assert pxsol.core.compact_u16_encode(0x007f) == bytearray([0x7f])
+    assert pxsol.core.compact_u16_encode(0x0080) == bytearray([0x80, 0x01])
+    assert pxsol.core.compact_u16_encode(0x00ff) == bytearray([0xff, 0x01])
+    assert pxsol.core.compact_u16_encode(0x0100) == bytearray([0x80, 0x02])
+    assert pxsol.core.compact_u16_encode(0x7fff) == bytearray([0xff, 0xff, 0x01])
+    assert pxsol.core.compact_u16_encode(0xffff) == bytearray([0xff, 0xff, 0x03])
 
 
 def test_compact_u16_decode():
