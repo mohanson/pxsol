@@ -20,12 +20,12 @@ $ python -m pip install --editable .
 
 ## Documentation and Courses
 
-*Solana: We Are Waiting for the Next One*
-
 ![img](./doc/img/cover.jpg)
 
-- [English](https://github.com/mohanson/pxsol/tree/master/doc)
-- [Chinese](http://accu.cc/content/solana/foreword/)
+**Read or download the book via the following link**
+
+- [English - Markdown](https://github.com/mohanson/pxsol/tree/master/doc)
+- [中文 - Web](http://accu.cc/content/solana/foreword/)
 
 ## Usage
 
