@@ -1,10 +1,8 @@
-# Solana: We Are Waiting for the Next One
-
 ![img](./img/cover.jpg)
 
 **Chapter 0**
 
-- [Solana/We Are Waiting for the Next One](./content/foreword.md)
+- [Solana/Learn Me A Solana](./content/foreword.md)
 
 ---
 
