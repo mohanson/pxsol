@@ -11,8 +11,8 @@ authors = [
 description = "Pxsol: solana library for humans"
 readme = "README.md"
 license = { file = "LICENSE" }
-dependencies = ["requests"]
 requires-python = ">=3.14"
+dependencies = ["requests"]
 
 [project.urls]
 homepage = "https://github.com/mohanson/pxsol"
