@@ -142,3 +142,7 @@
 - [Solana/More Developer Tools/web3.js Quick Start](./content/tool_web3.md)
 - [Solana/More Developer Tools/Common Pitfalls and Workarounds in web3.js](./content/tool_web3_pitfall.md)
 - [Solana/More Developer Tools/Using solana-py Together with the solders Library](./content/tool_solana_py.md)
+
+**Chapter 10**
+
+- [Solana/Epilogue](./content/epilog.md)
