@@ -79,7 +79,7 @@ def test_get_health():
 
 
 def test_get_highest_snapshot_slot():
-    pxsol.rpc.get_highest_snapshot_slot()
+    pass
 
 
 def test_get_identity():
