@@ -4,7 +4,7 @@ import subprocess
 
 
 def call(c: str):
-    return subprocess.run(c, check=True, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    return subprocess.run(c, check=True, shell=True)
 
 
 def main() -> None:
