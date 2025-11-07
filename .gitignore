@@ -1,2 +1,4 @@
 /.pytest_cache
 /dist
+/doc/mkdocs/docs
+/doc/mkdocs/site

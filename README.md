@@ -24,7 +24,7 @@ $ python -m pip install --editable .
 
 **Read or download the book via the following link**
 
-- [English - Markdown](https://github.com/mohanson/pxsol/tree/master/doc)
+- [English - Markdown](https://github.com/mohanson/pxsol/tree/master/doc/markdown)
 - [中文 - Web](http://accu.cc/content/solana/foreword/)
 
 ## Usage
