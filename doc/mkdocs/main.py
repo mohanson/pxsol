@@ -10,17 +10,15 @@ def call(c: str):
 def main() -> None:
     root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
     os.chdir(f'{root}')
-    shutil.rmtree('doc/mkdocs/docs', ignore_errors=True)
-    os.makedirs('doc/mkdocs/docs')
+    shutil.rmtree('doc/mkdocs/docs/content', ignore_errors=True)
+    shutil.rmtree('doc/mkdocs/docs/img', ignore_errors=True)
     shutil.copytree(os.path.join(root, 'doc/markdown/content'), 'doc/mkdocs/docs/content')
     shutil.copytree(os.path.join(root, 'doc/markdown/img'), 'doc/mkdocs/docs/img')
 
-    with open(os.path.join(root, 'doc/mkdocs/docs/index.md'), 'w') as f:
-        f.write('![img](./img/cover.jpg)')
-        f.write('\n')
-
     os.chdir(f'{root}/doc/mkdocs')
-    call('mkdocs build')
+    if shutil.which('mkdocs') is not None:
+        call('mkdocs build')
 
 
-main()
+if __name__ == '__main__':
+    main()

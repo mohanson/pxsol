@@ -20,11 +20,12 @@ $ python -m pip install --editable .
 
 ## Documentation and Courses
 
-![img](./doc/img/cover.jpg)
+![img](./doc/markdown/img/cover.jpg)
 
 **Read or download the book via the following link**
 
 - [English - Markdown](https://github.com/mohanson/pxsol/tree/master/doc/markdown)
+- [English - Web](https://pxsol.vercel.app/)
 - [中文 - Web](http://accu.cc/content/solana/foreword/)
 
 ## Usage

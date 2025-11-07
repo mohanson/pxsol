@@ -1,0 +1,13 @@
+<!-- https://squidfunk.github.io/mkdocs-material/customization/#overriding-blocks -->
+
+{% extends "base.html" %}
+
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" href="/css/accu.css">
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="/js/accu.js" defer></script>
+{% endblock %}
