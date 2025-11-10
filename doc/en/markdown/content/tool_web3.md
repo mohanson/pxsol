@@ -6,7 +6,7 @@ The project lives at <https://github.com/mohanson/pxsol-ss-pinocchio>.
 
 To make learning easier, I've deployed the program on Solana mainnet at `9RctzLPHP58wrnoGCbb5FpFKbmQb6f53i5PsebQZSaQL`. You can test with it directly.
 
-> While deploying, the author made several mistakes and ended up paying ~1.5 SOL in fees (~$300). Please be cautious with mainnet operations to avoid unnecessary losses.
+> While deploying, the author made several mistakes and ended up paying 1.5 SOL in fees (about $300). Please be cautious with mainnet operations to avoid unnecessary losses.
 
 ## A Few Personal Notes
 
