@@ -3,10 +3,6 @@ import os
 import subprocess
 
 
-def call(c: str):
-    return subprocess.run(c, check=True, shell=True)
-
-
 def main() -> None:
     root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
     os.chdir(f'{root}')
@@ -17,7 +13,7 @@ def main() -> None:
 
     os.chdir(f'{root}/doc/zh/mkdocs-to-pdf')
     if shutil.which('mkdocs') is not None:
-        call('mkdocs build')
+        subprocess.run('mkdocs build', check=True, shell=True)
 
 
 if __name__ == '__main__':
