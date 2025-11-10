@@ -10,9 +10,9 @@ def call(c: str):
 def main() -> None:
     root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
     os.chdir(f'{root}')
-    shutil.rmtree('doc/zh/mkdocs-with-pdf/docs/contzht', ignore_errors=True)
+    shutil.rmtree('doc/zh/mkdocs-with-pdf/docs/content', ignore_errors=True)
     shutil.rmtree('doc/zh/mkdocs-with-pdf/docs/img', ignore_errors=True)
-    shutil.copytree(os.path.join(root, 'doc/zh/markdown/contzht'), 'doc/zh/mkdocs-with-pdf/docs/contzht')
+    shutil.copytree(os.path.join(root, 'doc/zh/markdown/content'), 'doc/zh/mkdocs-with-pdf/docs/content')
     shutil.copytree(os.path.join(root, 'doc/zh/markdown/img'), 'doc/zh/mkdocs-with-pdf/docs/img')
 
     os.chdir(f'{root}/doc/zh/mkdocs-with-pdf')

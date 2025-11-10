@@ -5,11 +5,11 @@ theme:
     highlightjs: true
 repo_url: https://github.com/mohanson/pxsol
 plugins:
-    - with-pdf:
+    - to-pdf:
         author: Mohanson
         copyright: Copyright © 2025 Mohanson
         cover_subtitle: A comprehensive guide to Solana development
-        output_path: pdf/pxsol-en.pdf
+        output_path: pdf/pxsol-zh.pdf
 nav:
     - Solana: index.md
     - Solana/Learn Me A Solana: content/foreword.md
