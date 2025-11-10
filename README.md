@@ -28,8 +28,8 @@ $ python -m pip install --editable .
 - [English - PDF](https://github.com/mohanson/pxsol/releases/download/v0.5.6/pxsol-en.pdf)
 - [English - Web](https://pxsol.vercel.app/)
 - [中文 - Markdown](https://github.com/mohanson/pxsol/tree/master/doc/zh/markdown)
-- [中文 - Web](http://accu.cc/content/solana/foreword/)
 - [中文 - PDF](https://github.com/mohanson/pxsol/releases/download/v0.5.6/pxsol-zh.pdf)
+- [中文 - Web](http://accu.cc/content/solana/foreword/)
 
 ## Usage
 
