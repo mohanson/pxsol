@@ -1,0 +1,117 @@
+site_name: Learn Me A Solana
+site_author: Mohanson
+theme:
+    name: readthedocs
+    highlightjs: true
+    custom_dir: custom_theme/
+repo_url: https://github.com/mohanson/pxsol
+plugins: []
+nav:
+    - Solana: index.md
+    - 第 0 章:
+        - Solana/Learn Me A Solana: content/foreword.md
+    - 第 1 章:
+        - Solana/私钥, 公钥与地址/导言: content/prikey_introduction.md
+        - Solana/私钥, 公钥与地址/私钥: content/prikey_prikey.md
+        - Solana/私钥, 公钥与地址/私钥的密码学解释(一): content/prikey_crypto_field.md
+        - Solana/私钥, 公钥与地址/私钥的密码学解释(二): content/prikey_crypto_asymmetric.md
+        - Solana/私钥, 公钥与地址/私钥的密码学解释(三): content/prikey_crypto_secp256k1.md
+        - Solana/私钥, 公钥与地址/私钥的密码学解释(四): content/prikey_crypto_ecdsa.md
+        - Solana/私钥, 公钥与地址/私钥的密码学解释(五): content/prikey_crypto_issue.md
+        - Solana/私钥, 公钥与地址/私钥的密码学解释(六): content/prikey_crypto_ed25519.md
+        - Solana/私钥, 公钥与地址/私钥的密码学解释(七): content/prikey_crypto_eddsa.md
+        - Solana/私钥, 公钥与地址/私钥的密码学解释(八): content/prikey_crypto_eddsa_advantages.md
+        - Solana/私钥, 公钥与地址/公钥: content/prikey_pubkey.md
+        - Solana/私钥, 公钥与地址/地址: content/prikey_addr.md
+        - Solana/私钥, 公钥与地址/地址伪装转账攻击与虚荣地址: content/prikey_vanity.md
+        - Solana/私钥, 公钥与地址/Base58: content/prikey_base58.md
+        - Solana/私钥, 公钥与地址/公私钥对: content/prikey_keypair.md
+    - 第 2 章:
+        - Solana/交易/导言: content/tx_introduction.md
+        - Solana/交易/货币面值: content/tx_denomination.md
+        - Solana/交易/构建本地开发环境: content/tx_devnet.md
+        - Solana/交易/使用内置钱包进行转账: content/tx_wallet.md
+        - Solana/交易/交易详情: content/tx_info.md
+        - Solana/交易/签名与验证: content/tx_signature.md
+        - Solana/交易/序列化与反序列化: content/tx_serialize.md
+        - Solana/交易/账户与权限: content/tx_permission.md
+        - Solana/交易/区块哈希与时效性: content/tx_recent_blockhash.md
+        - Solana/交易/指令: content/tx_instruction.md
+        - Solana/交易/系统程序: content/tx_system_program.md
+        - Solana/交易/手工构造交易: content/tx_handmade.md
+        - Solana/交易/手续费: content/tx_fee.md
+    - 第 3 章:
+        - Solana/账户模型/导言: content/account_introduction.md
+        - Solana/账户模型/账户数据结构: content/account_type.md
+        - Solana/账户模型/未花费交易输出模型与账户模型: content/account_utxo_vs_account.md
+        - Solana/账户模型/所有权和权限控制: content/account_owner.md
+        - Solana/账户模型/普通钱包账户: content/account_wallet.md
+        - Solana/账户模型/程序账户: content/account_program.md
+        - Solana/账户模型/数据账户: content/account_data.md
+        - Solana/账户模型/程序派生地址算法解析: content/account_pda.md
+        - Solana/账户模型/租赁与租赁豁免机制: content/account_rent.md
+        - Solana/账户模型/尚未深入探讨的问题: content/account_epilog.md
+    - 第 4 章:
+        - Solana/程序开发入门/导言: content/ss_introduction.md
+        - Solana/程序开发入门/搭建 Rust 开发环境: content/ss_rust_env.md
+        - Solana/程序开发入门/一个允许用户自由存储数据的链上程序: content/ss_requirement.md
+        - Solana/程序开发入门/搭建初始目录结构: content/ss_skeleton.md
+        - Solana/程序开发入门/入口函数解释: content/ss_entrypoint.md
+        - Solana/程序开发入门/创建数据账户并使其达成租赁豁免: content/ss_pda_create.md
+        - Solana/程序开发入门/数据账户内容更新及动态租赁调节: content/ss_pda_update.md
+        - Solana/程序开发入门/完整链上代码: content/ss_code.md
+        - Solana/程序开发入门/编译并部署程序: content/ss_deploy.md
+        - Solana/程序开发入门/程序交互: content/ss_interaction.md
+        - Solana/程序开发入门/升级程序: content/ss_upgrade.md
+        - Solana/程序开发入门/获取完整源码: content/ss_github.md
+    - 第 5 章:
+        - Solana/泰铢币/导言: content/thaibaht_introduction.md
+        - Solana/泰铢币/进化之路: content/thaibaht_evolution.md
+        - Solana/泰铢币/核心机制实现: content/thaibaht_core.md
+        - Solana/泰铢币/完整链上代码: content/thaibaht_code.md
+        - Solana/泰铢币/程序交互: content/thaibaht_interaction.md
+        - Solana/泰铢币/获取完整源码: content/thaibaht_github.md
+    - 第 6 章:
+        - Solana/SPL Token/导言: content/spl_introduction.md
+        - Solana/SPL Token/历史与核心规范概览: content/spl_spec.md
+        - Solana/SPL Token/创建您的代币: content/spl_create.md
+        - Solana/SPL Token/铸造账户解析: content/spl_mint_account.md
+        - Solana/SPL Token/铸造代币和查询代币余额: content/spl_mint.md
+        - Solana/SPL Token/转账: content/spl_transfer.md
+        - Solana/SPL Token/指令详解(一): content/spl_detail_create.md
+        - Solana/SPL Token/指令详解(二): content/spl_detail_mint.md
+        - Solana/SPL Token/指令详解(三): content/spl_detail_transfer.md
+        - Solana/SPL Token/后记: content/spl_epilog.md
+    - 第 7 章:
+        - Solana/在主网发行您的代币/导言: content/project_introduction.md
+        - Solana/在主网发行您的代币/从测试网到主网的迁移: content/project_mainnet.md
+        - Solana/在主网发行您的代币/在主网发行您的代币: content/project_deploy.md
+        - Solana/在主网发行您的代币/上架去中心化交易所: content/project_raydium.md
+        - Solana/在主网发行您的代币/设计空投规则: content/project_rule.md
+        - Solana/在主网发行您的代币/由程序控制的代币: content/project_control_by_program.md
+        - Solana/在主网发行您的代币/实现空投程序: content/project_code.md
+        - Solana/在主网发行您的代币/获取空投: content/project_airdrop.md
+        - Solana/在主网发行您的代币/获取完整源码: content/project_github.md
+    - 第 8 章:
+        - Solana/经济系统/导言: content/economy_introduction.md
+        - Solana/经济系统/典型案例分析: content/economy_typical_case.md
+        - Solana/经济系统/概述: content/economy_overview.md
+        - Solana/经济系统/创世块(一): content/economy_genesis_data.md
+        - Solana/经济系统/创世块(二): content/economy_genesis_analysis.md
+        - Solana/经济系统/通胀奖励: content/economy_inflation.md
+        - Solana/经济系统/手续费与手续费燃烧: content/economy_fee.md
+        - Solana/经济系统/验证者的成本和预期收益: content/economy_validator.md
+        - Solana/经济系统/质押: content/economy_stake.md
+        - Solana/经济系统/社区治理中的争议: content/economy_governance.md
+    - 第 9 章:
+        - Solana/更多开发者工具/导言: content/tool_introduction.md
+        - Solana/更多开发者工具/Anchor 环境搭建: content/tool_anchor_install.md
+        - Solana/更多开发者工具/Anchor 里的简单数据存储合约: content/tool_anchor_ss.md
+        - Solana/更多开发者工具/Anchor 测试框架: content/tool_anchor_test.md
+        - Solana/更多开发者工具/Pinocchio? Pinocchio!: content/tool_pinocchio.md
+        - Solana/更多开发者工具/Pinocchio 重写简单数据存储合约: content/tool_pinocchio_ss.md
+        - Solana/更多开发者工具/web3.js 快速上手: content/tool_web3.md
+        - Solana/更多开发者工具/web3.js 的常见坑与规避: content/tool_web3_pitfall.md
+        - Solana/更多开发者工具/solana-py 和 solders 库的结合使用: content/tool_solana_py.md
+    - 第 a 章:
+        - Solana/书后: content/epilog.md
