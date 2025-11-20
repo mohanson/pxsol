@@ -19,27 +19,22 @@ class Limits:
         self.size = n
         self.step = p // g
 
-    def peek(self, n: int) -> bool:
-        # Peek glances there are enough resources (n) available.
-        with self.lock:
-            cycles = (time.time_ns() - self.last) // self.step
-            if cycles > 0:
-                self.last += cycles * self.step
-                self.size += cycles * self.addition
-                self.size = min(self.size, self.capacity)
-            return self.size >= n
-
     def wait(self, n: int) -> None:
         # Wait ensures there are enough resources (n) available, blocking if necessary.
+        assert n > 0
         with self.lock:
-            cycles = (time.time_ns() - self.last) // self.step
+            curr = time.time_ns()
+            if curr < self.last:
+                self.last = curr
+            diff = curr - self.last
+            cycles = diff // self.step
             if cycles > 0:
                 self.last += cycles * self.step
                 self.size += cycles * self.addition
                 self.size = min(self.size, self.capacity)
             if self.size < n:
                 cycles = (n - self.size + self.addition - 1) // self.addition
-                time.sleep(self.step * cycles / (10 ** 9))
+                time.sleep(self.step * cycles / 1e9)
                 self.last += cycles * self.step
                 self.size += cycles * self.addition
             self.size -= n
