@@ -15,10 +15,14 @@ The course primarily uses python language. In the first chapter, we will use pab
 
 **Language**
 
-This book is available in Chinese and English.
+This book is available in Chinese and English. You can choose to read online or download offline according to your preference.
 
-- [English](https://github.com/mohanson/pxsol/tree/master/doc/en)
-- [Chinese](http://accu.cc/content/solana/foreword/)
+- [English - Markdown](https://github.com/mohanson/pxsol/tree/master/doc/en/markdown)
+- [English - PDF](https://github.com/mohanson/pxsol/releases/download/v0.5.6/pxsol-en.pdf)
+- [English - Web](https://pxsol.vercel.app/)
+- [中文 - Markdown](https://github.com/mohanson/pxsol/tree/master/doc/zh/markdown)
+- [中文 - PDF](https://github.com/mohanson/pxsol/releases/download/v0.5.6/pxsol-zh.pdf)
+- [中文 - Web](http://accu.cc/content/solana/foreword/)
 
 **Small Sponsorship**
 
