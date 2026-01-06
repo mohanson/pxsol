@@ -5,6 +5,7 @@ import pxsol.log
 import pxsol.rate
 import random
 import requests
+import time
 import typing
 
 # Doc: https://solana.com/docs/rpc/http
@@ -31,6 +32,7 @@ def wait(sigs: typing.List[str]) -> None:
     remain = sigs.copy()
     for _ in itertools.repeat(0):
         pxsol.log.debugln(f'pxsol: transaction wait unconfirmed={len(remain)}')
+        time.sleep(max(0.5, 1 / pxsol.config.current.rpc.qps))
         if len(remain) == 0:
             break
         oldest = remain[:256]
