@@ -50,13 +50,13 @@ def test_number():
     assert pxsol.borsh.F64.decode(io.BytesIO(case[1])) == case[0]
 
 
-def test_Array():
+def test_array():
     case = [[1, 2, 3], bytearray([1, 0, 2, 0, 3, 0])]
     assert pxsol.borsh.Array(pxsol.borsh.I16, 3).encode(case[0]) == case[1]
     assert pxsol.borsh.Array(pxsol.borsh.I16, 3).decode(io.BytesIO(case[1])) == case[0]
 
 
-def test_Slice():
+def test_slice():
     case = [[1, 1], bytearray([2, 0, 0, 0, 1, 0, 1, 0])]
     assert pxsol.borsh.Slice(pxsol.borsh.I16).encode(case[0]) == case[1]
     assert pxsol.borsh.Slice(pxsol.borsh.I16).decode(io.BytesIO(case[1])) == case[0]

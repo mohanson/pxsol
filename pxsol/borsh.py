@@ -157,41 +157,6 @@ class Bool:
         return bytearray([int(pybool)])
 
 
-class Array:
-    def __init__(self, kype: typing.Any, size: int) -> None:
-        self.kype = kype
-        self.size = size
-
-    def decode(self, reader: typing.BinaryIO) -> typing.List:
-        return [self.kype.decode(reader) for _ in range(self.size)]
-
-    def encode(self, pylist: typing.List) -> bytearray:
-        return bytearray(itertools.chain(*[self.kype.encode(e) for e in pylist]))
-
-
-class Slice:
-    def __init__(self, kype: typing.Any) -> None:
-        self.kype = kype
-
-    def decode(self, reader: typing.BinaryIO) -> typing.List:
-        return [self.kype.decode(reader) for _ in range(U32.decode(reader))]
-
-    def encode(self, pylist: typing.List) -> bytearray:
-        return U32.encode(len(pylist)) + bytearray(itertools.chain(*[self.kype.encode(e) for e in pylist]))
-
-
-class Struct:
-    def __init__(self, kype: typing.List) -> None:
-        self.kype = kype
-
-    def decode(self, reader: typing.BinaryIO) -> typing.List:
-        return [kype.decode(reader) for kype in self.kype]
-
-    def encode(self, pylist: typing.List) -> bytearray:
-        assert len(pylist) == len(self.kype)
-        return bytearray(itertools.chain(*[e[0].encode(e[1]) for e in zip(self.kype, pylist)]))
-
-
 class Enum:
     @classmethod
     def decode(cls, reader: typing.BinaryIO) -> int:
@@ -202,14 +167,59 @@ class Enum:
         return U8.encode(number)
 
 
+class String:
+    @classmethod
+    def decode(cls, reader: typing.BinaryIO) -> str:
+        return pxsol.io.read_full(reader, U32.decode(reader)).decode()
+
+    @classmethod
+    def encode(cls, string: str) -> bytearray:
+        return U32.encode(len(string.encode())) + bytearray(string.encode())
+
+
+class Array:
+    def __init__(self, kype: typing.Any, size: int) -> None:
+        self.kype = kype
+        self.size = size
+
+    def decode(self, reader: typing.BinaryIO) -> typing.List[typing.Any]:
+        return [self.kype.decode(reader) for _ in range(self.size)]
+
+    def encode(self, pylist: typing.List[typing.Any]) -> bytearray:
+        return bytearray(itertools.chain(*[self.kype.encode(e) for e in pylist]))
+
+
+class Slice:
+    def __init__(self, kype: typing.Any) -> None:
+        self.kype = kype
+
+    def decode(self, reader: typing.BinaryIO) -> typing.List[typing.Any]:
+        return [self.kype.decode(reader) for _ in range(U32.decode(reader))]
+
+    def encode(self, pylist: typing.List[typing.Any]) -> bytearray:
+        return U32.encode(len(pylist)) + bytearray(itertools.chain(*[self.kype.encode(e) for e in pylist]))
+
+
+class Struct:
+    def __init__(self, kype: typing.List) -> None:
+        self.kype = kype
+
+    def decode(self, reader: typing.BinaryIO) -> typing.List[typing.Any]:
+        return [kype.decode(reader) for kype in self.kype]
+
+    def encode(self, pylist: typing.List[typing.Any]) -> bytearray:
+        assert len(pylist) == len(self.kype)
+        return bytearray(itertools.chain(*[e[0].encode(e[1]) for e in zip(self.kype, pylist)]))
+
+
 class Dict:
     def __init__(self, kype: typing.List) -> None:
         self.kype = kype
 
-    def decode(self, reader: typing.BinaryIO) -> typing.Dict:
+    def decode(self, reader: typing.BinaryIO) -> typing.Dict[typing.Any, typing.Any]:
         return dict([[self.kype[0].decode(reader), self.kype[1].decode(reader)] for _ in range(U32.decode(reader))])
 
-    def encode(self, pydict: typing.Dict) -> bytearray:
+    def encode(self, pydict: typing.Dict[typing.Any, typing.Any]) -> bytearray:
         data = []
         for k, v in pydict.items():
             data.append([self.kype[0].encode(k), self.kype[1].encode(v)])
@@ -232,16 +242,6 @@ class Option:
         if pydata is not None:
             return bytearray([1]) + self.kype.encode(pydata)
         return bytearray([0])
-
-
-class String:
-    @classmethod
-    def decode(cls, reader: typing.BinaryIO) -> str:
-        return pxsol.io.read_full(reader, U32.decode(reader)).decode()
-
-    @classmethod
-    def encode(cls, string: str) -> bytearray:
-        return U32.encode(len(string.encode())) + bytearray(string.encode())
 
 
 class Custom:

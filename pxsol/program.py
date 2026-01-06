@@ -6,7 +6,7 @@ import typing
 
 # Solana programs mainly use two serialization formats, bincode and borsh. Their specifications can be found on the
 # following web pages:
-# Bincode: https://github.com/bincode-org/bincode/blob/trunk/docs/spec.md
+# Bincode: https://docs.rs/crate/bincode/2.0.1/source/docs/spec.md
 # Borsh: https://github.com/near/borsh#specification
 
 
