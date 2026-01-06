@@ -400,7 +400,7 @@ class Token:
             pxsol.borsh.U8,
             pxsol.borsh.Array(pxsol.borsh.U8, 32),
             pxsol.borsh.Option(pxsol.borsh.Array(pxsol.borsh.U8, 32)),
-        ]).encode([decimals, auth_mint.p, auth_freeze.p if auth_freeze else None])
+        ]).encode([decimals, auth_mint.p, auth_freeze.p if auth_freeze is not None else None])
 
     @classmethod
     def initialize_account(cls) -> bytearray:
@@ -452,7 +452,7 @@ class Token:
         return pxsol.borsh.Enum.encode(0x06) + pxsol.borsh.Struct([
             pxsol.borsh.Enum,
             pxsol.borsh.Option(pxsol.borsh.Array(pxsol.borsh.U8, 32)),
-        ]).encode([auth_type, auth.p if auth else None])
+        ]).encode([auth_type, auth.p if auth is not None else None])
 
     @classmethod
     def mint_to(cls, amount: int) -> bytearray:
@@ -584,7 +584,7 @@ class Token:
             pxsol.borsh.U8,
             pxsol.borsh.Array(pxsol.borsh.U8, 32),
             pxsol.borsh.Option(pxsol.borsh.Array(pxsol.borsh.U8, 32)),
-        ]).encode([decimals, auth_mint.p, auth_freeze.p if auth_freeze else None])
+        ]).encode([decimals, auth_mint.p, auth_freeze.p if auth_freeze is not None else None])
 
     @classmethod
     def get_account_data_size(cls, extension_type: typing.List[int]) -> bytearray:
@@ -616,7 +616,7 @@ class Token:
         # 0. -w the mint to initialize.
         return pxsol.borsh.Enum.encode(0x19) + pxsol.borsh.Struct([
             pxsol.borsh.Option(pxsol.borsh.Array(pxsol.borsh.U8, 32)),
-        ]).encode([close_authority.p if close_authority else None])
+        ]).encode([close_authority.p if close_authority is not None else None])
 
     @classmethod
     def transfer_fee_extension(cls) -> bytearray:
@@ -738,89 +738,6 @@ class Token:
         # 2. sr The source account's owner/delegate.
         return pxsol.borsh.Enum.encode(0x2d) + pxsol.borsh.Option(pxsol.borsh.U64).encode(amount)
 
-    @classmethod
-    def metadata_initialize(cls, name: str, symbol: str, uri: str) -> bytearray:
-        # Initializes a tlv entry with the basic token-metadata fields. Account references:
-        # 0. -w metadata.
-        # 1. -r update authority.
-        # 2. -r mint.
-        # 3. sr mint authority.
-        discriminator = bytearray(hashlib.sha256(b'spl_token_metadata_interface:initialize_account').digest()[:8])
-        return pxsol.borsh.Struct([
-            pxsol.borsh.Array(pxsol.borsh.U8, 8),
-            pxsol.borsh.String,
-            pxsol.borsh.String,
-            pxsol.borsh.String,
-        ]).encode([discriminator, name, symbol, uri])
-
-    @classmethod
-    def metadata_update_field(cls, field: str, value: str) -> bytearray:
-        # Updates a field in a token-metadata account. The field can be one of the required fields (name, symbol, uri),
-        # or a totally new field denoted by a "key" string. Account references:
-        # 0. -w metadata account.
-        # 1. sr update authority.
-        discriminator = bytearray(hashlib.sha256(b'spl_token_metadata_interface:updating_field').digest()[:8])
-        match field:
-            case 'name':
-                return pxsol.borsh.Struct([
-                    pxsol.borsh.Array(pxsol.borsh.U8, 8),
-                    pxsol.borsh.Enum,
-                    pxsol.borsh.String,
-                ]).encode([discriminator, 0x00, value])
-            case 'symbol':
-                return pxsol.borsh.Struct([
-                    pxsol.borsh.Array(pxsol.borsh.U8, 8),
-                    pxsol.borsh.Enum,
-                    pxsol.borsh.String,
-                ]).encode([discriminator, 0x01, value])
-            case 'uri':
-                return pxsol.borsh.Struct([
-                    pxsol.borsh.Array(pxsol.borsh.U8, 8),
-                    pxsol.borsh.Enum,
-                    pxsol.borsh.String,
-                ]).encode([discriminator, 0x02, value])
-            case _:
-                return pxsol.borsh.Struct([
-                    pxsol.borsh.Array(pxsol.borsh.U8, 8),
-                    pxsol.borsh.Enum,
-                    pxsol.borsh.String,
-                    pxsol.borsh.String,
-                ]).encode([discriminator, 0x00, field, value])
-
-    @classmethod
-    def metadata_remove_key(cls, idempotent: bool, key: str) -> bytearray:
-        # Removes a key-value pair in a token-metadata account. This only applies to additional fields, and not the
-        # base name / symbol / uri fields. Account references:
-        # 0. -w metadata account.
-        # 1. sr update authority.
-        discriminator = bytearray(hashlib.sha256(b'spl_token_metadata_interface:remove_key_ix').digest()[:8])
-        return pxsol.borsh.Struct([
-            pxsol.borsh.Array(pxsol.borsh.U8, 8),
-            pxsol.borsh.U8,
-            pxsol.borsh.String,
-        ]).encode([discriminator, idempotent, key])
-
-    @classmethod
-    def metadata_update_authority(cls, auth: pxsol.core.PubKey) -> bytearray:
-        # Updates the token-metadata authority. Account references:
-        # 0. -w metadata account.
-        # 1. sr current update authority.
-        discriminator = bytearray(hashlib.sha256(b'spl_token_metadata_interface:update_the_authority').digest()[:8])
-        return pxsol.borsh.Struct([
-            pxsol.borsh.Array(pxsol.borsh.U8, 32),
-        ]).encode([discriminator, auth.p])
-
-    @classmethod
-    def metadata_emit(cls) -> bytearray:
-        # Emits the token-metadata as return data. Account references:
-        # 0. -r metadata account.
-        discriminator = bytearray(hashlib.sha256(b'spl_token_metadata_interface:emitter').digest()[:8])
-        return pxsol.borsh.Struct([
-            pxsol.borsh.Array(pxsol.borsh.U8, 32),
-            pxsol.borsh.Option(pxsol.borsh.U64),
-            pxsol.borsh.Option(pxsol.borsh.U64),
-        ]).encode([discriminator, None, None])
-
 
 class TokenExtensionMetadataPointer:
     # Solana spl token metadata pointer extension.
@@ -844,3 +761,81 @@ class TokenExtensionMetadataPointer:
         return Token.metadata_pointer_extension() + pxsol.borsh.Enum.encode(0x01) + pxsol.borsh.Struct([
             pxsol.borsh.Array(pxsol.borsh.U8, 32),
         ]).encode([mint.p])
+
+
+class TokenExtensionMetadata:
+    # Solana spl token metadata.
+    # See: https://github.com/solana-program/token-metadata
+
+    @classmethod
+    def initialize(cls, name: str, symbol: str, uri: str) -> bytearray:
+        # Initializes a tlv entry with the basic token-metadata fields. Account references:
+        # 0. -w metadata.
+        # 1. -r update authority.
+        # 2. -r mint.
+        # 3. sr mint authority.
+        discriminator = bytearray(hashlib.sha256(b'spl_token_metadata_interface:initialize_account').digest()[:8])
+        return pxsol.borsh.Struct([
+            pxsol.borsh.Array(pxsol.borsh.U8, 8),
+            pxsol.borsh.String,
+            pxsol.borsh.String,
+            pxsol.borsh.String,
+        ]).encode([discriminator, name, symbol, uri])
+
+    @classmethod
+    def update_field(cls, field: str, value: str) -> bytearray:
+        # Updates a field in a token-metadata account. The field can be one of the required fields (name, symbol, uri),
+        # or a totally new field denoted by a "key" string. Account references:
+        # 0. -w metadata account.
+        # 1. sr update authority.
+        discriminator = bytearray(hashlib.sha256(b'spl_token_metadata_interface:updating_field').digest()[:8])
+        defaultfields = ['name', 'symbol', 'uri']
+        match field:
+            case 'name' | 'symbol' | 'uri':
+                enum = defaultfields.index(field)
+                return pxsol.borsh.Struct([
+                    pxsol.borsh.Array(pxsol.borsh.U8, 8),
+                    pxsol.borsh.Enum,
+                    pxsol.borsh.String,
+                ]).encode([discriminator, enum, value])
+            case _:
+                return pxsol.borsh.Struct([
+                    pxsol.borsh.Array(pxsol.borsh.U8, 8),
+                    pxsol.borsh.Enum,
+                    pxsol.borsh.String,
+                    pxsol.borsh.String,
+                ]).encode([discriminator, 0x03, field, value])
+
+    @classmethod
+    def remove_key(cls, idempotent: bool, key: str) -> bytearray:
+        # Removes a key-value pair in a token-metadata account. This only applies to additional fields, and not the
+        # base name / symbol / uri fields. Account references:
+        # 0. -w metadata account.
+        # 1. sr update authority.
+        discriminator = bytearray(hashlib.sha256(b'spl_token_metadata_interface:remove_key_ix').digest()[:8])
+        return pxsol.borsh.Struct([
+            pxsol.borsh.Array(pxsol.borsh.U8, 8),
+            pxsol.borsh.Bool,
+            pxsol.borsh.String,
+        ]).encode([discriminator, idempotent, key])
+
+    @classmethod
+    def update_authority(cls, auth: typing.Optional[pxsol.core.PubKey]) -> bytearray:
+        # Updates the token-metadata authority. Account references:
+        # 0. -w metadata account.
+        # 1. sr current update authority.
+        discriminator = bytearray(hashlib.sha256(b'spl_token_metadata_interface:update_the_authority').digest()[:8])
+        return pxsol.borsh.Struct([
+            pxsol.borsh.Array(pxsol.borsh.U8, 32),
+        ]).encode([discriminator, auth.p if auth is not None else None])
+
+    @classmethod
+    def emit(cls, start: typing.Optional[int], end: typing.Optional[int]) -> bytearray:
+        # Emits the token-metadata as return data. Account references:
+        # 0. -r metadata account.
+        discriminator = bytearray(hashlib.sha256(b'spl_token_metadata_interface:emitter').digest()[:8])
+        return pxsol.borsh.Struct([
+            pxsol.borsh.Array(pxsol.borsh.U8, 32),
+            pxsol.borsh.Option(pxsol.borsh.U64),
+            pxsol.borsh.Option(pxsol.borsh.U64),
+        ]).encode([discriminator, start, end])

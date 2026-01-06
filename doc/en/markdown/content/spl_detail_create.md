@@ -33,7 +33,7 @@ def spl_create(self, name: str, symbol: str, uri: str, decimals: int) -> pxsol.c
     r3.account.append(pxsol.core.AccountMeta(self.pubkey, 0))
     r3.account.append(pxsol.core.AccountMeta(mint_pubkey, 0))
     r3.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
-    r3.data = pxsol.program.Token.metadata_initialize(name, symbol, uri)
+    r3.data = pxsol.program.TokenExtensionMetadata.initialize(name, symbol, uri)
     tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [r0, r1, r2, r3])
     tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
     tx.sign([self.prikey, mint_prikey])
@@ -86,7 +86,7 @@ r3.account.append(pxsol.core.AccountMeta(mint_pubkey, 1))
 r3.account.append(pxsol.core.AccountMeta(self.pubkey, 0))
 r3.account.append(pxsol.core.AccountMeta(mint_pubkey, 0))
 r3.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
-r3.data = pxsol.program.Token.metadata_initialize(name, symbol, uri)
+r3.data = pxsol.program.TokenExtensionMetadata.initialize(name, symbol, uri)
 ```
 
 This instruction writes metadata (name, symbol, URI) directly into the metadata extension field of the mint account.
