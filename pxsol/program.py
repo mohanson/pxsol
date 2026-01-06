@@ -387,7 +387,12 @@ class Token:
     size_extensions_metadata = 4 + 64 + 4 * 3 + 4
 
     @classmethod
-    def initialize_mint(cls, decimals: int, auth_mint: pxsol.core.PubKey, auth_freeze: pxsol.core.PubKey) -> bytearray:
+    def initialize_mint(
+        cls,
+        decimals: int,
+        auth_mint: pxsol.core.PubKey,
+        auth_freeze: typing.Optional[pxsol.core.PubKey],
+    ) -> bytearray:
         # Initializes a new mint and optionally deposits all the newly minted tokens in an account. Account references:
         # 0. -w the mint to initialize.
         # 1. -r rent sysvar.
@@ -395,7 +400,7 @@ class Token:
             pxsol.borsh.U8,
             pxsol.borsh.Array(pxsol.borsh.U8, 32),
             pxsol.borsh.Option(pxsol.borsh.Array(pxsol.borsh.U8, 32)),
-        ]).encode([decimals, auth_mint.p, auth_freeze.p])
+        ]).encode([decimals, auth_mint.p, auth_freeze.p if auth_freeze else None])
 
     @classmethod
     def initialize_account(cls) -> bytearray:
@@ -439,15 +444,15 @@ class Token:
         return pxsol.borsh.Enum.encode(0x05)
 
     @classmethod
-    def set_authority(cls, auth_type: int, auth: pxsol.core.PubKey) -> bytearray:
+    def set_authority(cls, auth_type: int, auth: typing.Optional[pxsol.core.PubKey]) -> bytearray:
         # Sets a new authority of a mint or account. Argument auth_type is an enumeration value, please refer to the
         # rust source code. Account references:
         # 0. -w the mint or account to change the authority of.
         # 1. sr the current authority of the mint or account.
         return pxsol.borsh.Enum.encode(0x06) + pxsol.borsh.Struct([
             pxsol.borsh.Enum,
-            pxsol.borsh.Array(pxsol.borsh.U8, 32),
-        ]).encode([auth_type, auth.p])
+            pxsol.borsh.Option(pxsol.borsh.Array(pxsol.borsh.U8, 32)),
+        ]).encode([auth_type, auth.p if auth else None])
 
     @classmethod
     def mint_to(cls, amount: int) -> bytearray:
@@ -567,14 +572,19 @@ class Token:
         return pxsol.borsh.Enum.encode(0x13) + pxsol.borsh.U8.encode(m)
 
     @classmethod
-    def initialize_mint2(cls, decimals: int, auth_mint: pxsol.core.PubKey, auth_freeze: pxsol.core.PubKey) -> bytearray:
+    def initialize_mint2(
+        cls,
+        decimals: int,
+        auth_mint: pxsol.core.PubKey,
+        auth_freeze: typing.Optional[pxsol.core.PubKey],
+    ) -> bytearray:
         # Like initialize_mint(), but does not require the Rent sysvar to be provided. Account references:
         # 0. -w the mint to initialize.
         return pxsol.borsh.Enum.encode(0x14) + pxsol.borsh.Struct([
             pxsol.borsh.U8,
             pxsol.borsh.Array(pxsol.borsh.U8, 32),
             pxsol.borsh.Option(pxsol.borsh.Array(pxsol.borsh.U8, 32)),
-        ]).encode([decimals, auth_mint.p, auth_freeze.p])
+        ]).encode([decimals, auth_mint.p, auth_freeze.p if auth_freeze else None])
 
     @classmethod
     def get_account_data_size(cls, extension_type: typing.List[int]) -> bytearray:
@@ -601,6 +611,86 @@ class Token:
         return pxsol.borsh.Enum.encode(0x18) + pxsol.borsh.String.encode(amount)
 
     @classmethod
+    def initialize_mint_close_authority(cls, close_authority: typing.Optional[pxsol.core.PubKey]) -> bytearray:
+        # Initialize the close account authority on a new mint. Account references:
+        # 0. -w the mint to initialize.
+        return pxsol.borsh.Enum.encode(0x19) + pxsol.borsh.Struct([
+            pxsol.borsh.Option(pxsol.borsh.Array(pxsol.borsh.U8, 32)),
+        ]).encode([close_authority.p if close_authority else None])
+
+    @classmethod
+    def transfer_fee_extension(cls) -> bytearray:
+        # The common instruction prefix for transfer fee extension instructions.
+        return pxsol.borsh.Enum.encode(0x1a)
+
+    @classmethod
+    def confidential_transfer_extension(cls) -> bytearray:
+        # The common instruction prefix for confidential transfer extension instructions.
+        return pxsol.borsh.Enum.encode(0x1b)
+
+    @classmethod
+    def default_account_state_extension(cls) -> bytearray:
+        # The common instruction prefix for default account state extension instructions.
+        return pxsol.borsh.Enum.encode(0x1c)
+
+    @classmethod
+    def reallocate(cls, extension_types: typing.List[int]) -> bytearray:
+        # Check to see if a token account is large enough for a list of extension types, and if not, use reallocation
+        # to increase the data size. Account references:
+        # 0. -w the account to reallocate.
+        # 1. sw the payer account to fund reallocation
+        # 2. -r system program for reallocation funding
+        # 3. sr the account's owner.
+        return pxsol.borsh.Enum.encode(0x1d) + pxsol.borsh.Slice(pxsol.borsh.U16).encode(extension_types)
+
+    @classmethod
+    def memo_transfer_extension(cls) -> bytearray:
+        # The common instruction prefix for memo transfer account extension instructions.
+        return pxsol.borsh.Enum.encode(0x1e)
+
+    @classmethod
+    def create_native_mint(cls) -> bytearray:
+        # Creates the native mint. This instruction only needs to be invoked once after deployment and is
+        # permissionless, Wrapped sOL will not be available until this instruction is successfully executed.
+        # Account references:
+        # 0. sw funding account (must be a system account)
+        # 1. -w the native mint address
+        # 2. -r system program for mint account funding
+        return pxsol.borsh.Enum.encode(0x1f)
+
+    @classmethod
+    def initialize_non_transferable_mint(cls) -> bytearray:
+        # Initialize the non transferable extension for the given mint account. Account references:
+        # 0. -w The mint account to initialize.
+        return pxsol.borsh.Enum.encode(0x20)
+
+    @classmethod
+    def interest_bearing_mint_extension(cls) -> bytearray:
+        # The common instruction prefix for Interest Bearing extension instructions.
+        return pxsol.borsh.Enum.encode(0x21)
+
+    @classmethod
+    def cpi_guard_extension(cls) -> bytearray:
+        # The common instruction prefix for CPI Guard account extension instructions.
+        return pxsol.borsh.Enum.encode(0x22)
+
+    @classmethod
+    def initialize_permanent_delegate(cls, delegate: pxsol.core.PubKey) -> bytearray:
+        # Initialize the permanent delegate on a new mint. Account references:
+        # 0. -w The mint to initialize.
+        return pxsol.borsh.Enum.encode(0x23) + pxsol.borsh.Array(pxsol.borsh.U8, 32).encode([e for e in delegate.p])
+
+    @classmethod
+    def transfer_hook_extension(cls) -> bytearray:
+        # The common instruction prefix for transfer hook extension instructions.
+        return pxsol.borsh.Enum.encode(0x24)
+
+    @classmethod
+    def confidential_transfer_fee_extension(cls) -> bytearray:
+        # The common instruction prefix for the confidential transfer fee extension instructions.
+        return pxsol.borsh.Enum.encode(0x25)
+
+    @classmethod
     def withdraw_excess_lamports(cls) -> bytearray:
         # This instruction is to be used to rescue sol sent to any token program owned account by sending them to any
         # other account, leaving behind only lamports for rent exemption. Account references:
@@ -608,6 +698,45 @@ class Token:
         # 1. -w destination account.
         # 2. sr authority.
         return pxsol.borsh.Enum.encode(0x26)
+
+    @classmethod
+    def metadata_pointer_extension(cls) -> bytearray:
+        # The common instruction prefix for metadata pointer extension instructions.
+        return pxsol.borsh.Enum.encode(0x27)
+
+    @classmethod
+    def group_pointer_extension(cls) -> bytearray:
+        # The common instruction prefix for group pointer extension instructions.
+        return pxsol.borsh.Enum.encode(0x28)
+
+    @classmethod
+    def group_member_pointer_extension(cls) -> bytearray:
+        # The common instruction prefix for group member pointer extension instructions.
+        return pxsol.borsh.Enum.encode(0x29)
+
+    @classmethod
+    def confidential_mint_burn_extension(cls) -> bytearray:
+        # Instruction prefix for instructions to the confidential-mint-burn extension.
+        return pxsol.borsh.Enum.encode(0x2a)
+
+    @classmethod
+    def scaled_ui_amount_extension(cls) -> bytearray:
+        # Instruction prefix for instructions to the scaled ui amount extension.
+        return pxsol.borsh.Enum.encode(0x2b)
+
+    @classmethod
+    def pausable_extension(cls) -> bytearray:
+        # Instruction prefix for instructions to the pausable extension.
+        return pxsol.borsh.Enum.encode(0x2c)
+
+    @classmethod
+    def unwrap_lamports(cls, amount: typing.Optional[int]) -> bytearray:
+        # Transfer lamports from a native SOL account to a destination account. This is useful to unwrap lamports
+        # from a wrapped SOL account. Account references:
+        # 0. -w The source account.
+        # 1. -w The destination account.
+        # 2. sr The source account's owner/delegate.
+        return pxsol.borsh.Enum.encode(0x2d) + pxsol.borsh.Option(pxsol.borsh.U64).encode(amount)
 
     @classmethod
     def metadata_pointer_extension_initialize(cls, auth: pxsol.core.PubKey, mint: pxsol.core.PubKey) -> bytearray:
