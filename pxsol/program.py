@@ -86,10 +86,10 @@ class ComputeBudget:
         return pxsol.borsh.Enum.encode(4) + pxsol.borsh.U32.encode(size)
 
 
-class LoaderUpgradeable:
+class LoaderV3:
     # The bpf loader program is the program that owns all executable accounts on solana. When you deploy a program, the
     # owner of the program account is set to the the bpf loader program.
-    # See: https://github.com/anza-xyz/solana-sdk/blob/master/loader-v3-interface/src/instruction.rs
+    # See: https://github.com/anza-xyz/solana-sdk/blob/master/loader-v3-interface
 
     pubkey = pxsol.core.PubKey.base58_decode('BPFLoaderUpgradeab1e11111111111111111111111')
 
@@ -178,6 +178,29 @@ class LoaderUpgradeable:
         # 1. sr the current authority.
         # 2. sr the new authority, optional, if omitted then the program will not be upgradeable.
         return pxsol.bincode.Enum.encode(7)
+
+    @classmethod
+    def migrate(cls) -> bytearray:
+        # Migrate the program to loader-v4. Account references:
+        # 0. -w the program data account.
+        # 1. -w the program account.
+        # 2. sr the current authority.
+        return pxsol.bincode.Enum.encode(8)
+
+    @classmethod
+    def extend_program_checked(cls, addi: int) -> bytearray:
+        # Extend a program's program data account by the specified number of bytes. Only upgradeable programs can be
+        # extended. Account references:
+        # 0. -w the program data account.
+        # 1. -w the program data account's associated program account.
+        # 2. sr the authority.
+        # 3. -r system program, optional, used to transfer lamports from the payer to the program data account.
+        # 4. sr the payer account, optional, used to pay necessary rent exemption costs for the increased storage size.
+        return pxsol.bincode.Enum.encode(9) + pxsol.bincode.U32.encode(addi)
+
+
+LoaderUpgradeable = LoaderV3
+Loader = LoaderV3
 
 
 class System:
@@ -319,6 +342,18 @@ class System:
         # Account references:
         # 0. -w nonce account.
         return pxsol.bincode.Enum.encode(0x0c)
+
+    @classmethod
+    def create_account_allow_prefund(cls, lamports: int, size: int, host: pxsol.core.PubKey) -> bytearray:
+        # Create a new account without enforcing the invariant that the account's current lamports must be 0. Account
+        # references:
+        # 0. sw new account.
+        # 1. sw funding account. optional.
+        return pxsol.bincode.Enum.encode(0x0d) + pxsol.bincode.Struct([
+            pxsol.bincode.U64,
+            pxsol.bincode.U64,
+            pxsol.bincode.Array(pxsol.bincode.U8, 32),
+        ]).encode([lamports, size, host.p])
 
 
 class SysvarClock:
