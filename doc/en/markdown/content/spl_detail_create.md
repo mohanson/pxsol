@@ -23,7 +23,7 @@ def spl_create(self, name: str, symbol: str, uri: str, decimals: int) -> pxsol.c
     r0.data = pxsol.program.System.create_account(mint_lamports, mint_size, pxsol.program.Token.pubkey)
     r1 = pxsol.core.Requisition(pxsol.program.Token.pubkey, [], bytearray())
     r1.account.append(pxsol.core.AccountMeta(mint_pubkey, 1))
-    r1.data = pxsol.program.Token.metadata_pointer_extension_initialize(self.pubkey, mint_pubkey)
+    r1.data = pxsol.program.TokenExtensionMetadataPointer.initialize(self.pubkey, mint_pubkey)
     r2 = pxsol.core.Requisition(pxsol.program.Token.pubkey, [], bytearray())
     r2.account.append(pxsol.core.AccountMeta(mint_pubkey, 1))
     r2.account.append(pxsol.core.AccountMeta(pxsol.program.SysvarRent.pubkey, 0))
@@ -62,7 +62,7 @@ This code allocates a rent-exempt account for the new SPL token. The account siz
 ```py
 r1 = pxsol.core.Requisition(pxsol.program.Token.pubkey, [], bytearray())
 r1.account.append(pxsol.core.AccountMeta(mint_pubkey, 1))
-r1.data = pxsol.program.Token.metadata_pointer_extension_initialize(self.pubkey, mint_pubkey)
+r1.data = pxsol.program.TokenExtensionMetadataPointer.initialize(self.pubkey, mint_pubkey)
 ```
 
 This enables the Token-2022 extension: metadata pointer. It's a Token-2022 feature that allows additional metadata structures to be attached to the mint account. Later instructions will populate this metadata; this one merely declares its existence. Token-2022 actually supports dozens of such extensions, you can learn more [here](https://spl.solana.com/token-2022/extensions).

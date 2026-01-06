@@ -739,25 +739,6 @@ class Token:
         return pxsol.borsh.Enum.encode(0x2d) + pxsol.borsh.Option(pxsol.borsh.U64).encode(amount)
 
     @classmethod
-    def metadata_pointer_extension_initialize(cls, auth: pxsol.core.PubKey, mint: pxsol.core.PubKey) -> bytearray:
-        # Initialize a new mint with a metadata pointer. Account references:
-        # 0. -w the mint to initialize.
-        return pxsol.borsh.Enum.encode(0x27) + pxsol.borsh.Enum.encode(0x00) + pxsol.borsh.Struct([
-            pxsol.borsh.Array(pxsol.borsh.U8, 32),
-            pxsol.borsh.Array(pxsol.borsh.U8, 32),
-        ]).encode([auth.p, mint.p])
-
-    @classmethod
-    def metadata_pointer_extension_update(cls, mint: pxsol.core.PubKey) -> bytearray:
-        # Update the metadata pointer address. Only supported for mints that include the metadata pointer extension.
-        # Account references:
-        # 0. -w the mint.
-        # 1. sr the metadata pointer authority.
-        return pxsol.borsh.Enum.encode(0x27) + pxsol.borsh.Enum.encode(0x01) + pxsol.borsh.Struct([
-            pxsol.borsh.Array(pxsol.borsh.U8, 32),
-        ]).encode([mint.p])
-
-    @classmethod
     def metadata_initialize(cls, name: str, symbol: str, uri: str) -> bytearray:
         # Initializes a tlv entry with the basic token-metadata fields. Account references:
         # 0. -w metadata.
@@ -839,3 +820,27 @@ class Token:
             pxsol.borsh.Option(pxsol.borsh.U64),
             pxsol.borsh.Option(pxsol.borsh.U64),
         ]).encode([discriminator, None, None])
+
+
+class TokenExtensionMetadataPointer:
+    # Solana spl token metadata pointer extension.
+    # See: https://github.com/solana-program/token-2022/tree/main/interface/src/extension/metadata_pointer
+
+    @classmethod
+    def initialize(cls, auth: pxsol.core.PubKey, mint: pxsol.core.PubKey) -> bytearray:
+        # Initialize a new mint with a metadata pointer. Account references:
+        # 0. -w the mint to initialize.
+        return Token.metadata_pointer_extension() + pxsol.borsh.Enum.encode(0x00) + pxsol.borsh.Struct([
+            pxsol.borsh.Array(pxsol.borsh.U8, 32),
+            pxsol.borsh.Array(pxsol.borsh.U8, 32),
+        ]).encode([auth.p, mint.p])
+
+    @classmethod
+    def update(cls, mint: pxsol.core.PubKey) -> bytearray:
+        # Update the metadata pointer address. Only supported for mints that include the metadata pointer extension.
+        # Account references:
+        # 0. -w the mint.
+        # 1. sr the metadata pointer authority.
+        return Token.metadata_pointer_extension() + pxsol.borsh.Enum.encode(0x01) + pxsol.borsh.Struct([
+            pxsol.borsh.Array(pxsol.borsh.U8, 32),
+        ]).encode([mint.p])
