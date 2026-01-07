@@ -54,7 +54,13 @@ def test_spl():
     mint_uri = 'https://ethereum.org'
     mint_decimals = random.randint(0, 9)
     mint_exponent = 10**mint_decimals
-    mint = user.spl_create(mint_name, mint_symbol, mint_uri, mint_decimals)
+    mint = user.spl_create(mint_decimals, {
+        'metadata': {
+            'name': mint_name,
+            'symbol': mint_symbol,
+            'uri': mint_uri,
+        }
+    })
     mint_result = pxsol.rpc.get_account_info(mint.base58(), {})
     mint_info = pxsol.core.TokenMint.serialize_decode(bytearray(base64.b64decode(mint_result['data'][0])))
     assert mint_info.extension_metadata().name == mint_name

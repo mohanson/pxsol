@@ -34,7 +34,13 @@ if args.action == 'balance':
     print(r[0] / r[1])
 
 if args.action == 'create':
-    mint = user.spl_create(args.name, args.symbol, args.uri, args.decimals)
+    mint = user.spl_create(args.decimals, {
+        'metadata': {
+            'name': args.name,
+            'symbol': args.symbol,
+            'uri': args.uri,
+        }
+    })
     print(mint.base58())
 
 if args.action == 'mint':
