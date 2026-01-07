@@ -24,7 +24,7 @@ crate-type = ["cdylib", "lib"]
 
 This tells Cargo to generate two types of crates.
 
-The `cdylib` compiles the project as a C-compatible dynamic library. Solana requires programs to be compiled as a `.so` file in cdylib format to deploy on-chain. The `.so` file will be generated using `cargo build-bpf`.
+The `cdylib` compiles the project as a C-compatible dynamic library. Solana requires programs to be compiled as a `.so` file in cdylib format to deploy on-chain. The `.so` file will be generated using `cargo build-sbf`.
 
 The `lib` tells Cargo to also compile it as a standard Rust library (.rlib). This makes it easier to treat your program logic as a regular Rust module during local development and testing.
 
