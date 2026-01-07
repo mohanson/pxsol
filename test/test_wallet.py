@@ -2,23 +2,31 @@ import base64
 import pathlib
 import pxsol
 import random
+import typing
 
 
 def test_program():
     user = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(1))
-    program_data = bytearray(pathlib.Path('res/hello_solana_program.so').read_bytes())
-    program_pubkey = user.program_deploy(program_data)
-    program_data_update = bytearray(pathlib.Path('res/hello_solana_program.so.2').read_bytes())
-    user.program_update(program_pubkey, program_data_update)
-    pxsol.rpc.step()
+    program_hello_solana = bytearray(pathlib.Path('res/hello_solana_program.so').read_bytes())
+    program_hello_update = bytearray(pathlib.Path('res/hello_update_program.so').read_bytes())
+
+    def call(program_pubkey: pxsol.core.PubKey) -> typing.List[str]:
+        rq = pxsol.core.Requisition(program_pubkey, [], bytearray())
+        tx = pxsol.core.Transaction.requisition_decode(user.pubkey, [rq])
+        tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
+        tx.sign([user.prikey])
+        txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
+        pxsol.rpc.wait([txid])
+        r = pxsol.rpc.get_transaction(txid, {})
+        return r['meta']['logMessages']
+
+    program_pubkey = user.program_deploy(program_hello_solana)
+    assert call(program_pubkey)[1] == 'Program log: Hello, Solana!'
+    user.program_update(program_pubkey, program_hello_update)
+    assert call(program_pubkey)[1] == 'Program log: Hello, Solana! Hello Update!'
+    user.program_update(program_pubkey, program_hello_solana)
+    assert call(program_pubkey)[1] == 'Program log: Hello, Solana!'
     user.program_closed(program_pubkey)
-
-
-def test_program_buffer():
-    user = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(1))
-    pubkey = user.program_buffer_create(bytearray(pathlib.Path('res/hello_solana_program.so').read_bytes()))
-    pxsol.rpc.step()
-    user.program_buffer_closed(pubkey)
 
 
 def test_sol_transfer():

@@ -142,7 +142,7 @@ $ python example/program.py --prikey 0x1 --action update --addr 6B7KVuUQ42x8SagF
 
 $ python example/program.py --prikey 0x1 --action call --addr 6B7KVuUQ42x8SagFuFaoiV9jWTSic3Qd771kNrmGwoBG
 # Program 6B7KVuUQ42x8SagFuFaoiV9jWTSic3Qd771kNrmGwoBG invoke [1]
-# Program log: Hello, Update!
+# Program log: Hello, Solana! Hello Update!
 # Program log: Our program's Program ID: 6B7KVuUQ42x8SagFuFaoiV9jWTSic3Qd771kNrmGwoBG
 # Program 6B7KVuUQ42x8SagFuFaoiV9jWTSic3Qd771kNrmGwoBG consumed 11850 of 200000 compute units
 # Program 6B7KVuUQ42x8SagFuFaoiV9jWTSic3Qd771kNrmGwoBG success

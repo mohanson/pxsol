@@ -45,7 +45,7 @@ if args.action == 'deploy':
     print('Program', pubkey, 'create')
 
 if args.action == 'update':
-    data = bytearray(pathlib.Path('res/hello_solana_program.so.2').read_bytes())
+    data = bytearray(pathlib.Path('res/hello_update_program.so').read_bytes())
     pubkey = pxsol.core.PubKey.base58_decode(args.addr)
     user.program_update(pubkey, data)
     print('Program', pubkey, 'update')

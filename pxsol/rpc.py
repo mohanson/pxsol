@@ -52,6 +52,7 @@ def step() -> None:
     # Waiting for at least one new block.
     data = get_block_height({})
     for _ in itertools.repeat(0):
+        time.sleep(max(0.5, 1 / pxsol.config.current.rpc.qps))
         if get_block_height({}) != data:
             break
 

@@ -163,7 +163,7 @@ class LoaderV3:
     @classmethod
     def extend_program(cls, size: int) -> bytearray:
         # Extend a program's program data account by the specified number of bytes. Only upgradeable program's can be
-        # extended. Account references:
+        # extended. Extend program was superseded by extend program checked. Account references:
         # 0. -w the program data account.
         # 1. -w the program data account's associated program account.
         # 2. -r system program, optional, used to transfer lamports from the payer to the program data account.

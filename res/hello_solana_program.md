@@ -4,6 +4,6 @@
 
 ```sh
 $ git clone https://github.com/solana-developers/program-examples
-$ cd program-examples/basics/hello-solana/native
-$ cargo build-bpf --manifest-path=./program/Cargo.toml --bpf-out-dir=./program/target/so
+$ cd program-examples/basics/hello-solana/pinocchio
+$ cargo build-sbf --manifest-path=./program/Cargo.toml --sbf-out-dir=./program/target/so
 ```
