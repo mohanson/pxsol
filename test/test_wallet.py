@@ -69,30 +69,6 @@ def test_spl():
     mint_lamports = mint_result['lamports']
     mint_size = mint_result['space']
     assert pxsol.rpc.get_minimum_balance_for_rent_exemption(mint_size, {}) == mint_lamports
-    mint_name = 'Ethereum Classic'
-    mint_symbol = 'ETC'
-    mint_uri = 'https://ethereumclassic.org/'
-    user.spl_update(mint, mint_name, mint_symbol, mint_uri)
-    mint_result = pxsol.rpc.get_account_info(mint.base58(), {})
-    mint_info = pxsol.core.TokenMint.serialize_decode(bytearray(base64.b64decode(mint_result['data'][0])))
-    assert mint_info.extension_metadata().name == mint_name
-    assert mint_info.extension_metadata().symbol == mint_symbol
-    assert mint_info.extension_metadata().uri == mint_uri
-    mint_lamports = mint_result['lamports']
-    mint_size = mint_result['space']
-    assert pxsol.rpc.get_minimum_balance_for_rent_exemption(mint_size, {}) == mint_lamports
-    mint_name = 'Ethereum'
-    mint_symbol = 'ETH'
-    mint_uri = 'https://ethereum.org'
-    user.spl_update(mint, mint_name, mint_symbol, mint_uri)
-    mint_result = pxsol.rpc.get_account_info(mint.base58(), {})
-    mint_info = pxsol.core.TokenMint.serialize_decode(bytearray(base64.b64decode(mint_result['data'][0])))
-    assert mint_info.extension_metadata().name == mint_name
-    assert mint_info.extension_metadata().symbol == mint_symbol
-    assert mint_info.extension_metadata().uri == mint_uri
-    mint_lamports = mint_result['lamports']
-    mint_size = mint_result['space']
-    assert pxsol.rpc.get_minimum_balance_for_rent_exemption(mint_size, {}) == mint_lamports
     user.spl_mint(mint, user.pubkey, 99 * mint_exponent)
     user.spl_transfer(mint, hole.pubkey, 20 * mint_exponent)
     assert user.spl_balance(mint)[0] == 79 * mint_exponent

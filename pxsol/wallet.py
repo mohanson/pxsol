@@ -260,10 +260,10 @@ class Wallet:
         # Mint a specified number of tokens and distribute them to self. Note that amount refers to the smallest unit
         # of count, For example, when the decimals of token is 2, you should use 100 to represent 1 token. If the
         # token account does not exist, it will be created automatically.
-        recv_ata_pubkey = Wallet.view_only(recv).spl_account(mint)
+        recv_atakey = Wallet.view_only(recv).spl_account(mint)
         r0 = pxsol.core.Requisition(pxsol.program.AssociatedTokenAccount.pubkey, [], bytearray())
         r0.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
-        r0.account.append(pxsol.core.AccountMeta(recv_ata_pubkey, 1))
+        r0.account.append(pxsol.core.AccountMeta(recv_atakey, 1))
         r0.account.append(pxsol.core.AccountMeta(recv, 0))
         r0.account.append(pxsol.core.AccountMeta(mint, 0))
         r0.account.append(pxsol.core.AccountMeta(pxsol.program.System.pubkey, 0))
@@ -271,7 +271,7 @@ class Wallet:
         r0.data = pxsol.program.AssociatedTokenAccount.create_idempotent()
         r1 = pxsol.core.Requisition(pxsol.program.Token.pubkey, [], bytearray())
         r1.account.append(pxsol.core.AccountMeta(mint, 1))
-        r1.account.append(pxsol.core.AccountMeta(recv_ata_pubkey, 1))
+        r1.account.append(pxsol.core.AccountMeta(recv_atakey, 1))
         r1.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
         r1.data = pxsol.program.Token.mint_to(amount)
         tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [r0, r1])
@@ -284,19 +284,19 @@ class Wallet:
         # Transfers tokens to the target. Note that amount refers to the smallest unit of count, For example, when the
         # decimals of token is 2, you should use 100 to represent 1 token. If the token account does not exist, it will
         # be created automatically.
-        self_ata_pubkey = self.spl_account(mint)
-        recv_ata_pubkey = Wallet.view_only(recv).spl_account(mint)
+        self_atakey = self.spl_account(mint)
+        recv_atakey = Wallet.view_only(recv).spl_account(mint)
         r0 = pxsol.core.Requisition(pxsol.program.AssociatedTokenAccount.pubkey, [], bytearray())
         r0.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
-        r0.account.append(pxsol.core.AccountMeta(recv_ata_pubkey, 1))
+        r0.account.append(pxsol.core.AccountMeta(recv_atakey, 1))
         r0.account.append(pxsol.core.AccountMeta(recv, 0))
         r0.account.append(pxsol.core.AccountMeta(mint, 0))
         r0.account.append(pxsol.core.AccountMeta(pxsol.program.System.pubkey, 0))
         r0.account.append(pxsol.core.AccountMeta(self.spl_host(mint), 0))
         r0.data = pxsol.program.AssociatedTokenAccount.create_idempotent()
         r1 = pxsol.core.Requisition(self.spl_host(mint), [], bytearray())
-        r1.account.append(pxsol.core.AccountMeta(self_ata_pubkey, 1))
-        r1.account.append(pxsol.core.AccountMeta(recv_ata_pubkey, 1))
+        r1.account.append(pxsol.core.AccountMeta(self_atakey, 1))
+        r1.account.append(pxsol.core.AccountMeta(recv_atakey, 1))
         r1.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
         r1.data = pxsol.program.Token.transfer(amount)
         tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [r0, r1])
@@ -309,47 +309,6 @@ class Wallet:
         # Transfers all tokens to the target.
         amount = self.spl_balance(mint)[0]
         self.spl_transfer(mint, recv, amount)
-
-    def spl_update(self, mint: pxsol.core.PubKey, name: str, symbol: str, uri: str) -> None:
-        # Update the token name, symbol and uri.
-        mint_result = pxsol.rpc.get_account_info(mint.base58(), {})
-        mint_size = mint_result['space']
-        mint_lamports = mint_result['lamports']
-        mint_info = pxsol.core.TokenMint.serialize_decode(bytearray(base64.b64decode(mint_result['data'][0])))
-        mint_meta = mint_info.extension_metadata()
-        mint_size -= len(mint_meta.name)
-        mint_size -= len(mint_meta.symbol)
-        mint_size -= len(mint_meta.uri)
-        mint_size += len(name)
-        mint_size += len(symbol)
-        mint_size += len(uri)
-        rent_lamports = pxsol.rpc.get_minimum_balance_for_rent_exemption(mint_size, {})
-        r0 = pxsol.core.Requisition(pxsol.program.System.pubkey, [], bytearray())
-        r0.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
-        r0.account.append(pxsol.core.AccountMeta(mint, 1))
-        r0.data = pxsol.program.System.transfer(rent_lamports - mint_lamports if rent_lamports > mint_lamports else 0)
-        r1 = pxsol.core.Requisition(pxsol.program.Token.pubkey, [], bytearray())
-        r1.account.append(pxsol.core.AccountMeta(mint, 1))
-        r1.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
-        r1.data = pxsol.program.TokenExtensionMetadata.update_field('name', name)
-        r2 = pxsol.core.Requisition(pxsol.program.Token.pubkey, [], bytearray())
-        r2.account.append(pxsol.core.AccountMeta(mint, 1))
-        r2.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
-        r2.data = pxsol.program.TokenExtensionMetadata.update_field('symbol', symbol)
-        r3 = pxsol.core.Requisition(pxsol.program.Token.pubkey, [], bytearray())
-        r3.account.append(pxsol.core.AccountMeta(mint, 1))
-        r3.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
-        r3.data = pxsol.program.TokenExtensionMetadata.update_field('uri', uri)
-        r4 = pxsol.core.Requisition(pxsol.program.Token.pubkey, [], bytearray())
-        r4.account.append(pxsol.core.AccountMeta(mint, 1))
-        r4.account.append(pxsol.core.AccountMeta(self.pubkey, 1))
-        r4.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
-        r4.data = pxsol.program.Token.withdraw_excess_lamports()
-        tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [r0, r1, r2, r3, r4])
-        tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
-        tx.sign([self.prikey])
-        txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
-        pxsol.rpc.wait([txid])
 
     @classmethod
     def view_only(cls, pubkey: pxsol.core.PubKey) -> Wallet:
