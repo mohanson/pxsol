@@ -31,7 +31,7 @@ user = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(int(args.prikey, 0)))
 if args.action == 'balance':
     mint = pxsol.core.PubKey.base58_decode(args.token)
     r = user.spl_balance(mint)
-    print(r[0] / r[1])
+    print(r[0] / 10 ** r[1])
 
 if args.action == 'create':
     mint = user.spl_create(args.decimals, {
@@ -47,7 +47,11 @@ if args.action == 'mint':
     mint = pxsol.core.PubKey.base58_decode(args.token)
     mint_result = pxsol.rpc.get_account_info(mint.base58(), {})
     mint_info = pxsol.core.TokenMint.serialize_decode(bytearray(base64.b64decode(mint_result['data'][0])))
-    user.spl_mint(pxsol.core.PubKey.base58_decode(args.token), user.pubkey, int(mint_info.decimals * args.amount))
+    user.spl_mint(
+        pxsol.core.PubKey.base58_decode(args.token),
+        user.pubkey,
+        int(args.amount * 10 ** mint_info.decimals),
+    )
 
 if args.action == 'transfer':
     mint = pxsol.core.PubKey.base58_decode(args.token)
@@ -56,5 +60,5 @@ if args.action == 'transfer':
     user.spl_transfer(
         pxsol.core.PubKey.base58_decode(args.token),
         pxsol.core.PubKey.base58_decode(args.to),
-        int(mint_info.decimals * args.amount),
+        int(args.amount * 10 ** mint_info.decimals),
     )

@@ -188,10 +188,6 @@ class Wallet:
         seed.extend(mint.p)
         return pxsol.program.AssociatedTokenAccount.pubkey.derive_pda(seed)
 
-    def spl_ata(self, mint: pxsol.core.PubKey) -> pxsol.core.PubKey:
-        # Deprecated. Alias of spl_account.
-        return self.spl_account(mint)
-
     def spl_balance(self, mint: pxsol.core.PubKey) -> typing.List[int]:
         # Returns the current token balance and the decimals of the token.
         r = pxsol.rpc.get_token_account_balance(self.spl_account(mint).base58(), {})['value']
