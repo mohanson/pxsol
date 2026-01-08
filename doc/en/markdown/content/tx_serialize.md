@@ -75,7 +75,7 @@ A:
 ```py
 import pxsol
 
-assert pxsol.core.compact_u16_encode(5) == bytearray([0x05])
+assert pxsol.compact_u16.encode(5) == bytearray([0x05])
 ```
 
 - For values between 128 and 16383 (0x3fff), 2 bytes are required. The first byte's highest bit is set to 1, indicating a subsequent byte; the lower 7 bits store the lower 7 bits of the value. The second byte's highest bit is set to 0, indicating the end; its lower 7 bits store the remaining portion of the value.
@@ -87,7 +87,7 @@ A: First byte: 0x84 (10000100, continuation bit 1, data 0000100). Second byte: 0
 ```py
 import pxsol
 
-assert pxsol.core.compact_u16_encode(132) == bytearray([0x84, 0x01])
+assert pxsol.compact_u16.encode(132) == bytearray([0x84, 0x01])
 ```
 
 - For values greater than 16383, 3 bytes are needed. The continuation bits of the first two bytes are set to 1, storing the lower 14 bits. The third byte's continuation bit is set to 0, storing the remaining portion.
@@ -99,7 +99,7 @@ A:
 ```py
 import pxsol
 
-assert pxsol.core.compact_u16_encode(65535) == bytearray([0xff, 0xff, 0x03])
+assert pxsol.compact_u16.encode(65535) == bytearray([0xff, 0xff, 0x03])
 ```
 
 In Solana, the data inside a transaction is usually small, and the length is usually less than 128. Using compact-u16, these values can be represented with a single byte instead of a fixed 2 bytes, reducing transmission and storage costs.

@@ -1,5 +1,4 @@
 import pxsol
-import random
 
 
 def test_addr():
@@ -9,32 +8,6 @@ def test_addr():
     prikey = pxsol.core.PriKey.int_decode(2)
     pubkey = prikey.pubkey()
     assert pubkey.base58() == '8pM1DN3RiT8vbom5u1sNryaNT1nyL8CTTW3b5PwWXRBH'
-
-
-def test_compact_u16_encode():
-    assert pxsol.core.compact_u16_encode(0x0000) == bytearray([0x00])
-    assert pxsol.core.compact_u16_encode(0x007f) == bytearray([0x7f])
-    assert pxsol.core.compact_u16_encode(0x0080) == bytearray([0x80, 0x01])
-    assert pxsol.core.compact_u16_encode(0x00ff) == bytearray([0xff, 0x01])
-    assert pxsol.core.compact_u16_encode(0x0100) == bytearray([0x80, 0x02])
-    assert pxsol.core.compact_u16_encode(0x7fff) == bytearray([0xff, 0xff, 0x01])
-    assert pxsol.core.compact_u16_encode(0xffff) == bytearray([0xff, 0xff, 0x03])
-
-
-def test_compact_u16_decode():
-    assert pxsol.core.compact_u16_decode(bytearray([0x00])) == 0x0000
-    assert pxsol.core.compact_u16_decode(bytearray([0x7f])) == 0x007f
-    assert pxsol.core.compact_u16_decode(bytearray([0x80, 0x01])) == 0x0080
-    assert pxsol.core.compact_u16_decode(bytearray([0xff, 0x01])) == 0x00ff
-    assert pxsol.core.compact_u16_decode(bytearray([0x80, 0x02])) == 0x0100
-    assert pxsol.core.compact_u16_decode(bytearray([0xff, 0xff, 0x01])) == 0x7fff
-    assert pxsol.core.compact_u16_decode(bytearray([0xff, 0xff, 0x03])) == 0xffff
-
-
-def test_compact_u16_random():
-    for _ in range(8):
-        n = random.randint(0, 0xffff)
-        assert pxsol.core.compact_u16_decode(pxsol.core.compact_u16_encode(n)) == n
 
 
 def test_prikey():

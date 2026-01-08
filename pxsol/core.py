@@ -2,6 +2,7 @@ import hashlib
 import io
 import json
 import pxsol.base58
+import pxsol.compact_u16
 import pxsol.eddsa
 import secrets
 import typing
@@ -197,46 +198,6 @@ class Requisition:
         }
 
 
-def compact_u16_encode(n: int) -> bytearray:
-    # Same as u16, but serialized with 1 to 3 bytes. If the value is above 0x7f, the top bit is set and the remaining
-    # value is stored in the next bytes. Each byte follows the same pattern until the 3rd byte. The 3rd byte, if
-    # needed, uses all 8 bits to store the last byte of the original value.
-    assert n >= 0
-    assert n <= 0xffff
-    if n <= 0x7f:
-        return bytearray([n])
-    if n <= 0x3fff:
-        a = n & 0x7f | 0x80
-        b = n >> 7
-        return bytearray([a, b])
-    if n <= 0xffff:
-        a = n & 0x7f | 0x80
-        n = n >> 7
-        b = n & 0x7f | 0x80
-        c = n >> 7
-        return bytearray([a, b, c])
-    raise Exception
-
-
-def compact_u16_decode(data: bytearray) -> int:
-    return compact_u16_decode_reader(io.BytesIO(data))
-
-
-def compact_u16_decode_reader(reader: typing.BinaryIO) -> int:
-    c = reader.read(1)[0]
-    if c <= 0x7f:
-        return c
-    n = c & 0x7f
-    c = reader.read(1)[0]
-    m = c & 0x7f
-    n += m << 7
-    if c <= 0x7f:
-        return n
-    c = reader.read(1)[0]
-    n += c << 14
-    return n
-
-
 class Instruction:
     # A compact encoding of an instruction.
 
@@ -263,10 +224,10 @@ class Instruction:
     def serialize(self) -> bytearray:
         r = bytearray()
         r.append(self.program)
-        r.extend(compact_u16_encode(len(self.account)))
+        r.extend(pxsol.compact_u16.encode(len(self.account)))
         for e in self.account:
             r.append(e)
-        r.extend(compact_u16_encode(len(self.data)))
+        r.extend(pxsol.compact_u16.encode(len(self.data)))
         r.extend(self.data)
         return r
 
@@ -278,9 +239,9 @@ class Instruction:
     def serialize_decode_reader(cls, reader: io.BytesIO) -> Instruction:
         i = Instruction(0, [], bytearray())
         i.program = int(reader.read(1)[0])
-        for _ in range(compact_u16_decode_reader(reader)):
+        for _ in range(pxsol.compact_u16.decode_reader(reader)):
             i.account.append(int(reader.read(1)[0]))
-        i.data = bytearray(reader.read(compact_u16_decode_reader(reader)))
+        i.data = bytearray(reader.read(pxsol.compact_u16.decode_reader(reader)))
         return i
 
 
@@ -344,11 +305,11 @@ class Message:
     def serialize(self) -> bytearray:
         r = bytearray()
         r.extend(self.header.serialize())
-        r.extend(compact_u16_encode(len(self.account_keys)))
+        r.extend(pxsol.compact_u16.encode(len(self.account_keys)))
         for e in self.account_keys:
             r.extend(e.p)
         r.extend(self.recent_blockhash)
-        r.extend(compact_u16_encode(len(self.instructions)))
+        r.extend(pxsol.compact_u16.encode(len(self.instructions)))
         for e in self.instructions:
             r.extend(e.serialize())
         return r
@@ -360,10 +321,10 @@ class Message:
     @classmethod
     def serialize_decode_reader(cls, reader: io.BytesIO) -> Message:
         m = Message(MessageHeader.serialize_decode_reader(reader), [], bytearray(), [])
-        for _ in range(compact_u16_decode_reader(reader)):
+        for _ in range(pxsol.compact_u16.decode_reader(reader)):
             m.account_keys.append(PubKey(bytearray(reader.read(32))))
         m.recent_blockhash = bytearray(reader.read(32))
-        for _ in range(compact_u16_decode_reader(reader)):
+        for _ in range(pxsol.compact_u16.decode_reader(reader)):
             m.instructions.append(Instruction.serialize_decode_reader(reader))
         return m
 
@@ -427,7 +388,7 @@ class Transaction:
 
     def serialize(self) -> bytearray:
         r = bytearray()
-        r.extend(compact_u16_encode(len(self.signatures)))
+        r.extend(pxsol.compact_u16.encode(len(self.signatures)))
         for e in self.signatures:
             r.extend(e)
         r.extend(self.message.serialize())
@@ -440,7 +401,7 @@ class Transaction:
     @classmethod
     def serialize_decode_reader(cls, reader: io.BytesIO) -> Transaction:
         s = []
-        for _ in range(compact_u16_decode_reader(reader)):
+        for _ in range(pxsol.compact_u16.decode_reader(reader)):
             s.append(bytearray(reader.read(64)))
         return Transaction(s, Message.serialize_decode_reader(reader))
 

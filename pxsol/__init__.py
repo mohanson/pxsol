@@ -1,6 +1,7 @@
 from . import base58
 from . import bincode
 from . import borsh
+from . import compact_u16
 from . import config
 from . import core
 from . import denomination
