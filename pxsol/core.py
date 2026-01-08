@@ -238,10 +238,10 @@ class Instruction:
     @classmethod
     def serialize_decode_reader(cls, reader: io.BytesIO) -> Instruction:
         i = Instruction(0, [], bytearray())
-        i.program = int(reader.read(1)[0])
+        i.program = int(pxsol.io.read_full(reader, 1)[0])
         for _ in range(pxsol.compact_u16.decode_reader(reader)):
-            i.account.append(int(reader.read(1)[0]))
-        i.data = bytearray(reader.read(pxsol.compact_u16.decode_reader(reader)))
+            i.account.append(int(pxsol.io.read_full(reader, 1)[0]))
+        i.data = bytearray(pxsol.io.read_full(reader, pxsol.compact_u16.decode_reader(reader)))
         return i
 
 
@@ -273,7 +273,7 @@ class MessageHeader:
 
     @classmethod
     def serialize_decode_reader(cls, reader: io.BytesIO) -> MessageHeader:
-        return MessageHeader.serialize_decode(bytearray(reader.read(3)))
+        return MessageHeader.serialize_decode(pxsol.io.read_full(reader, 3))
 
 
 class Message:
@@ -322,8 +322,8 @@ class Message:
     def serialize_decode_reader(cls, reader: io.BytesIO) -> Message:
         m = Message(MessageHeader.serialize_decode_reader(reader), [], bytearray(), [])
         for _ in range(pxsol.compact_u16.decode_reader(reader)):
-            m.account_keys.append(PubKey(bytearray(reader.read(32))))
-        m.recent_blockhash = bytearray(reader.read(32))
+            m.account_keys.append(PubKey(pxsol.io.read_full(reader, 32)))
+        m.recent_blockhash = pxsol.io.read_full(reader, 32)
         for _ in range(pxsol.compact_u16.decode_reader(reader)):
             m.instructions.append(Instruction.serialize_decode_reader(reader))
         return m
@@ -402,7 +402,7 @@ class Transaction:
     def serialize_decode_reader(cls, reader: io.BytesIO) -> Transaction:
         s = []
         for _ in range(pxsol.compact_u16.decode_reader(reader)):
-            s.append(bytearray(reader.read(64)))
+            s.append(pxsol.io.read_full(reader, 64))
         return Transaction(s, Message.serialize_decode_reader(reader))
 
     def sign(self, prikey: typing.List[PriKey]) -> None:
@@ -509,17 +509,17 @@ class TokenExtensionMetadata:
     @classmethod
     def serialize_decode_reader(cls, reader: io.BytesIO) -> TokenExtensionMetadata:
         m = TokenExtensionMetadata(
-            PubKey(bytearray(reader.read(32))),
-            PubKey(bytearray(reader.read(32))),
-            reader.read(int.from_bytes(reader.read(4), 'little')).decode(),
-            reader.read(int.from_bytes(reader.read(4), 'little')).decode(),
-            reader.read(int.from_bytes(reader.read(4), 'little')).decode(),
+            PubKey(pxsol.io.read_full(reader, 32)),
+            PubKey(pxsol.io.read_full(reader, 32)),
+            pxsol.io.read_full(reader, int.from_bytes(pxsol.io.read_full(reader, 4), 'little')).decode(),
+            pxsol.io.read_full(reader, int.from_bytes(pxsol.io.read_full(reader, 4), 'little')).decode(),
+            pxsol.io.read_full(reader, int.from_bytes(pxsol.io.read_full(reader, 4), 'little')).decode(),
             {},
         )
-        l = int.from_bytes(reader.read(4), 'little')
+        l = int.from_bytes(pxsol.io.read_full(reader, 4), 'little')
         for _ in range(l):
-            k = reader.read(int.from_bytes(reader.read(4), 'little')).decode()
-            v = reader.read(int.from_bytes(reader.read(4), 'little')).decode()
+            k = pxsol.io.read_full(reader, int.from_bytes(pxsol.io.read_full(reader, 4), 'little')).decode()
+            v = pxsol.io.read_full(reader, int.from_bytes(pxsol.io.read_full(reader, 4), 'little')).decode()
             m.addition[k] = v
         return m
 
@@ -601,15 +601,16 @@ class TokenMint:
     @classmethod
     def serialize_decode(cls, data: bytearray) -> TokenMint:
         extensions = {}
-        extensions_reader = io.BytesIO(data[166:])
+        extensions_reader = io.BytesIO(data)
+        extensions_reader.read(pxsol.program.Token.size_extensions_base)
         for _ in range(1 << 32):
-            kype_byte = extensions_reader.read(2)
-            if not kype_byte:
+            if extensions_reader.tell() >= len(data):
                 break
+            kype_byte = pxsol.io.read_full(extensions_reader, 2)
             kype = int.from_bytes(kype_byte, 'little')
-            size_byte = extensions_reader.read(2)
+            size_byte = pxsol.io.read_full(extensions_reader, 2)
             size = int.from_bytes(size_byte, 'little')
-            body = bytearray(extensions_reader.read(size))
+            body = pxsol.io.read_full(extensions_reader, size)
             extensions[kype] = body
         return TokenMint(
             PubKey(data[0x04:0x24]),
