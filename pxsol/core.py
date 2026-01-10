@@ -172,7 +172,7 @@ class AccountMeta:
     def __repr__(self) -> str:
         return json.dumps(self.json())
 
-    def json(self) -> typing.Dict:
+    def json(self) -> typing.Dict[str, str]:
         return {
             'pubkey': self.pubkey.base58(),
             'mode': ['-r', '-w', 'sr', 'sw'][self.mode],
@@ -190,7 +190,7 @@ class Requisition:
     def __repr__(self) -> str:
         return json.dumps(self.json())
 
-    def json(self) -> typing.Dict:
+    def json(self) -> typing.Dict[str, typing.Any]:
         return {
             'program': self.program.base58(),
             'account': [e.json() for e in self.account],
@@ -214,7 +214,7 @@ class Instruction:
     def __repr__(self) -> str:
         return json.dumps(self.json())
 
-    def json(self) -> typing.Dict:
+    def json(self) -> typing.Dict[str, typing.Any]:
         return {
             'program': self.program,
             'account': self.account,
@@ -294,7 +294,7 @@ class Message:
     def __repr__(self) -> str:
         return json.dumps(self.json())
 
-    def json(self) -> typing.Dict:
+    def json(self) -> typing.Dict[str, typing.Any]:
         return {
             'header': self.header.json(),
             'account_keys': [e.base58() for e in self.account_keys],
@@ -339,7 +339,7 @@ class Transaction:
     def __repr__(self) -> str:
         return json.dumps(self.json())
 
-    def json(self) -> typing.Dict:
+    def json(self) -> typing.Dict[str, typing.Any]:
         return {
             'signatures': [pxsol.base58.encode(e) for e in self.signatures],
             'message': self.message.json()
@@ -421,32 +421,35 @@ class TokenExtensionMetadataPointer:
     # Metadata pointer extension data for mints.
 
     def __init__(self, auth: PubKey, hold: PubKey) -> None:
-        # Authority that can set the metadata address.
-        self.auth = auth
-        # Account address that holds the metadata.
-        self.hold = hold
+        self.auth = auth  # Authority that can set the metadata address.
+        self.hold = hold  # Account address that holds the metadata.
 
     def __repr__(self) -> str:
         return json.dumps(self.json())
 
-    def json(self) -> typing.Dict:
+    def json(self) -> typing.Dict[str, str]:
         return {
             'auth': self.auth.base58(),
             'hold': self.hold.base58(),
         }
 
     def serialize(self) -> bytearray:
-        r = bytearray()
-        r.extend(self.auth.p)
-        r.extend(self.hold.p)
-        return r
+        return pxsol.borsh.Struct([
+            pxsol.borsh.Array(pxsol.borsh.U8, 32),
+            pxsol.borsh.Array(pxsol.borsh.U8, 32),
+        ]).encode([self.auth.p, self.hold.p])
 
     @classmethod
     def serialize_decode(cls, data: bytearray) -> TokenExtensionMetadataPointer:
-        return TokenExtensionMetadataPointer(
-            PubKey(data[0x00:0x20]),
-            PubKey(data[0x20:0x40]),
-        )
+        return TokenExtensionMetadataPointer.serialize_decode_reader(io.BytesIO(data))
+
+    @classmethod
+    def serialize_decode_reader(cls, reader: io.BytesIO) -> TokenExtensionMetadataPointer:
+        r = pxsol.borsh.Struct([
+            pxsol.borsh.Array(pxsol.borsh.U8, 32),
+            pxsol.borsh.Array(pxsol.borsh.U8, 32),
+        ]).decode(reader)
+        return TokenExtensionMetadataPointer(r[0], r[1])
 
 
 class TokenExtensionMetadata:
@@ -455,32 +458,26 @@ class TokenExtensionMetadata:
 
     def __init__(
         self,
-        auth_update: PubKey,
+        auth: PubKey,
         mint: PubKey,
         name: str,
         symbol: str,
         uri: str,
         addition: typing.Dict[str, str],
     ) -> None:
-        # The authority that can sign to update the metadata.
-        self.auth_update = auth_update
-        # The associated mint, used to counter spoofing to be sure that metadata belongs to a particular mint.
-        self.mint = mint
-        # The longer name of the token.
-        self.name = name
-        # The shortened symbol for the token.
-        self.symbol = symbol
-        # The URI pointing to richer metadata.
-        self.uri = uri
-        # Any additional metadata about the token as key-value pairs. The program must avoid storing the same key twice.
-        self.addition = addition
+        self.auth = auth  # The authority that can sign to update the metadata.
+        self.mint = mint  # The associated mint, used to counter spoofing to be sure that metadata belongs to.
+        self.name = name  # The longer name of the token.
+        self.symbol = symbol  # The shortened symbol for the token.
+        self.uri = uri  # The uri pointing to richer metadata.
+        self.addition = addition  # Any additional metadata about the token as key-value pairs.
 
     def __repr__(self) -> str:
         return json.dumps(self.json())
 
-    def json(self) -> typing.Dict:
+    def json(self) -> typing.Dict[str, typing.Any]:
         return {
-            'auth_update': self.auth_update.base58(),
+            'auth': self.auth.base58(),
             'mint': self.mint.base58(),
             'name': self.name,
             'symbol': self.symbol,
@@ -489,22 +486,14 @@ class TokenExtensionMetadata:
         }
 
     def serialize(self) -> bytearray:
-        r = bytearray()
-        r.extend(self.auth_update.p)
-        r.extend(self.mint.p)
-        r.extend(bytearray(len(self.name).to_bytes(4, 'little')))
-        r.extend(bytearray(self.name.encode()))
-        r.extend(bytearray(len(self.symbol).to_bytes(4, 'little')))
-        r.extend(bytearray(self.symbol.encode()))
-        r.extend(bytearray(len(self.uri).to_bytes(4, 'little')))
-        r.extend(bytearray(self.uri.encode()))
-        r.extend(bytearray(len(self.addition).to_bytes(4, 'little')))
-        for k, v in self.addition.items():
-            r.extend(bytearray(len(k).to_bytes(4, 'little')))
-            r.extend(bytearray(k.encode()))
-            r.extend(bytearray(len(v).to_bytes(4, 'little')))
-            r.extend(bytearray(v.encode()))
-        return r
+        return pxsol.borsh.Struct([
+            pxsol.borsh.Array(pxsol.borsh.U8, 32),
+            pxsol.borsh.Array(pxsol.borsh.U8, 32),
+            pxsol.borsh.String,
+            pxsol.borsh.String,
+            pxsol.borsh.String,
+            pxsol.borsh.Dict([pxsol.borsh.String, pxsol.borsh.String]),
+        ]).encode([self.auth.p, self.mint.p, self.name, self.symbol, self.uri, self.addition])
 
     @classmethod
     def serialize_decode(cls, data: bytearray) -> TokenExtensionMetadata:
@@ -512,20 +501,15 @@ class TokenExtensionMetadata:
 
     @classmethod
     def serialize_decode_reader(cls, reader: io.BytesIO) -> TokenExtensionMetadata:
-        m = TokenExtensionMetadata(
-            PubKey(pxsol.io.read_full(reader, 32)),
-            PubKey(pxsol.io.read_full(reader, 32)),
-            pxsol.io.read_full(reader, int.from_bytes(pxsol.io.read_full(reader, 4), 'little')).decode(),
-            pxsol.io.read_full(reader, int.from_bytes(pxsol.io.read_full(reader, 4), 'little')).decode(),
-            pxsol.io.read_full(reader, int.from_bytes(pxsol.io.read_full(reader, 4), 'little')).decode(),
-            {},
-        )
-        l = int.from_bytes(pxsol.io.read_full(reader, 4), 'little')
-        for _ in range(l):
-            k = pxsol.io.read_full(reader, int.from_bytes(pxsol.io.read_full(reader, 4), 'little')).decode()
-            v = pxsol.io.read_full(reader, int.from_bytes(pxsol.io.read_full(reader, 4), 'little')).decode()
-            m.addition[k] = v
-        return m
+        r = pxsol.borsh.Struct([
+            pxsol.borsh.Array(pxsol.borsh.U8, 32),
+            pxsol.borsh.Array(pxsol.borsh.U8, 32),
+            pxsol.borsh.String,
+            pxsol.borsh.String,
+            pxsol.borsh.String,
+            pxsol.borsh.Dict([pxsol.borsh.String, pxsol.borsh.String]),
+        ]).decode(reader)
+        return TokenExtensionMetadata(r[0], r[1], r[2], r[3], r[4], r[5])
 
 
 class TokenMint:
@@ -533,26 +517,19 @@ class TokenMint:
 
     def __init__(
         self,
-        auth_mint: PubKey,
+        auth_mint: typing.Optional[PubKey],
         supply: int,
         decimals: int,
         inited: bool,
-        auth_freeze: PubKey,
+        auth_freeze: typing.Optional[PubKey],
         extensions: typing.Dict[int, bytearray],
     ) -> None:
-        # Optional authority used to mint new tokens. The mint authority may only be provided during mint creation. If
-        # no mint authority is present then the mint has a fixed supply and no further tokens may be minted.
-        self.auth_mint = auth_mint
-        # Total supply of tokens.
-        self.supply = supply
-        # Number of base 10 digits to the right of the decimal place.
-        self.decimals = decimals
-        # Is `true` if this structure has been initialized.
-        self.inited = inited
-        # Optional authority to freeze token accounts.
-        self.auth_freeze = auth_freeze
-        # Extensions available to token mints and accounts.
-        self.extensions = extensions
+        self.auth_mint = auth_mint  # Optional authority used to mint new tokens.
+        self.supply = supply  # Total supply of tokens.
+        self.decimals = decimals  # Number of base 10 digits to the right of the decimal place.
+        self.inited = inited  # Is true if this structure has been initialized.
+        self.auth_freeze = auth_freeze  # Optional authority to freeze token accounts.
+        self.extensions = extensions  # Extensions available to token mints and accounts.
 
     def __repr__(self) -> str:
         return json.dumps(self.json())
@@ -563,7 +540,7 @@ class TokenMint:
     def extension_metadata(self) -> TokenExtensionMetadata:
         return TokenExtensionMetadata.serialize_decode(self.extensions[0x13])
 
-    def json(self) -> typing.Dict:
+    def json(self) -> typing.Dict[str, typing.Any]:
         extensions = {}
         for k, v in self.extensions.items():
             match k:
@@ -571,24 +548,26 @@ class TokenMint:
                 case 0x13: extensions['metadata'] = self.extension_metadata().json()
                 case _: extensions[k] = v.hex()
         return {
-            'auth_mint': self.auth_mint.base58(),
+            'auth_mint': self.auth_mint.base58() if self.auth_mint is not None else None,
             'supply': self.supply,
             'decimals': self.decimals,
             'inited': self.inited,
-            'auth_freeze': self.auth_freeze.base58(),
+            'auth_freeze': self.auth_freeze.base58() if self.auth_freeze is not None else None,
             'extensions': extensions,
         }
 
     def serialize(self) -> bytearray:
         r = bytearray(82)
-        r[0x00:0x04] = bytearray([0x01, 0x00, 0x00, 0x00])
-        r[0x04:0x24] = self.auth_mint.p
+        if self.auth_mint is not None:
+            r[0x00:0x04] = bytearray([0x01, 0x00, 0x00, 0x00])
+            r[0x04:0x24] = self.auth_mint.p
         r[0x24:0x2c] = bytearray(self.supply.to_bytes(8, 'little'))
         r[0x2c] = self.decimals
         r[0x2d] = int(self.inited)
-        r[0x2e:0x32] = bytearray([0x01, 0x00, 0x00, 0x00])
-        r[0x32:0x52] = self.auth_freeze.p
-        if len(self.extensions):
+        if self.auth_freeze is not None:
+            r[0x2e:0x32] = bytearray([0x01, 0x00, 0x00, 0x00])
+            r[0x32:0x52] = self.auth_freeze.p
+        if len(self.extensions) != 0:
             # Mint creators and account owners can opt-in to token-2022 features. Extension data is written after the
             # end of the account data in token, which is the byte at index 165. This means it is always possible to
             # differentiate mints and accounts.
@@ -604,6 +583,15 @@ class TokenMint:
 
     @classmethod
     def serialize_decode(cls, data: bytearray) -> TokenMint:
+        auth_mint = None
+        if data[0x00:0x04] == bytearray([0x01, 0x00, 0x00, 0x00]):
+            auth_mint = PubKey(data[0x04:0x24])
+        supply = int.from_bytes(data[0x24:0x2c], 'little')
+        decimals = data[0x2c]
+        inited = data[0x2d] != 0x00
+        auth_freeze = None
+        if data[0x2e:0x32] == bytearray([0x01, 0x00, 0x00, 0x00]):
+            auth_freeze = PubKey(data[0x32:0x52])
         extensions = {}
         extensions_reader = io.BytesIO(data)
         extensions_reader.read(pxsol.program.Token.size_extensions_base)
@@ -616,11 +604,4 @@ class TokenMint:
             size = int.from_bytes(size_byte, 'little')
             body = pxsol.io.read_full(extensions_reader, size)
             extensions[kype] = body
-        return TokenMint(
-            PubKey(data[0x04:0x24]),
-            int.from_bytes(data[0x24:0x2c], 'little'),
-            data[0x2c],
-            data[0x2d] != 0x00,
-            PubKey(data[0x32:0x52]),
-            extensions,
-        )
+        return TokenMint(auth_mint, supply, decimals, inited, auth_freeze, extensions)
