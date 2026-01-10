@@ -163,6 +163,31 @@ Swap: <https://raydium.io/swap/?inputMint=6B1ztFd9wSm3J5zD5vmMNEKg2r85M41wZMUW7w
 $ python example/pxs_airdrop.py --prikey 0xYOUR_MAINNET_PRIVATE_KEY
 ```
 
+**example/spl_info.py**
+
+An example script to fetch and display spl token mint information.
+
+```sh
+$ python example/spl_info.py
+
+# usdc EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v {
+#     "auth_mint": "BJE5MMbqXjVwjAF7oxwPYXnTXDyspzZyt4vwenNw5ruG",
+#     "supply": 8710696113418469,
+#     "decimals": 6,
+#     "inited": true,
+#     "auth_freeze": "7dGbd2QZcCKcTndnHcTL8q7SMVXAkp688NTQYwrRCrar",
+#     "extensions": {}
+# }
+# usdt Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB {
+#     "auth_mint": "Q6XprfkF8RQQKoQVG33xT88H7wi8Uk1B1CC7YAs69Gi",
+#     "supply": 2739917003349244,
+#     "decimals": 6,
+#     "inited": true,
+#     "auth_freeze": "Q6XprfkF8RQQKoQVG33xT88H7wi8Uk1B1CC7YAs69Gi",
+#     "extensions": {}
+# }
+```
+
 **example/spl.py**
 
 This is an example centered around solana tokens. You can create a brand-new token, mint fresh tokens, and send them as gifts to your friends.

@@ -39,6 +39,10 @@ def test_program():
     call(f'python example/program.py --prikey 0x1 --action closed --addr {program_pubkey}')
 
 
+def test_spl_info():
+    call('python example/spl_info.py')
+
+
 def test_spl():
     path = 'https://raw.githubusercontent.com/mohanson/pxsol/refs/heads/master/res/pxs.json'
     r = call(f'python example/spl.py --prikey 0x1 --action create --name PXSOL --symbol PXS --uri {path}')

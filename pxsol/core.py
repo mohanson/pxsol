@@ -449,7 +449,7 @@ class TokenExtensionMetadataPointer:
             pxsol.borsh.Array(pxsol.borsh.U8, 32),
             pxsol.borsh.Array(pxsol.borsh.U8, 32),
         ]).decode(reader)
-        return TokenExtensionMetadataPointer(r[0], r[1])
+        return TokenExtensionMetadataPointer(PubKey(bytearray(r[0])), PubKey(bytearray(r[1])))
 
 
 class TokenExtensionMetadata:
@@ -509,7 +509,7 @@ class TokenExtensionMetadata:
             pxsol.borsh.String,
             pxsol.borsh.Dict([pxsol.borsh.String, pxsol.borsh.String]),
         ]).decode(reader)
-        return TokenExtensionMetadata(r[0], r[1], r[2], r[3], r[4], r[5])
+        return TokenExtensionMetadata(PubKey(bytearray(r[0])), PubKey(bytearray(r[1])), r[2], r[3], r[4], r[5])
 
 
 class TokenMint:
