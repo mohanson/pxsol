@@ -361,7 +361,8 @@ class Transaction:
 
     @classmethod
     def requisition_decode(cls, pubkey: PubKey, data: typing.List[Requisition]) -> Transaction:
-        # Convert the requisitions to transaction.
+        # Convert the requisitions to transaction. The given pubkey is the fee payer, means which one pays the
+        # transaction. The fee payer is always writable and signer.
         account_flat: typing.List[AccountMeta] = [AccountMeta(pubkey, 3)]
         for r in data:
             account_flat.append(AccountMeta(r.program, 0))
@@ -408,8 +409,11 @@ class Transaction:
     def sign(self, prikey: typing.List[PriKey]) -> None:
         # Sign the transaction using the given private keys.
         assert self.message.header.required_signatures == len(prikey)
+        demand = self.message.account_keys[:self.message.header.required_signatures]
+        signer = {e.pubkey(): e for e in prikey}
         m = self.message.serialize()
-        for k in prikey:
+        for e in demand:
+            k = signer[e]
             self.signatures.append(k.sign(m))
 
 
