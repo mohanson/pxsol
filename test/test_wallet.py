@@ -55,6 +55,7 @@ def test_spl():
     mint_decimals = random.randint(0, 9)
     mint_exponent = 10**mint_decimals
     mint = user.spl_create(mint_decimals, {
+        'default_account_state': 1,
         'metadata': {
             'name': mint_name,
             'symbol': mint_symbol,
@@ -64,6 +65,8 @@ def test_spl():
     mint_result = pxsol.rpc.get_account_info(mint.base58(), {})
     mint_info = pxsol.core.TokenMint.serialize_decode(bytearray(base64.b64decode(mint_result['data'][0])))
     mint_info = pxsol.core.TokenMint.serialize_decode(mint_info.serialize())
+    mint_info_default_account_state = mint_info.extension_default_account_state()
+    assert mint_info_default_account_state == 1
     mint_info_extension_metadata = mint_info.extension_metadata()
     assert mint_info_extension_metadata.name == mint_name
     assert mint_info_extension_metadata.symbol == mint_symbol

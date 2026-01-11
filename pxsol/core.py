@@ -534,6 +534,9 @@ class TokenMint:
     def __repr__(self) -> str:
         return json.dumps(self.json())
 
+    def extension_default_account_state(self) -> int:
+        return self.extensions[0x06][0]
+
     def extension_metadata_pointer(self) -> TokenExtensionMetadataPointer:
         return TokenExtensionMetadataPointer.serialize_decode(self.extensions[0x12])
 
@@ -543,7 +546,10 @@ class TokenMint:
     def json(self) -> typing.Dict[str, typing.Any]:
         extensions = {}
         for k, v in self.extensions.items():
+            # Decode known extensions.
+            # https://docs.rs/spl-token-2022-interface/2.1.0/spl_token_2022_interface/extension/enum.ExtensionType.html
             match k:
+                case 0x06: extensions['default_account_state'] = self.extension_default_account_state()
                 case 0x12: extensions['metadata_pointer'] = self.extension_metadata_pointer().json()
                 case 0x13: extensions['metadata'] = self.extension_metadata().json()
                 case _: extensions[k] = v.hex()

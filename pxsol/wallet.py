@@ -196,12 +196,15 @@ class Wallet:
     def spl_create(self, decimals: int, extension: typing.Dict[str, typing.Any]) -> pxsol.core.PubKey:
         # Create a new token mint with specified decimals and extension. Returns the mint public key.
         # Supported extensions:
+        # * default_account_state: int
         # * metadata: { name: str, symbol: str, uri: str }
         mint_prikey = pxsol.core.PriKey.random()
         mint_pubkey = mint_prikey.pubkey()
         mint_size = pxsol.program.Token.size_mint
         if len(extension) != 0:
             mint_size = pxsol.program.Token.size_extensions_base
+        if 'default_account_state' in extension:
+            mint_size += pxsol.program.Token.size_extensions_default_account_state
         if 'metadata' in extension:
             mint_size += pxsol.program.Token.size_extensions_metadata_pointer
         mint_lamports = pxsol.rpc.get_minimum_balance_for_rent_exemption(mint_size, {})
@@ -211,6 +214,11 @@ class Wallet:
         rq.account.append(pxsol.core.AccountMeta(mint_pubkey, 3))
         rq.data = pxsol.program.System.create_account(mint_lamports, mint_size, pxsol.program.Token.pubkey)
         rs.append(rq)
+        if 'default_account_state' in extension:
+            rq = pxsol.core.Requisition(pxsol.program.Token.pubkey, [], bytearray())
+            rq.account.append(pxsol.core.AccountMeta(mint_pubkey, 1))
+            rq.data = pxsol.program.TokenExtensionDefaultAccountState.initialize(extension['default_account_state'])
+            rs.append(rq)
         if 'metadata' in extension:
             rq = pxsol.core.Requisition(pxsol.program.Token.pubkey, [], bytearray())
             rq.account.append(pxsol.core.AccountMeta(mint_pubkey, 1))
@@ -219,7 +227,7 @@ class Wallet:
         rq = pxsol.core.Requisition(pxsol.program.Token.pubkey, [], bytearray())
         rq.account.append(pxsol.core.AccountMeta(mint_pubkey, 1))
         rq.account.append(pxsol.core.AccountMeta(pxsol.program.SysvarRent.pubkey, 0))
-        rq.data = pxsol.program.Token.initialize_mint(decimals, self.pubkey, None)
+        rq.data = pxsol.program.Token.initialize_mint(decimals, self.pubkey, self.pubkey)
         rs.append(rq)
         tx = pxsol.core.Transaction.requisition_decode(self.pubkey, rs)
         tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])

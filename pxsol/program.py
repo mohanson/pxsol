@@ -381,9 +381,11 @@ class Token:
     size_mint = 82
     # The minimum for any account with extensions.
     size_extensions_base = 165 + 1
-    # See: https://github.com/solana-labs/solana-program-library/blob/master/token/program-2022/src/extension/metadata_pointer/mod.rs
+    # See: https://github.com/solana-program/token-2022/blob/main/interface/src/extension/default_account_state/mod.rs
+    size_extensions_default_account_state = 4 + 1
+    # See: https://github.com/solana-program/token-2022/blob/main/interface/src/extension/metadata_pointer/mod.rs
     size_extensions_metadata_pointer = 4 + 64
-    # See: https://github.com/solana-labs/solana-program-library/blob/master/token-metadata/interface/src/state.rs
+    # See: https://github.com/solana-program/token-metadata/blob/main/interface/src/state.rs
     size_extensions_metadata = 4 + 64 + 4 * 3 + 4
 
     @classmethod
@@ -737,6 +739,27 @@ class Token:
         # 1. -w The destination account.
         # 2. sr The source account's owner/delegate.
         return pxsol.borsh.Enum.encode(0x2d) + pxsol.borsh.Option(pxsol.borsh.U64).encode(amount)
+
+
+class TokenExtensionDefaultAccountState:
+    # Solana spl token default account state extension.
+    # See: https://github.com/solana-program/token-2022/tree/main/interface/src/extension/default_account_state
+    # The account_state is an enumeration value: 0: uninitialized, 1: initialized, 2: frozen.
+
+    @classmethod
+    def initialize(cls, account_state: int) -> bytearray:
+        # Initialize a new mint with the default state for new accounts. Account references:
+        # 0. -w the mint to initialize.
+        assert account_state in [0, 1, 2]
+        return bytearray([0x1c, 0x00, account_state])
+
+    @classmethod
+    def update(cls, account_state: int) -> bytearray:
+        # Update the default state for new accounts. Account references:
+        # 0. -w the mint.
+        # 1. sr the mint freeze authority.
+        assert account_state in [0, 1, 2]
+        return bytearray([0x1c, 0x01, account_state])
 
 
 class TokenExtensionMetadataPointer:
