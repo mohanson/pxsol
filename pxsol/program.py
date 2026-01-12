@@ -10,6 +10,61 @@ import typing
 # Borsh: https://github.com/near/borsh#specification
 
 
+class AddressLookupTable:
+    # See: https://solana.com/zh/developers/guides/advanced/lookup-tables
+    # See: https://github.com/anza-xyz/solana-sdk/tree/master/address-lookup-table-interface
+
+    pubkey = pxsol.core.PubKey.base58_decode('AddressLookupTab1e1111111111111111111111111')
+
+    @classmethod
+    def create_lookup_table(cls, slot: int, bump: int) -> bytearray:
+        # Create an address lookup table. Account references:
+        # 0. -w uninitialized address lookup table account.
+        # 1. sr account used to derive and control the new address lookup table.
+        # 2. sw account that will fund the new address lookup table.
+        # 3. -r system program for cpi.
+        return pxsol.bincode.Enum.encode(0) + pxsol.bincode.Struct([
+            pxsol.bincode.U64,
+            pxsol.bincode.U8,
+        ]).encode([slot, bump])
+
+    @classmethod
+    def freeze_lookup_table(cls) -> bytearray:
+        # Permanently freeze an address lookup table, making it immutable. Account references:
+        # 0. -w address lookup table account to freeze.
+        # 1. sr authority account used to derive and control the address lookup table.
+        return pxsol.bincode.Enum.encode(1)
+
+    @classmethod
+    def extend_lookup_table(cls, pubkey: typing.List[pxsol.core.PubKey]) -> bytearray:
+        # Extend an address lookup table with new addresses. Account references:
+        # 0. -w address lookup table account to extend.
+        # 1. sr current authority.
+        # 2. sw account that will fund the table reallocation.
+        # 3. -r system program for cpi.
+        return pxsol.bincode.Enum.encode(2) + pxsol.bincode.Struct([
+            pxsol.bincode.Slice(pxsol.bincode.Array(pxsol.bincode.U8, 32))
+        ]).encode([
+            [e.p for e in pubkey]
+        ])
+
+    @classmethod
+    def deactivate_lookup_table(cls) -> bytearray:
+        # Deactivate an address lookup table, making it unusable and eligible for closure after a short period of time.
+        # Account references:
+        # 0. -w address lookup table account to deactivate.
+        # 1. sr current authority.
+        return pxsol.bincode.Enum.encode(3)
+
+    @classmethod
+    def close_lookup_table(cls) -> bytearray:
+        # Close an address lookup table account. Account references:
+        # 0. -w address lookup table account to close.
+        # 1. sr current authority.
+        # 2. -w recipient of closed account lamports.
+        return pxsol.bincode.Enum.encode(4)
+
+
 class AssociatedTokenAccount:
     # See: https://github.com/solana-program/associated-token-account
 
