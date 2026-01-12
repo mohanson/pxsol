@@ -201,7 +201,7 @@ class Slice:
 
 
 class Struct:
-    def __init__(self, kype: typing.List) -> None:
+    def __init__(self, kype: typing.List[typing.Any]) -> None:
         self.kype = kype
 
     def decode(self, reader: typing.BinaryIO) -> typing.List[typing.Any]:
@@ -213,7 +213,7 @@ class Struct:
 
 
 class Dict:
-    def __init__(self, kype: typing.List) -> None:
+    def __init__(self, kype: typing.List[typing.Any]) -> None:
         self.kype = kype
 
     def decode(self, reader: typing.BinaryIO) -> typing.Dict[typing.Any, typing.Any]:

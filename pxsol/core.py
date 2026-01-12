@@ -331,6 +331,8 @@ class Message:
 
 class Transaction:
     # An atomically-committed sequence of instructions.
+    # See: https://github.com/anza-xyz/solana-sdk/blob/master/transaction/src/lib.rs
+    # See: https://docs.rs/solana-transaction/latest/solana_transaction/struct.Transaction.html
 
     def __init__(self, signatures: typing.List[bytearray], message: Message) -> None:
         self.signatures = signatures
