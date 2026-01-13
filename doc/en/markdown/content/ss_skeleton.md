@@ -94,7 +94,7 @@ $ cargo build-sbf -- -Znext-lockfile-bump
 
 If all goes well, you'll see a `pxsol_ss.so` file in the `target/deploy/` directory. This is the program file ready to be deployed to Solana.
 
-Note: the `-Znext-lockfile-bump` flag is a temporary workaround because Solana v1.18 depends on Rust 1.75, and there are some compatibility issues if you're using a newer Rust version. You might not need this flag anymore depending on the Solana toolchain updates. For more details, refer to this [GitHub page](https://github.com/solana-foundation/anchor/issues/3392).
+Note: the `-Znext-lockfile-bump` flag is a temporary workaround because solana_program's older versions depend on older Rust versions, and there are some compatibility issues if you're using a newer Rust version. You might not need this flag anymore depending on the Solana toolchain updates. For more details, refer to this [GitHub page](https://github.com/solana-foundation/anchor/issues/3392).
 
 ## Summary
 
