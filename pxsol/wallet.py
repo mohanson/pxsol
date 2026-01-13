@@ -71,7 +71,7 @@ class Wallet:
 
     def program_closed(self, program: pxsol.core.PubKey) -> None:
         # Close a program. The sol allocated to the on-chain program can be fully recovered by performing this action.
-        program_data_pubkey = pxsol.program.LoaderUpgradeable.pubkey.derive_pda(program.p)
+        program_data_pubkey = pxsol.program.LoaderUpgradeable.pubkey.derive_pda(program.p)[0]
         rq = pxsol.core.Requisition(pxsol.program.LoaderUpgradeable.pubkey, [], bytearray())
         rq.account.append(pxsol.core.AccountMeta(program_data_pubkey, 1))
         rq.account.append(pxsol.core.AccountMeta(self.pubkey, 1))
@@ -89,7 +89,7 @@ class Wallet:
         program_buffer = self.program_buffer(bincode)
         tempory_prikey = pxsol.core.PriKey.random()
         program = tempory_prikey.pubkey()
-        program_data = pxsol.program.LoaderUpgradeable.pubkey.derive_pda(program.p)
+        program_data = pxsol.program.LoaderUpgradeable.pubkey.derive_pda(program.p)[0]
         pxsol.log.debugln(f'pxsol: program prikey={tempory_prikey}')
         pxsol.log.debugln(f'pxsol: program pubkey={program}')
         # Deploy with max data len.
@@ -121,7 +121,7 @@ class Wallet:
     def program_update(self, program: pxsol.core.PubKey, bincode: bytearray) -> None:
         # Updating an existing solana program by new program data and the same program id.
         program_buffer = self.program_buffer(bincode)
-        program_data = pxsol.program.LoaderUpgradeable.pubkey.derive_pda(program.p)
+        program_data = pxsol.program.LoaderUpgradeable.pubkey.derive_pda(program.p)[0]
         # Check the existing program data account size. If the new program data is larger than the existing one,
         # extend the program data account first.
         program_data_info = pxsol.rpc.get_account_info(program_data.base58(), {})
@@ -186,7 +186,7 @@ class Wallet:
         seed.extend(self.pubkey.p)
         seed.extend(self.spl_host(mint).p)
         seed.extend(mint.p)
-        return pxsol.program.AssociatedTokenAccount.pubkey.derive_pda(seed)
+        return pxsol.program.AssociatedTokenAccount.pubkey.derive_pda(seed)[0]
 
     def spl_balance(self, mint: pxsol.core.PubKey) -> typing.List[int]:
         # Returns the current token balance and the decimals of the token.

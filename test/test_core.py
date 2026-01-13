@@ -32,9 +32,9 @@ def test_pubkey_derive():
 def test_pubkey_derive_pda():
     pubkey = pxsol.core.PubKey.base58_decode('BPFLoaderUpgradeab1e11111111111111111111111')
     seed = bytearray(int(0).to_bytes(32))
-    assert pubkey.derive_pda(seed).base58() == '5ReXsszTZPmCZuH7wHPoEkxqRq3Bb1xWWcim13zDH6LX'
+    assert pubkey.derive_pda(seed)[0].base58() == '5ReXsszTZPmCZuH7wHPoEkxqRq3Bb1xWWcim13zDH6LX'
     seed = bytearray(int(1).to_bytes(32))
-    assert pubkey.derive_pda(seed).base58() == 'Eb6T9mLCxAE1FxAXbCGpB5TN3yMbgo9rsP8A8HWGwuXc'
+    assert pubkey.derive_pda(seed)[0].base58() == 'Eb6T9mLCxAE1FxAXbCGpB5TN3yMbgo9rsP8A8HWGwuXc'
 
 
 def test_transaction():

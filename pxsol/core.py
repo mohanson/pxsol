@@ -118,7 +118,7 @@ class PubKey:
         assert not data.endswith(bytearray('ProgramDerivedAddress'.encode()))
         return PubKey(bytearray(hashlib.sha256(data).digest()))
 
-    def derive_pda(self, seed: bytearray) -> PubKey:
+    def derive_pda(self, seed: bytearray) -> typing.Tuple[PubKey, int]:
         # Program Derived Address (PDA). PDAs are addresses derived deterministically using a combination of
         # user-defined seeds, a bump seed, and a program's ID.
         # See: https://solana.com/docs/core/pda
@@ -132,7 +132,7 @@ class PubKey:
             hash = bytearray(hashlib.sha256(data).digest())
             # The pda should fall off the ed25519 curve.
             if not pxsol.eddsa.pt_exists(hash):
-                return PubKey(hash)
+                return PubKey(hash), i
         raise Exception
 
     def hex(self) -> str:
