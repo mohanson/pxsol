@@ -296,8 +296,8 @@ def request_airdrop(pubkey: str, value: int, conf: typing.Dict) -> str:
 def send_transaction(tx: str, conf: typing.Dict) -> str:
     conf.setdefault('encoding', 'base64')
     conf.setdefault('preflightCommitment', pxsol.config.current.commitment)
-    txid = pxsol.core.Transaction.serialize_decode(bytearray(base64.b64decode(tx))).signatures[0]
-    txid = pxsol.base58.encode(txid)
+    data = bytearray(base64.b64decode(tx))
+    txid = pxsol.base58.encode(data[1:65])
     pxsol.log.debugln(f'pxsol: transaction send signature={txid}')
     return call('sendTransaction', [tx, conf])
 
