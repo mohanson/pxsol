@@ -36,7 +36,7 @@ We'll need to pull in Solana's core SDK:
 
 ```toml
 [dependencies]
-solana-program = "1.18.0"
+solana-program = "2"
 ```
 
 ## Project Directory Reference
@@ -62,7 +62,7 @@ edition = "2021"
 crate-type = ["cdylib", "lib"]
 
 [dependencies]
-solana-program = "1.18"
+solana-program = "2"
 ```
 
 ## Create the lib.rs Skeleton
