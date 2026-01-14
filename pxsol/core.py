@@ -181,6 +181,51 @@ class AccountMeta:
         }
 
 
+class AddressTableLookup:
+    # Address table lookup describe an on-chain address lookup table to use for loading more readonly and writable
+    # accounts in a single tx.
+
+    def __init__(
+        self,
+        account_key: PubKey,
+        writable_indexes: typing.List[int],
+        readonly_indexes: typing.List[int],
+    ) -> None:
+        self.account_key = account_key  # Address lookup table account key.
+        self.writable_indexes = writable_indexes  # List of indexes used to load writable account addresses.
+        self.readonly_indexes = readonly_indexes  # List of indexes used to load readonly account addresses.
+
+    def __repr__(self) -> str:
+        return json.dumps(self.json())
+
+    def json(self) -> typing.Dict[str, typing.Any]:
+        return {
+            'account_key': self.account_key.base58(),
+            'writable_indexes': self.writable_indexes,
+            'readonly_indexes': self.readonly_indexes,
+        }
+
+    def serialize(self) -> bytearray:
+        r = bytearray()
+        r.extend(self.account_key.p)
+        r.extend(pxsol.compact_u16.encode(len(self.writable_indexes)))
+        r.extend(bytearray(self.writable_indexes))
+        r.extend(pxsol.compact_u16.encode(len(self.readonly_indexes)))
+        r.extend(bytearray(self.readonly_indexes))
+        return r
+
+    @classmethod
+    def serialize_decode(cls, data: bytearray) -> AddressTableLookup:
+        return AddressTableLookup.serialize_decode_reader(io.BytesIO(data))
+
+    @classmethod
+    def serialize_decode_reader(cls, reader: io.BytesIO) -> AddressTableLookup:
+        account_key = PubKey(pxsol.io.read_full(reader, 32))
+        writable_indexes = list(pxsol.io.read_full(reader, pxsol.compact_u16.decode_reader(reader)))
+        readonly_indexes = list(pxsol.io.read_full(reader, pxsol.compact_u16.decode_reader(reader)))
+        return AddressTableLookup(account_key, writable_indexes, readonly_indexes)
+
+
 class Requisition:
     # A directive for a single invocation of a solana program.
 
@@ -279,7 +324,7 @@ class MessageHeader:
 
 
 class Message:
-    # List of instructions to be processed atomically.
+    # A Solana transaction message (legacy). List of instructions to be processed atomically.
 
     def __init__(
         self,
@@ -331,8 +376,60 @@ class Message:
         return m
 
 
+class MessageV0:
+    # A Solana transaction message (v0). This message format supports succinct account loading with on-chain address
+    # lookup tables.
+
+    def __init__(
+        self,
+        header: MessageHeader,
+        account_keys: typing.List[PubKey],
+        recent_blockhash: bytearray,
+        instructions: typing.List[Instruction],
+        address_table_lookups: typing.List[AddressTableLookup],
+    ) -> None:
+        self.header = header
+        self.account_keys = account_keys
+        self.recent_blockhash = recent_blockhash
+        self.instructions = instructions
+        self.address_table_lookups = address_table_lookups
+
+    def __repr__(self) -> str:
+        return json.dumps(self.json())
+
+    def downgrade(self) -> Message:
+        # Downgrade to a legacy message (without address table lookups).
+        return Message(self.header, self.account_keys, self.recent_blockhash, self.instructions)
+
+    def json(self) -> typing.Dict[str, typing.Any]:
+        r = self.downgrade().json()
+        r['address_table_lookups'] = [e.json() for e in self.address_table_lookups]
+        return r
+
+    def serialize(self) -> bytearray:
+        r = bytearray([0x80])
+        r.extend(self.downgrade().serialize())
+        r.extend(pxsol.compact_u16.encode(len(self.address_table_lookups)))
+        for e in self.address_table_lookups:
+            r.extend(e.serialize())
+        return r
+
+    @classmethod
+    def serialize_decode(cls, data: bytearray) -> MessageV0:
+        return MessageV0.serialize_decode_reader(io.BytesIO(data))
+
+    @classmethod
+    def serialize_decode_reader(cls, reader: io.BytesIO) -> MessageV0:
+        assert pxsol.io.read_full(reader, 1)[0] == 0x80
+        m = Message.serialize_decode_reader(reader)
+        m = MessageV0(m.header, m.account_keys, m.recent_blockhash, m.instructions, [])
+        for _ in range(pxsol.compact_u16.decode_reader(reader)):
+            m.address_table_lookups.append(AddressTableLookup.serialize_decode_reader(reader))
+        return m
+
+
 class Transaction:
-    # An atomically-committed sequence of instructions.
+    # An atomically-committed sequence of instructions (legacy).
     # See: https://github.com/anza-xyz/solana-sdk/blob/master/transaction/src/lib.rs
     # See: https://docs.rs/solana-transaction/latest/solana_transaction/struct.Transaction.html
 
@@ -409,6 +506,53 @@ class Transaction:
         for _ in range(pxsol.compact_u16.decode_reader(reader)):
             s.append(pxsol.io.read_full(reader, 64))
         return Transaction(s, Message.serialize_decode_reader(reader))
+
+    def sign(self, prikey: typing.List[PriKey]) -> None:
+        # Sign the transaction using the given private keys.
+        assert self.message.header.required_signatures == len(prikey)
+        demand = self.message.account_keys[:self.message.header.required_signatures]
+        signer = {e.pubkey(): e for e in prikey}
+        m = self.message.serialize()
+        for e in demand:
+            k = signer[e]
+            self.signatures.append(k.sign(m))
+
+
+class TransactionV0:
+    # An atomically-committed sequence of instructions (v0).
+    # See: https://github.com/anza-xyz/solana-sdk/blob/master/transaction/src/versioned/mod.rs
+
+    def __init__(self, signatures: typing.List[bytearray], message: MessageV0) -> None:
+        self.signatures = signatures
+        self.message = message
+
+    def __repr__(self) -> str:
+        return json.dumps(self.json())
+
+    def json(self) -> typing.Dict[str, typing.Any]:
+        return {
+            'signatures': [pxsol.base58.encode(e) for e in self.signatures],
+            'message': self.message.json()
+        }
+
+    def serialize(self) -> bytearray:
+        r = bytearray()
+        r.extend(pxsol.compact_u16.encode(len(self.signatures)))
+        for e in self.signatures:
+            r.extend(e)
+        r.extend(self.message.serialize())
+        return r
+
+    @classmethod
+    def serialize_decode(cls, data: bytearray) -> TransactionV0:
+        return TransactionV0.serialize_decode_reader(io.BytesIO(data))
+
+    @classmethod
+    def serialize_decode_reader(cls, reader: io.BytesIO) -> TransactionV0:
+        s = []
+        for _ in range(pxsol.compact_u16.decode_reader(reader)):
+            s.append(pxsol.io.read_full(reader, 64))
+        return TransactionV0(s, MessageV0.serialize_decode_reader(reader))
 
     def sign(self, prikey: typing.List[PriKey]) -> None:
         # Sign the transaction using the given private keys.
