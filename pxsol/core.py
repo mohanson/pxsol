@@ -14,6 +14,7 @@ class PriKey:
     # Most solana wallets, such as phantom, import and export private keys in base58-encoded keypair format.
 
     def __init__(self, p: bytearray) -> None:
+        assert isinstance(p, bytearray)
         assert len(p) == 32
         self.p = p
 
@@ -88,6 +89,7 @@ class PubKey:
     # address.
 
     def __init__(self, p: bytearray) -> None:
+        assert isinstance(p, bytearray)
         assert len(p) == 32
         self.p = p
 
@@ -378,7 +380,7 @@ class Transaction:
                 continue
             account_list[account_dict[a.pubkey]].mode |= a.mode
         account_list.sort(key=lambda x: x.mode, reverse=True)
-        tx = pxsol.core.Transaction([], pxsol.core.Message(pxsol.core.MessageHeader(0, 0, 0), [], bytearray(), []))
+        tx = Transaction([], Message(MessageHeader(0, 0, 0), [], bytearray(), []))
         tx.message.account_keys.extend([e.pubkey for e in account_list])
         tx.message.header.required_signatures = len([k for k in account_list if k.mode >= 2])
         tx.message.header.readonly_signatures = len([k for k in account_list if k.mode == 2])
