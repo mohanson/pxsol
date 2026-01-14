@@ -49,7 +49,10 @@ The parameter `data.len()` is the number of bytes you plan to store in the PDA a
 Use `solana_program::pubkey::Pubkey::find_program_address` to derive the PDA address and bump value. In this example, we only need the bump value:
 
 ```rs
-let bump_seed = solana_program::pubkey::Pubkey::find_program_address(&[&account_user.key.to_bytes()], program_id).1;
+let calculated_pda =
+    solana_program::pubkey::Pubkey::find_program_address(&[&account_user.key.to_bytes()], program_id);
+assert_eq!(account_data.key, &calculated_pda.0); // Ensure the PDA is correct.
+let bump_seed = calculated_pda.1;
 ```
 
 ## Checking if the PDA Already Exists
