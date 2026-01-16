@@ -6,11 +6,11 @@ In this article, we'll walk you through how to implement dynamic rent adjustment
 
 ## Updating Data Account Contents
 
-On-chain accounts can be updated using `.data.borrow_mut()`, but this method cannot change the account space. Usually, you need to recreate or reallocate the data account space by using `.realloc()`.
+On-chain accounts can be updated using `.data.borrow_mut()`, but this method cannot change the account space. Usually, you need to recreate or reallocate the data account space by using `.resize()`.
 
 ```rs
 // Realloc space.
-account_data.realloc(data.len(), false)?;
+account_data.resize(data.len())?;
 // Overwrite old data with new data.
 account_data.data.borrow_mut().copy_from_slice(data);
 ```
