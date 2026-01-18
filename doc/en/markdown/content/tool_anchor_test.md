@@ -90,6 +90,17 @@ $ anchor test
 
 This path is closer to the protocol itself. We'll manually assemble the account metas, splice in the 8-byte method discriminators, then append a 4-byte little-endian length and raw bytes. It's suitable for cross-language integration or verifying each step in environments without an Anchor client.
 
+Unlike the account discriminator, the method discriminator is computed by taking the first 8 bytes of the SHA256 hash of the method name. For example, the discriminator for the `init` method is `dc3bcfec6cfa2f64` (hexadecimal). The discriminator for the `update` method is `dbc858b09e3ffd7f` (hexadecimal).
+
+```py
+import hashlib
+
+r = hashlib.sha256(b'global:init').digest()[:8]
+print(list(r)) # [220, 59, 207, 236, 108, 250, 47, 100]
+r = hashlib.sha256(b'global:update').digest()[:8]
+print(list(r)) # [219, 200, 88, 176, 158, 63, 253, 127]
+```
+
 Here's the code:
 
 ```py
@@ -163,6 +174,7 @@ $ solana-test-validator -l /tmp/solana-ledger
 $ anchor deploy
 # Program Id: GS5XPyzsXRec4sQzxJSpeDYHaTnZyYt5BtpeNXYuH1SM
 
+$ python tests/pxsol-ss-anchor.py init
 $ python tests/pxsol-ss-anchor.py update "The quick brown fox jumps over the lazy dog"
 $ python tests/pxsol-ss-anchor.py load
 # The quick brown fox jumps over the lazy dog
