@@ -89,9 +89,13 @@ This command does three things:
 
 When implementing real business logic, you can move along this minimal path:
 
-0. Add a method to `programs/<name>/src/lib.rs`, starting by writing the desired accounts struct and constraints.
-0. Write a minimal call script in `tests/`, run `anchor test`, and observe failures.
-0. Iterate: fill in logic, complete accounts/space/authority constraints, and keep tuning the test until it passes.
-0. Finally, wire up your frontend or backend service.
+0. In `programs/<name>/src/lib.rs`:
+    - Define the data structures for your PDA accounts and annotate them with `#[account]`.
+    - Add methods and implement the core business logic, using `Context<...>` to specify the required accounts for each instruction.
+    - Clearly define the expected accounts and all relevant constraints.
+0. In the `tests/` folder, create a minimal test script that calls your program, then run `anchor test` and carefully read the error messages.
+0. Iteratively implement the logic, fix accounts, calculate space, set correct permissions, and keep updating the test script until all tests pass.
+0. Finally, integrate it with a frontend or backend service.
+
 
 Once you've made it past these gates, Anchor becomes a trusty ratchet. You don't need to ponder Torx vs hex sizes every day, just tighten the screw you actually care about.

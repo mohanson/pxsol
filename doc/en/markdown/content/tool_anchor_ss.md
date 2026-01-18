@@ -26,6 +26,25 @@ impl Data {
 
 The `space_for()` method computes the required account size. It consists of five parts. We'll use it to calculate the rent-exempt minimum.
 
+> Anchor-generated PDA accounts reserve the first 8 bytes of their data to tag the concrete account type, so Anchor can safely deserialize. The bytes come from `sha256("account:Data")`, taking the first 8 bytes; this prefix is the account discriminator. You can compute it with Python:
+
+```py
+import hashlib
+
+r = hashlib.sha256(b'account:Data').digest()[:8]
+print(list(r)) # [206, 156, 59, 188, 18, 79, 240, 232]
+```
+
+As a concrete example, if we store the bytes of "Hello World!", the PDA account will hold:
+
+```text
+discriminator: [206, 156, 59, 188, 18, 79, 240, 232]
+         auth: [32 bytes of auth pubkey]
+         bump: [1 byte of bump]
+     data_len: [12, 0, 0, 0]
+         data: [72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33]
+```
+
 ## Instruction: Initialize the Program-Derived Account
 
 We define two instructions: `init` and `update`. `init` initializes the PDA; `update` changes its content. Here's `init`, which records the authority, stores the bump, and sets the content to empty:
@@ -41,7 +60,7 @@ pub fn init(ctx: Context<Init>) -> Result<()> {
 }
 ```
 
-The accounts constraints allocate the account and fund rent on first call, with the authority as `payer = user`:
+After designing the instruction, we need to define its account list and account constraints.
 
 ```rust
 #[derive(Accounts)]
@@ -61,6 +80,21 @@ pub struct Init<'info> {
 ```
 
 At this point, the `data` field is empty, but the account has identity and ownership, and is rent-exempt.
+
+Let's explain the meaning of these accounts and the constraints specified through `#[account(...)]`:
+
+- `user` is the caller.
+    - `Signer<'info>` indicates the basic account type, meaning it must sign because it pays the rent and transaction fees for creating the account.
+    - `#[account(mut)]` means it is writable.
+- `user_pda` is the PDA account to be created.
+    - `Account<Data>` indicates the basic account type.
+    - `#[account(init)]` marker indicates this account needs to be created in this instruction.
+    - `#[account(payer = user)]` marks that the rent and transaction fees for creating user_pda are paid by user.
+    - `#[account(seeds = [SEED, user.key().as_ref()])]` is the PDA's seed array; here we use a constant seed and the user's public key to derive a unique address.
+    - `#[account(bump)]` lets Anchor automatically solve and record the bump for this PDA, used for signing and address uniqueness. It's typically always used together with seeds.
+    - `#[account(space = Data::space_for(0))]` is the number of bytes reserved for the account.
+- `system_program` is the system program.
+    - `Program<'info, System>` represents the system program's account, allowing Anchor to invoke system instructions on your behalf (such as creating accounts, transferring, allocating space).
 
 ## Instruction: Store or Update Data
 
@@ -120,12 +154,22 @@ pub struct Update<'info> {
 }
 ```
 
-## Tips and Gotchas
+Let's explain the meaning of these accounts and the constraints specified through `#[account(...)]`:
 
-- Always check authorization: `require_keys_eq!(...)`
-- PDA as signer: use `new_with_signer`, and don't forget the `bump` in seeds.
-- Reallocation costs and limits: large one-shot expansions can hit limits; use chunking or multiple updates if needed.
-- Funding source: reallocation rent differences come from `user`; insufficient balance will fail the instruction.
+- `user` is the caller.
+    - `Signer<'info>` indicates the basic account type, meaning it must sign.
+    - `#[account(mut)]` means it is writable, because if the PDA account expands, user needs to top up the rent; if the PDA account shrinks, excess lamports will be refunded to user.
+- `user_pda` is the PDA account to be updated.
+    - `Account<Data>` indicates the basic account type.
+    - `#[account(mut)]` means it is writable, because we need to modify its data content.
+    - `#[account(seeds = [SEED, user.key().as_ref()])]` is the PDA's seed array, which must match the one used during creation to verify the correctness of the address derivation.
+    - `#[account(bump = user_pda.bump)]` uses the bump value previously stored in the account to ensure the uniqueness and legitimacy of the PDA address. This bump was recorded during init.
+    - `#[account(realloc = Data::space_for(new_data.len()))]` dynamically reallocates the account space. Anchor automatically adjusts the account size based on the new data length. If the new space is larger than the old space, additional rent will be deducted from `realloc::payer`; if the new space is smaller than the old space, the account will shrink, but excess lamports will not be automatically refunded (they need to be handled manually in the instruction logic).
+    - `#[account(realloc::payer = user)]` specifies that when the account needs to expand, the additional rent is paid by user. If user has insufficient balance, the transaction will fail.
+    - `#[account(realloc::zero = false)]` indicates that newly allocated bytes do not need to be zeroed during reallocation. Setting it to false saves compute units because we will immediately overwrite these bytes with new data. If you need to ensure that the new space is initialized to zero, set it to true.
+    - `#[account(constraint = user_pda.auth == user.key() @ PxsolError::Unauthorized)]` is a custom constraint check that verifies the caller user's public key must match the auth field stored in the PDA account. If they don't match, a `PxsolError::Unauthorized` error will be thrown. This is a critical permission check ensuring only the account owner can update the data.
+- `system_program` is the system program.
+    - `Program<'info, System>` represents the system program's account, used for account reallocation and lamports transfer operations.
 
 ## Wrap-up
 
