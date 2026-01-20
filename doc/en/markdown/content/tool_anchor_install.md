@@ -6,6 +6,19 @@ Anchor is a framework designed for developing on-chain programs on Solana. It he
 
 Here we'll rebuild that storage program using Anchor to showcase its magic. This isn't a tool manual, if you want one, see the official docs: <https://book.anchor-lang.com/>. We'll just set up a clean workbench so you can assemble code and focus on core functionality. You'll see Anchor's mental model, run a full local flow from scratch, and learn to recognize a few small pitfalls along the way.
 
+## History
+
+Anchor was originally developed by the project serum team (led by the FTX exchange), aiming to simplify smart contract development on Solana. In the early days of the Solana ecosystem, developers typically used solana-program to write native Rust programs directly, but faced some challenges:
+
+0. Massive boilerplate code. Developers needed to write large amounts of repetitive code to handle account validation, PDA account management, rent exemption management, and other tedious tasks.
+0. Security challenges. Directly manipulating low-level accounts and instruction data easily introduced security vulnerabilities, requiring developers to have deep knowledge of Solana internals.
+
+Anchor greatly simplified these tasks by introducing high-level abstractions and automation tools. It heavily uses **macros** and **attributes** to automatically generate boilerplate code to prevent common vulnerabilities and generate easy-to-use client libraries.
+
+However, following the collapse of the FTX exchange in November 2022, the project serum team disbanded, and Anchor's maintenance fell into stagnation. Some members of the original serum team formed coral-xyz, and Anchor's repository was migrated to <https://github.com/coral-xyz/anchor>. In April 2025, the Solana development team experienced a major reorganization: the core client of the Solana protocol was renamed from Solana to Agave and transferred from solana-labs to the anza-xyz team; Anchor was transferred from coral-xyz to solana-foundation for maintenance: <https://github.com/solana-foundation/anchor>.
+
+> The April 2025 reorganization was quite extensive.
+
 ## Environment Setup
 
 If your machine is missing these tools, install them first: Rust, Solana CLI, Node.js and Yarn, and Anchor itself. You can reuse the commands below; skip any steps you've already completed.
