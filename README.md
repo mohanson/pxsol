@@ -157,11 +157,11 @@ Apply for PXS airdrop on the mainnet. PXS is a token issued by pxsol for teachin
 
 Mint address: `6B1ztFd9wSm3J5zD5vmMNEKg2r85M41wZMUW7wXwvEPH`
 
-Swap: <https://raydium.io/swap/?inputMint=6B1ztFd9wSm3J5zD5vmMNEKg2r85M41wZMUW7wXwvEPH&outputMint=sol>
-
 ```sh
 $ python example/pxs_airdrop.py --prikey 0xYOUR_MAINNET_PRIVATE_KEY
 ```
+
+You can choose to keep the airdrop, or sell it to get sol. Swap: <https://raydium.io/swap/?inputMint=6B1ztFd9wSm3J5zD5vmMNEKg2r85M41wZMUW7wXwvEPH&outputMint=sol>
 
 **example/spl_info.py**
 
