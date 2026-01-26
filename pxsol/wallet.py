@@ -20,7 +20,7 @@ class WalletLoaderV3:
         program_buffer = tempory_prikey.pubkey()
         pxsol.log.debugln(f'pxsol: program buffer prikey={tempory_prikey}')
         pxsol.log.debugln(f'pxsol: program buffer pubkey={program_buffer}')
-        account_length = pxsol.program.LoaderUpgradeable.size_program_buffer + len(bincode)
+        account_length = pxsol.program.LoaderV3.size_program_buffer + len(bincode)
         # Sends a transaction which creates a buffer account large enough for the byte-code being deployed. It also
         # invokes the initialize buffer instruction to set the buffer authority to restrict writes to the deployer's
         # chosen address.
@@ -30,12 +30,12 @@ class WalletLoaderV3:
         r0.data = pxsol.program.System.create_account(
             pxsol.rpc.get_minimum_balance_for_rent_exemption(account_length, {}),
             account_length,
-            pxsol.program.LoaderUpgradeable.pubkey,
+            pxsol.program.LoaderV3.pubkey,
         )
-        r1 = pxsol.core.Requisition(pxsol.program.LoaderUpgradeable.pubkey, [], bytearray())
+        r1 = pxsol.core.Requisition(pxsol.program.LoaderV3.pubkey, [], bytearray())
         r1.account.append(pxsol.core.AccountMeta(program_buffer, 1))
         r1.account.append(pxsol.core.AccountMeta(self.pubkey, 0))
-        r1.data = pxsol.program.LoaderUpgradeable.initialize_buffer()
+        r1.data = pxsol.program.LoaderV3.initialize_buffer()
         tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [r0, r1])
         tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
         tx.sign([self.prikey, tempory_prikey])
@@ -47,10 +47,10 @@ class WalletLoaderV3:
         hall = []
         for i in range(0, len(bincode), size):
             elem = bincode[i:i+size]
-            rq = pxsol.core.Requisition(pxsol.program.LoaderUpgradeable.pubkey, [], bytearray())
+            rq = pxsol.core.Requisition(pxsol.program.LoaderV3.pubkey, [], bytearray())
             rq.account.append(pxsol.core.AccountMeta(program_buffer, 1))
             rq.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
-            rq.data = pxsol.program.LoaderUpgradeable.write(i, elem)
+            rq.data = pxsol.program.LoaderV3.write(i, elem)
             tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [rq])
             tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
             tx.sign([self.prikey])
@@ -62,13 +62,13 @@ class WalletLoaderV3:
 
     def program_closed(self, program: pxsol.core.PubKey) -> None:
         # Close a program. The sol allocated to the on-chain program can be fully recovered by performing this action.
-        program_data_pubkey = pxsol.program.LoaderUpgradeable.pubkey.derive_pda(program.p)[0]
-        rq = pxsol.core.Requisition(pxsol.program.LoaderUpgradeable.pubkey, [], bytearray())
+        program_data_pubkey = pxsol.program.LoaderV3.pubkey.derive_pda(program.p)[0]
+        rq = pxsol.core.Requisition(pxsol.program.LoaderV3.pubkey, [], bytearray())
         rq.account.append(pxsol.core.AccountMeta(program_data_pubkey, 1))
         rq.account.append(pxsol.core.AccountMeta(self.pubkey, 1))
         rq.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
         rq.account.append(pxsol.core.AccountMeta(program, 1))
-        rq.data = pxsol.program.LoaderUpgradeable.close()
+        rq.data = pxsol.program.LoaderV3.close()
         tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [rq])
         tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
         tx.sign([self.prikey])
@@ -80,7 +80,7 @@ class WalletLoaderV3:
         program_buffer = self.program_buffer(bincode)
         tempory_prikey = pxsol.core.PriKey.random()
         program = tempory_prikey.pubkey()
-        program_data = pxsol.program.LoaderUpgradeable.pubkey.derive_pda(program.p)[0]
+        program_data = pxsol.program.LoaderV3.pubkey.derive_pda(program.p)[0]
         pxsol.log.debugln(f'pxsol: program prikey={tempory_prikey}')
         pxsol.log.debugln(f'pxsol: program pubkey={program}')
         # Deploy with max data len.
@@ -88,11 +88,11 @@ class WalletLoaderV3:
         r0.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
         r0.account.append(pxsol.core.AccountMeta(program, 3))
         r0.data = pxsol.program.System.create_account(
-            pxsol.rpc.get_minimum_balance_for_rent_exemption(pxsol.program.LoaderUpgradeable.size_program, {}),
-            pxsol.program.LoaderUpgradeable.size_program,
-            pxsol.program.LoaderUpgradeable.pubkey,
+            pxsol.rpc.get_minimum_balance_for_rent_exemption(pxsol.program.LoaderV3.size_program, {}),
+            pxsol.program.LoaderV3.size_program,
+            pxsol.program.LoaderV3.pubkey,
         )
-        r1 = pxsol.core.Requisition(pxsol.program.LoaderUpgradeable.pubkey, [], bytearray())
+        r1 = pxsol.core.Requisition(pxsol.program.LoaderV3.pubkey, [], bytearray())
         r1.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
         r1.account.append(pxsol.core.AccountMeta(program_data, 1))
         r1.account.append(pxsol.core.AccountMeta(program, 1))
@@ -101,7 +101,7 @@ class WalletLoaderV3:
         r1.account.append(pxsol.core.AccountMeta(pxsol.program.SysvarClock.pubkey, 0))
         r1.account.append(pxsol.core.AccountMeta(pxsol.program.System.pubkey, 0))
         r1.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
-        r1.data = pxsol.program.LoaderUpgradeable.deploy_with_max_data_len(len(bincode))
+        r1.data = pxsol.program.LoaderV3.deploy_with_max_data_len(len(bincode))
         tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [r0, r1])
         tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
         tx.sign([self.prikey, tempory_prikey])
@@ -112,27 +112,27 @@ class WalletLoaderV3:
     def program_update(self, program: pxsol.core.PubKey, bincode: bytearray) -> None:
         # Updating an existing solana program by new program data and the same program id.
         program_buffer = self.program_buffer(bincode)
-        program_data = pxsol.program.LoaderUpgradeable.pubkey.derive_pda(program.p)[0]
+        program_data = pxsol.program.LoaderV3.pubkey.derive_pda(program.p)[0]
         # Check the existing program data account size. If the new program data is larger than the existing one,
         # extend the program data account first.
         program_data_info = pxsol.rpc.get_account_info(program_data.base58(), {})
         assert len(base64.b64decode(program_data_info['data'][0])) == program_data_info['space']
-        addi = pxsol.program.LoaderUpgradeable.size_program_data + len(bincode) - program_data_info['space']
+        addi = pxsol.program.LoaderV3.size_program_data + len(bincode) - program_data_info['space']
         if addi > 0:
             pxsol.log.debugln(f'pxsol: extend program data addi={addi}')
-            rq = pxsol.core.Requisition(pxsol.program.LoaderUpgradeable.pubkey, [], bytearray())
+            rq = pxsol.core.Requisition(pxsol.program.LoaderV3.pubkey, [], bytearray())
             rq.account.append(pxsol.core.AccountMeta(program_data, 1))
             rq.account.append(pxsol.core.AccountMeta(program, 1))
             rq.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
             rq.account.append(pxsol.core.AccountMeta(pxsol.program.System.pubkey, 0))
             rq.account.append(pxsol.core.AccountMeta(self.pubkey, 3))
-            rq.data = pxsol.program.LoaderUpgradeable.extend_program_checked(addi)
+            rq.data = pxsol.program.LoaderV3.extend_program_checked(addi)
             tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [rq])
             tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
             tx.sign([self.prikey])
             txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
             pxsol.rpc.wait([txid])
-        rq = pxsol.core.Requisition(pxsol.program.LoaderUpgradeable.pubkey, [], bytearray())
+        rq = pxsol.core.Requisition(pxsol.program.LoaderV3.pubkey, [], bytearray())
         rq.account.append(pxsol.core.AccountMeta(program_data, 1))
         rq.account.append(pxsol.core.AccountMeta(program, 1))
         rq.account.append(pxsol.core.AccountMeta(program_buffer, 1))
@@ -140,7 +140,7 @@ class WalletLoaderV3:
         rq.account.append(pxsol.core.AccountMeta(pxsol.program.SysvarRent.pubkey, 0))
         rq.account.append(pxsol.core.AccountMeta(pxsol.program.SysvarClock.pubkey, 0))
         rq.account.append(pxsol.core.AccountMeta(self.pubkey, 2))
-        rq.data = pxsol.program.LoaderUpgradeable.upgrade()
+        rq.data = pxsol.program.LoaderV3.upgrade()
         tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [rq])
         tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
         tx.sign([self.prikey])
@@ -304,15 +304,27 @@ class Wallet:
 
     def program_closed(self, program: pxsol.core.PubKey) -> None:
         # Close a program. The sol allocated to the on-chain program can be fully recovered by performing this action.
-        return WalletLoaderV3(self.prikey).program_closed(program)
+        program_info = pxsol.rpc.get_account_info(program.base58(), {})
+        program_host = pxsol.core.PubKey.base58_decode(program_info['owner'])
+        if program_host == pxsol.program.LoaderV3.pubkey:
+            return WalletLoaderV3(self.prikey).program_closed(program)
+        if program_host == pxsol.program.LoaderV4.pubkey:
+            return WalletLoaderV4(self.prikey).program_closed(program)
+        raise Exception('unreachable')
 
     def program_deploy(self, bincode: bytearray) -> pxsol.core.PubKey:
         # Deploying a program on solana, returns the program's public key.
-        return WalletLoaderV3(self.prikey).program_deploy(bincode)
+        return WalletLoaderV4(self.prikey).program_deploy(bincode)
 
     def program_update(self, program: pxsol.core.PubKey, bincode: bytearray) -> None:
         # Updating an existing solana program by new program data and the same program id.
-        return WalletLoaderV3(self.prikey).program_update(program, bincode)
+        program_info = pxsol.rpc.get_account_info(program.base58(), {})
+        program_host = pxsol.core.PubKey.base58_decode(program_info['owner'])
+        if program_host == pxsol.program.LoaderV3.pubkey:
+            return WalletLoaderV3(self.prikey).program_update(program, bincode)
+        if program_host == pxsol.program.LoaderV4.pubkey:
+            return WalletLoaderV4(self.prikey).program_update(program, bincode)
+        raise Exception('unreachable')
 
     def sol_balance(self) -> int:
         # Returns the lamport balance of the account.

@@ -143,7 +143,8 @@ class ComputeBudget:
 
 class LoaderV3:
     # The bpf loader program is the program that owns all executable accounts on solana. When you deploy a program, the
-    # owner of the program account is set to the the bpf loader program.
+    # owner of the program account is set to the the bpf loader program. Loader v3 is also known as the upgradeable
+    # loader.
     # See: https://github.com/anza-xyz/solana-sdk/blob/master/loader-v3-interface
 
     pubkey = pxsol.core.PubKey.base58_decode('BPFLoaderUpgradeab1e11111111111111111111111')
@@ -254,6 +255,9 @@ class LoaderV3:
         return pxsol.bincode.Enum.encode(9) + pxsol.bincode.U32.encode(addi)
 
 
+LoaderUpgradeable = LoaderV3
+
+
 class LoaderV4:
     # The v4 built-in loader program.
     # See: https://github.com/anza-xyz/solana-sdk/tree/master/loader-v4-interface
@@ -323,10 +327,6 @@ class LoaderV4:
         # 1. sr the current authority of the program.
         # 2. -r the next version of the program (can be itself).
         return pxsol.bincode.Enum.encode(6)
-
-
-LoaderUpgradeable = LoaderV3
-Loader = LoaderV3
 
 
 class System:
