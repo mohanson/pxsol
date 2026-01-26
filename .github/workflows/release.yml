@@ -1,0 +1,32 @@
+name: release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.14'
+      - name: Main
+        run: |
+          python -m pip install mkdocs
+          python -m pip install mkdocs-to-pdf
+          sudo apt install -y fonts-noto-cjk
+          sudo apt install -y fonts-noto-cjk-extra
+          cd ${{ github.workspace }}/doc/en/mkdocs-to-pdf
+          python main.py
+          cd ${{ github.workspace }}/doc/zh/mkdocs-to-pdf
+          python main.py
+      - name: Push
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            doc/en/mkdocs-to-pdf/site/pdf/pxsol-en.pdf
+            doc/zh/mkdocs-to-pdf/site/pdf/pxsol-zh.pdf
