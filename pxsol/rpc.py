@@ -262,6 +262,7 @@ def get_token_supply(pubkey: str, conf: typing.Dict) -> typing.Dict:
 
 def get_transaction(signature: str, conf: typing.Dict) -> typing.Dict:
     conf.setdefault('commitment', pxsol.config.current.commitment)
+    conf.setdefault('maxSupportedTransactionVersion', 0)
     return call('getTransaction', [signature, conf])
 
 

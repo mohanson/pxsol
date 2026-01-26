@@ -10,10 +10,21 @@ parser.add_argument('--limit', type=int, help='limit count', default=1)
 parser.add_argument('--net', type=str, choices=['develop', 'mainnet', 'testnet'], default='develop')
 args = parser.parse_args()
 
-user = pxsol.wallet.Wallet(pxsol.core.PriKey.int_decode(1))
+if args.net == 'develop':
+    pxsol.config.current = pxsol.config.develop
+if args.net == 'mainnet':
+    pxsol.config.current = pxsol.config.mainnet
+if args.net == 'testnet':
+    pxsol.config.current = pxsol.config.testnet
 
-for e in pxsol.rpc.get_signatures_for_address(user.pubkey.base58(), {'limit': args.limit}):
+for e in pxsol.rpc.get_signatures_for_address(args.addr, {'limit': args.limit}):
     tx_meta = pxsol.rpc.get_transaction(e['signature'], {'encoding': 'base64'})
     tx_byte = bytearray(base64.b64decode(tx_meta['transaction'][0]))
-    tx = pxsol.core.Transaction.serialize_decode(tx_byte)
-    print(tx)
+    tx_verb = tx_byte[1 + tx_byte[0] * 64]
+    match tx_verb:
+        case 0x00:
+            tx = pxsol.core.Transaction.serialize_decode(tx_byte)
+            print(tx)
+        case 0x80:
+            tx = pxsol.core.TransactionV0.serialize_decode(tx_byte)
+            print(tx)

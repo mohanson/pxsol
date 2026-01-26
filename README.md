@@ -102,7 +102,7 @@ $ python example/genesis.py
 Shows the most recent transactions for an address.
 
 ```sh
-$ python example/history.py --addr 6ArN9XvxNndXKoZEgHECiC8M4LftBQ9nVdfyrC5tsii6 --limit 1
+$ python example/history.py --addr 6ASf5EcmmEHTgDJ4X4ZT5vT6iHVJBXPg5AN5YoTCpGWt --limit 1
 
 # {'signatures': ['5aAPZipgfGVPSuz2wdSg5hNFbudnELjCKYLRap6o...
 ```
