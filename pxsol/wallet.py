@@ -6,6 +6,28 @@ import pxsol.rpc
 import typing
 
 
+class WalletHelper:
+    # A helper class for wallet related operations.
+
+    @classmethod
+    def requisition_send(
+        cls,
+        prikey: typing.List[pxsol.core.PriKey],
+        rqlist: typing.List[pxsol.core.Requisition],
+    ) -> bytearray:
+        # Sends a transaction built from the given requisitions and signed with the given private keys. This function
+        # will wait until the transaction is confirmed. Returns the first signature of the transaction, also known as
+        # the transaction id.
+        tx = pxsol.core.Transaction.requisition_decode(prikey[0].pubkey(), rqlist)
+        tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
+        tx.sign(prikey)
+        assert len(tx.serialize()) <= 1232
+        txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
+        assert pxsol.base58.decode(txid) == tx.signatures[0]
+        pxsol.rpc.wait([txid])
+        return tx.signatures[0]
+
+
 class WalletLoaderV3:
     # A built-in solana wallet that can be used to perform program loader v3 operations.
 
