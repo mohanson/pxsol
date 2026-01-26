@@ -25,10 +25,10 @@ $ python -m pip install --editable .
 **Read or download the book via the following link**
 
 - [English - Markdown](https://github.com/mohanson/pxsol/tree/master/doc/en/markdown)
-- [English - PDF](https://github.com/mohanson/pxsol/releases/download/v1.0.0/pxsol-en.pdf)
+- [English - PDF](https://github.com/mohanson/pxsol/releases/download/v1.1.4/pxsol-en.pdf)
 - [English - Web](https://pxsol.vercel.app/)
 - [中文 - Markdown](https://github.com/mohanson/pxsol/tree/master/doc/zh/markdown)
-- [中文 - PDF](https://github.com/mohanson/pxsol/releases/download/v1.0.0/pxsol-zh.pdf)
+- [中文 - PDF](https://github.com/mohanson/pxsol/releases/download/v1.1.4/pxsol-zh.pdf)
 - [中文 - Web](http://accu.cc/content/solana/foreword/)
 
 ## Usage
