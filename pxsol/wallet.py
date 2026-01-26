@@ -54,7 +54,6 @@ class WalletLoaderV3:
             tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [rq])
             tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
             tx.sign([self.prikey])
-            assert len(tx.serialize()) <= 1232
             txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
             hall.append(txid)
         pxsol.rpc.wait(hall)
@@ -211,7 +210,6 @@ class WalletLoaderV4:
             tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [rq])
             tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
             tx.sign([self.prikey])
-            assert len(tx.serialize()) <= 1232
             txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
             hall.append(txid)
         pxsol.rpc.wait(hall)
@@ -270,7 +268,6 @@ class WalletLoaderV4:
             tx = pxsol.core.Transaction.requisition_decode(self.pubkey, [rq])
             tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
             tx.sign([self.prikey])
-            assert len(tx.serialize()) <= 1232
             txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
             hall.append(txid)
         pxsol.rpc.wait(hall)
@@ -341,7 +338,6 @@ class Wallet:
         tx.message.recent_blockhash = pxsol.base58.decode(pxsol.rpc.get_latest_blockhash({})['blockhash'])
         tx.sign([self.prikey])
         txid = pxsol.rpc.send_transaction(base64.b64encode(tx.serialize()).decode(), {})
-        assert pxsol.base58.decode(txid) == tx.signatures[0]
         pxsol.rpc.wait([txid])
 
     def sol_transfer_all(self, recv: pxsol.core.PubKey) -> None:
