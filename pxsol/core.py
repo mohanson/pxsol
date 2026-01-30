@@ -565,6 +565,17 @@ class TransactionV0:
             self.signatures.append(k.sign(m))
 
 
+class TransactionClassify:
+    # Classify the transaction version type.
+
+    @classmethod
+    def version(cls, data: bytearray) -> int:
+        # Get the transaction version type.
+        # - n <= 0x7f: transaction legacy
+        # - n == 0x80: transaction v0
+        return data[1 + data[0] * 64]
+
+
 class TokenExtensionMetadataPointer:
     # Metadata pointer extension data for mints.
 
