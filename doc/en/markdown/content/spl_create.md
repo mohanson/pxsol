@@ -34,7 +34,7 @@ The token metadata JSON file typically has the following structure. You need to 
 {
     "name": "PXSOL",
     "symbol": "PXS",
-    "description": "Proof of study https://github.com/mohanson/pxsol",
+    "description": "Proof of study https://github.com/libraries/pxsol",
     "image": "https://raw.githubusercontent.com/mohanson/pxsol/refs/heads/master/res/pxs.png"
 }
 ```

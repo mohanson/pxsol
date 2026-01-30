@@ -3,7 +3,7 @@ site_author: Mohanson
 theme:
     name: mkdocs
     highlightjs: true
-repo_url: https://github.com/mohanson/pxsol
+repo_url: https://github.com/libraries/pxsol
 plugins:
     - to-pdf:
         author: Mohanson

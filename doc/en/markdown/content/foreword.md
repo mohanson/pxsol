@@ -11,17 +11,17 @@ Perhaps it's curiosity about the unknown or anticipation for the possible. Havin
 The course primarily uses python language. In the first chapter, we will use pabtc, which is a Bitcoin library. In the following chapters, we will mainly use Solana's pxsol library. These two libraries are written by the same person as this book.
 
 - Pabtc: <https://github.com/mohanson/pabtc>
-- Pxsol: <https://github.com/mohanson/pxsol>
+- Pxsol: <https://github.com/libraries/pxsol>
 
 **Language**
 
 This book is available in Chinese and English. You can choose to read online or download offline according to your preference.
 
-- [English - Markdown](https://github.com/mohanson/pxsol/tree/master/doc/en/markdown)
-- [English - PDF](https://github.com/mohanson/pxsol/releases/download/v1.1.4/pxsol-en.pdf)
+- [English - Markdown](https://github.com/libraries/pxsol/tree/master/doc/en/markdown)
+- [English - PDF](https://github.com/libraries/pxsol/releases/download/v1.1.4/pxsol-en.pdf)
 - [English - Web](https://pxsol.vercel.app/)
-- [中文 - Markdown](https://github.com/mohanson/pxsol/tree/master/doc/zh/markdown)
-- [中文 - PDF](https://github.com/mohanson/pxsol/releases/download/v1.1.4/pxsol-zh.pdf)
+- [中文 - Markdown](https://github.com/libraries/pxsol/tree/master/doc/zh/markdown)
+- [中文 - PDF](https://github.com/libraries/pxsol/releases/download/v1.1.4/pxsol-zh.pdf)
 - [中文 - Web](http://accu.cc/content/solana/foreword/)
 
 **Small Sponsorship**

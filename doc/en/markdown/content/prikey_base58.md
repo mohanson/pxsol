@@ -37,7 +37,7 @@ print(pxsol.base58.encode(data)) # 92EW9Qnnov7V3QLqToHsFNyEnQ6vvJdYiLgBTfLCv3J5X
 
 ## Base58 Implementation
 
-You can find a simple Python implementation of Base58 at [pxsol.base58](https://github.com/mohanson/pxsol/blob/master/pxsol/base58.py).
+You can find a simple Python implementation of Base58 at [pxsol.base58](https://github.com/libraries/pxsol/blob/master/pxsol/base58.py).
 
 ```py
 # Copyright (C) 2011 Sam Rushing

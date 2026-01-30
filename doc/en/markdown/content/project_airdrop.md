@@ -45,10 +45,10 @@ for e in tlog['meta']['logMessages']:
 pxsol.log.debugln(f'main: request pxs airdrop done')
 ```
 
-You can find this [script](https://github.com/mohanson/pxsol/blob/master/example/pxs_airdrop.py) in the source code of the pxsol project. The script is already configured for the mainnet. After running the script, our airdrop contract will send 5 PXS to your account!
+You can find this [script](https://github.com/libraries/pxsol/blob/master/example/pxs_airdrop.py) in the source code of the pxsol project. The script is already configured for the mainnet. After running the script, our airdrop contract will send 5 PXS to your account!
 
 ```sh
-$ git clone https://github.com/mohanson/pxsol
+$ git clone https://github.com/libraries/pxsol
 $ cd pxsol
 $ python example/pxs_airdrop.py --prikey 0xYOUR_MAINNET_PRIVATE_KEY
 ```

@@ -4,7 +4,7 @@ A program account on Solana is an account that has a deployed Solana program (sm
 
 ## Deploying a Program
 
-As an experienced developer, you've likely written and run many "Hello World" programs before. Today is no exception; we will try deploying and running a simple program on the Solana network. Luckily, pxsol's resource directory includes a [Hello World program](https://github.com/mohanson/pxsol/blob/master/res/hello_solana_program.so), which you can download with:
+As an experienced developer, you've likely written and run many "Hello World" programs before. Today is no exception; we will try deploying and running a simple program on the Solana network. Luckily, pxsol's resource directory includes a [Hello World program](https://github.com/libraries/pxsol/blob/master/res/hello_solana_program.so), which you can download with:
 
 ```sh
 $ wget https://raw.githubusercontent.com/mohanson/pxsol/refs/heads/master/res/hello_solana_program.so

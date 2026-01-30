@@ -41,7 +41,7 @@ Q: Determine if the following point is on ed25519.
 - `x = 0x1122e705f69819df8042c3a34d5294668f25830f41e9b585b2aa6b05ef4cc7e2`
 - `y = 0x2a619802432fe95214ac6fed9d01dd149d197f1202e8c2698caab03831b8f2ee`
 
-A: Ed25519 is very similar to the code implementation of secp256k1, and you can find its source code in [pxsol.ed25519](https://github.com/mohanson/pxsol/blob/master/pxsol/ed25519.py). Alternatively, use `pip install pxsol` to install the full solana package.
+A: Ed25519 is very similar to the code implementation of secp256k1, and you can find its source code in [pxsol.ed25519](https://github.com/libraries/pxsol/blob/master/pxsol/ed25519.py). Alternatively, use `pip install pxsol` to install the full solana package.
 
 ```py
 import pxsol

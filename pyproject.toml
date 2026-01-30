@@ -15,4 +15,4 @@ requires-python = ">=3.14"
 dependencies = ["requests"]
 
 [project.urls]
-homepage = "https://github.com/mohanson/pxsol"
+homepage = "https://github.com/libraries/pxsol"

@@ -13,7 +13,7 @@ Features:
 ```sh
 $ pip install pxsol
 # or
-$ git clone https://github.com/mohanson/pxsol
+$ git clone https://github.com/libraries/pxsol
 $ cd pxsol
 $ python -m pip install --editable .
 ```
@@ -24,11 +24,11 @@ $ python -m pip install --editable .
 
 **Read or download the book via the following link**
 
-- [English - Markdown](https://github.com/mohanson/pxsol/tree/master/doc/en/markdown)
-- [English - PDF](https://github.com/mohanson/pxsol/releases/download/v1.1.4/pxsol-en.pdf)
+- [English - Markdown](https://github.com/libraries/pxsol/tree/master/doc/en/markdown)
+- [English - PDF](https://github.com/libraries/pxsol/releases/download/v1.1.4/pxsol-en.pdf)
 - [English - Web](https://pxsol.vercel.app/)
-- [中文 - Markdown](https://github.com/mohanson/pxsol/tree/master/doc/zh/markdown)
-- [中文 - PDF](https://github.com/mohanson/pxsol/releases/download/v1.1.4/pxsol-zh.pdf)
+- [中文 - Markdown](https://github.com/libraries/pxsol/tree/master/doc/zh/markdown)
+- [中文 - PDF](https://github.com/libraries/pxsol/releases/download/v1.1.4/pxsol-zh.pdf)
 - [中文 - Web](http://accu.cc/content/solana/foreword/)
 
 ## Usage
