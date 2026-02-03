@@ -15,7 +15,7 @@ def pt_encode(pt: pxsol.ed25519.Pt) -> bytearray:
     # To form the encoding of the point, copy the least significant bit of the x-coordinate to the most significant bit
     # of the final octet.
     # See https://datatracker.ietf.org/doc/html/rfc8032#section-5.1.2
-    n = pt.y.x | ((pt.x.x & 1) << 255)
+    n = pt.y.n | ((pt.x.n & 1) << 255)
     return bytearray(n.to_bytes(32, 'little'))
 
 
@@ -48,7 +48,7 @@ def pt_decode(pt: bytearray) -> pxsol.ed25519.Pt:
     # Finally, use the x_0 bit to select the right square root. If x = 0, and x_0 = 1, decoding fails. Otherwise, if
     # x_0 != x mod 2, set x <-- p - x.  Return the decoded point (x,y).
     assert x != pxsol.ed25519.Fq(0) or not bit0
-    if x.x & 1 != bit0:
+    if x.n & 1 != bit0:
         x = -x
     return pxsol.ed25519.Pt(x, y)
 
@@ -101,7 +101,7 @@ def sign(prikey: bytearray, m: bytearray) -> bytearray:
     digest = pt_encode(R)
     h = pxsol.ed25519.Fr(int.from_bytes(hash(digest + pubkey + m), 'little'))
     s = r + a * h
-    return digest + bytearray(s.x.to_bytes(32, 'little'))
+    return digest + bytearray(s.n.to_bytes(32, 'little'))
 
 
 def verify(pubkey: bytearray, m: bytearray, v: bytearray) -> bool:

@@ -32,21 +32,22 @@ import pabtc.secp256k1
 def sign(prikey: pabtc.secp256k1.Fr, m: pabtc.secp256k1.Fr) -> typing.Tuple[pabtc.secp256k1.Fr, pabtc.secp256k1.Fr, int]:
     # https://www.secg.org/sec1-v2.pdf
     # 4.1.3 Signing Operation
-    for _ in itertools.repeat(0):
+    for _ in range(64):
         k = pabtc.secp256k1.Fr(max(1, secrets.randbelow(pabtc.secp256k1.N)))
         R = pabtc.secp256k1.G * k
-        r = pabtc.secp256k1.Fr(R.x.x)
-        if r.x == 0:
+        r = pabtc.secp256k1.Fr(R.x.n)
+        if r.n == 0:
             continue
         s = (m + prikey * r) / k
-        if s.x == 0:
+        if s.n == 0:
             continue
         v = 0
-        if R.y.x & 1 == 1:
+        if R.y.n & 1 == 1:
             v |= 1
-        if R.x.x >= pabtc.secp256k1.N:
+        if R.x.n >= pabtc.secp256k1.N:
             v |= 2
         return r, s, v
+    raise Exception('unreachable')
 ```
 
 You may notice in the code implementation that the signature function not only returns (r, s), but also returns an additional v value. This is the recovery identifier used to determine the signer's public key from the signature. It uses two bits, the lowest bit marks the parity of the y-axis coordinate of c, so that we can uniquely recover the actual value of c based on r in the signature (elliptic curves are symmetric with respect to the x-axis, and each x corresponds to two possible y-values). Another bit is used to verify that the r value has not overflowed, because the range of coordinates of points on the elliptic curve is 0 to P, but in the signature operation we convert the x-coordinate of c to a scalar, which reduces the range to 0 to N, and therefore overflow truncation may occur.
@@ -81,7 +82,7 @@ def verify(pubkey: pabtc.secp256k1.Pt, m: pabtc.secp256k1.Fr, r: pabtc.secp256k1
     b = r / s
     R = pabtc.secp256k1.G * a + pubkey * b
     assert R != pabtc.secp256k1.I
-    return r == pabtc.secp256k1.Fr(R.x.x)
+    return r == pabtc.secp256k1.Fr(R.x.n)
 ```
 
 ## ECDSA Public Key Recovery

@@ -9,43 +9,43 @@ class Fp:
 
     p = 0
 
-    def __init__(self, x: int) -> None:
-        self.x = x % self.p
+    def __init__(self, n: int) -> None:
+        self.n = n % self.p
 
     def __add__(self, data: typing.Self) -> typing.Self:
         assert self.p == data.p
-        return self.__class__(self.x + data.x)
+        return self.__class__(self.n + data.n)
 
     def __eq__(self, data: object) -> bool:
         assert isinstance(data, self.__class__)
         assert self.p == data.p
-        return self.x == data.x
+        return self.n == data.n
 
     def __mul__(self, data: typing.Self) -> typing.Self:
         assert self.p == data.p
-        return self.__class__(self.x * data.x)
+        return self.__class__(self.n * data.n)
 
     def __neg__(self) -> typing.Self:
-        return self.__class__(self.p - self.x)
+        return self.__class__(self.p - self.n)
 
     def __repr__(self) -> str:
         return json.dumps(self.json())
 
     def __sub__(self, data: typing.Self) -> typing.Self:
         assert self.p == data.p
-        return self.__class__(self.x - data.x)
+        return self.__class__(self.n - data.n)
 
     def __truediv__(self, data: typing.Self) -> typing.Self:
         return self * data ** -1
 
     def __pos__(self) -> typing.Self:
-        return self.__class__(self.x)
+        return self.__class__(self.n)
 
     def __pow__(self, data: int) -> typing.Self:
-        return self.__class__(pow(self.x, data, self.p))
+        return self.__class__(pow(self.n, data, self.p))
 
     def json(self) -> str:
-        return f'{self.x:064x}'
+        return f'{self.n:064x}'
 
     @classmethod
     def nil(cls) -> typing.Self:
@@ -115,7 +115,7 @@ class Pt:
     def __mul__(self, k: Fr) -> Pt:
         # Point multiplication: Double-and-add
         # https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication
-        n = k.x
+        n = k.n
         result = I
         addend = self
         while n:
