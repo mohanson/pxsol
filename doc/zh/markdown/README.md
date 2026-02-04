@@ -23,6 +23,7 @@
 - [Solana/私钥, 公钥与地址/地址伪装转账攻击与虚荣地址](./content/prikey_vanity.md)
 - [Solana/私钥, 公钥与地址/Base58](./content/prikey_base58.md)
 - [Solana/私钥, 公钥与地址/公私钥对](./content/prikey_keypair.md)
+- [Solana/私钥, 公钥与地址/如何安全保护你的私钥](./content/prikey_security.md)
 
 ---
 

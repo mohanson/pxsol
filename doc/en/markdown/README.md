@@ -23,6 +23,7 @@
 - [Solana/Private Key, Public Key and Address/Address Spoofing Attack and Vanity Address](./content/prikey_vanity.md)
 - [Solana/Private Key, Public Key and Address/Base58](./content/prikey_base58.md)
 - [Solana/Private Key, Public Key and Address/Keypair](./content/prikey_keypair.md)
+- [Solana/Private Key, Public Key and Address/How to Securely Protect Your Private Key](./content/prikey_security.md)
 
 ---
 
