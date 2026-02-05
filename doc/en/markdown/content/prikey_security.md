@@ -56,6 +56,14 @@ If you're simply storing a small amount of funds, using an official wallet to ge
 
 ### Private Key Storage
 
+**Paper Wallets**
+
+![img](../img/prikey_security/paper_wallet.jpg)
+
+**Metal Wallets**
+
+![img](../img/prikey_security/metal_wallet.jpg)
+
 Current mainstream cryptographic schemes are secure enough to resist brute-force attacks (considering current technology levels). The real threat to private keys isn't cracking but improper storage.
 
 Modern wallets typically use password-encrypted storage for private keys, with encryption schemes usually choosing AES or ChaCha20, then using key derivation algorithms: PBKDF2, Argon2, Scrypt, etc. Typical encryption workflow:
