@@ -122,6 +122,12 @@ Common splitting methods are 2-of-3, 3-of-5, etc. For example, in a 3-of-5 schem
 
 Related reading: <https://en.wikipedia.org/wiki/Shamir%27s_secret_sharing>
 
+Brief introduction to the algorithm principle:
+
+0. k points on a plane can uniquely determine a curve of degree k-1. Treat the private key secret as a point at `(0, secret)`, then randomly generate `k - 1` random points to determine a curve on the plane.
+1. Randomly select n points on the curve that do not include `(0, secret)`, and save the coordinates of these points as fragments.
+2. When you need to recover the private key, simply substitute the coordinates of any k fragments into the Lagrange interpolation formula to recover the original polynomial, then substitute x=0 to obtain the private key secret. This is a simple k-of-n threshold scheme.
+
 Advantages:
 
 - The algorithm is open-source with widespread application and research support. Additionally, you don't need to depend on specific software or third-party libraries to implement the algorithm; any skilled programmer can implement the code based on the public algorithm.
